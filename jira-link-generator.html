@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Jira Issue Link Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6fa; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+    h1 { font-size: 1.6em; margin-bottom: 0.5em; }
+    label { display: block; margin-top: 1em; font-weight: 500; }
+    input[type="text"], select, textarea {
+      width: 100%; padding: 8px; margin-top: 4px; border: 1px solid #ccc; border-radius: 4px;
+      font-size: 1em; box-sizing: border-box;
+    }
+    .fields { margin-top: 1.5em; }
+    .field-row { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 10px; }
+    .field-row input, .field-row select, .field-row textarea { flex: 1; }
+    .field-row button { background: #e74c3c; color: #fff; border: none; border-radius: 4px; padding: 6px 10px; cursor: pointer; }
+    .field-row button:hover { background: #c0392b; }
+    .add-btn { background: #3498db; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; margin-top: 8px; cursor: pointer; }
+    .add-btn:hover { background: #217dbb; }
+    .generate-btn { background: #27ae60; color: #fff; border: none; border-radius: 4px; padding: 12px 24px; font-size: 1.1em; margin-top: 20px; cursor: pointer; width: 100%; }
+    .generate-btn:hover { background: #1e874b; }
+    .output { margin-top: 2em; background: #f9f9f9; border-radius: 6px; padding: 16px; word-break: break-all; }
+    .copy-btn { background: #f1c40f; color: #333; border: none; border-radius: 4px; padding: 6px 12px; margin-left: 8px; cursor: pointer; }
+    .copy-btn:hover { background: #d4ac0d; }
+    @media (max-width: 600px) {
+      .container { padding: 12px; }
+      .field-row { flex-direction: column; gap: 4px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Jira Issue Link Generator</h1>
+    <form id="jiraForm" autocomplete="off">
+      <label>Base URL
+        <input type="text" id="baseUrl" placeholder="e.g. https://jira.example.com/" required>
+      </label>
+      <label>Project ID (pid)
+        <input type="text" id="projectId" placeholder="e.g. 12345" required>
+      </label>
+      <label>Issue Type ID
+        <input type="text" id="issueTypeId" placeholder="e.g. 10001" required>
+      </label>
+      <div class="fields" id="fields"></div>
+      <button type="button" class="add-btn" onclick="addField()">+ Add Field</button>
+      <button type="submit" class="generate-btn">Generate Link</button>
+    </form>
+    <div class="output" id="output" style="display:none;">
+      <strong>Generated Link:</strong>
+      <div id="link"></div>
+      <button class="copy-btn" onclick="copyLink()">Copy</button>
+    </div>
+  </div>
+  <script>
+    // Field formatting options
+    const FORMATS = [
+      { value: "none", label: "None" },
+      { value: "bullets", label: "Bullets" }
+    ];
+
+    // Restore last state
+    window.onload = function() {
+      const saved = localStorage.getItem('jiraGenState');
+      if (saved) {
+        const state = JSON.parse(saved);
+        document.getElementById('baseUrl').value = state.baseUrl || '';
+        document.getElementById('projectId').value = state.projectId || '';
+        document.getElementById('issueTypeId').value = state.issueTypeId || '';
+        state.fields && state.fields.forEach(f => addField(f));
+      } else {
+        addField();
+      }
+    };
+
+    // Save state
+    function saveState() {
+      const state = {
+        baseUrl: document.getElementById('baseUrl').value,
+        projectId: document.getElementById('projectId').value,
+        issueTypeId: document.getElementById('issueTypeId').value,
+        fields: getFields()
+      };
+      localStorage.setItem('jiraGenState', JSON.stringify(state));
+    }
+
+    // Add a new field row
+    function addField(data = {}) {
+      const fieldsDiv = document.getElementById('fields');
+      const row = document.createElement('div');
+      row.className = 'field-row';
+
+      const name = document.createElement('input');
+      name.type = 'text';
+      name.placeholder = 'Field (e.g. summary, description, customfield_12345)';
+      name.value = data.name || '';
+      name.required = true;
+
+      const value = document.createElement('textarea');
+      value.placeholder = 'Value';
+      value.rows = 1;
+      value.value = data.value || '';
+
+      const format = document.createElement('select');
+      FORMATS.forEach(f => {
+        const opt = document.createElement('option');
+        opt.value = f.value;
+        opt.textContent = f.label;
+        format.appendChild(opt);
+      });
+      format.value = data.format || 'none';
+
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.textContent = 'Remove';
+      remove.onclick = () => { fieldsDiv.removeChild(row); saveState(); };
+
+      [name, value, format].forEach(el => el.oninput = saveState);
+
+      row.appendChild(name);
+      row.appendChild(value);
+      row.appendChild(format);
+      row.appendChild(remove);
+      fieldsDiv.appendChild(row);
+      saveState();
+    }
+
+    // Get all field data
+    function getFields() {
+      const rows = document.querySelectorAll('.field-row');
+      return Array.from(rows).map(row => ({
+        name: row.children[0].value.trim(),
+        value: row.children[1].value,
+        format: row.children[2].value
+      })).filter(f => f.name);
+    }
+
+    // Format value for Jira (bullets, etc.)
+    function formatValue(val, fmt) {
+      if (fmt === 'bullets') {
+        return val.split('\n').map(line => line.trim() ? `* ${line.trim()}` : '').filter(Boolean).join('\n');
+      }
+      return val;
+    }
+
+    // Generate the Jira link
+    document.getElementById('jiraForm').onsubmit = function(e) {
+      e.preventDefault();
+      const baseUrl = document.getElementById('baseUrl').value.trim().replace(/\/+$/, '');
+      const pid = document.getElementById('projectId').value.trim();
+      const issueType = document.getElementById('issueTypeId').value.trim();
+      const fields = getFields();
+
+      let url = `${baseUrl}/secure/CreateIssueDetails!init.jspa?pid=${encodeURIComponent(pid)}&issuetype=${encodeURIComponent(issueType)}`;
+      fields.forEach(f => {
+        let val = formatValue(f.value, f.format);
+        url += `&${encodeURIComponent(f.name)}=${encodeURIComponent(val)}`;
+      });
+
+      document.getElementById('link').textContent = url;
+      document.getElementById('output').style.display = 'block';
+      saveState();
+    };
+
+    // Copy link to clipboard
+    function copyLink() {
+      const link = document.getElementById('link').textContent;
+      navigator.clipboard.writeText(link).then(() => {
+        const btn = document.querySelector('.copy-btn');
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 1200);
+      });
+    }
+  </script>
+</body>
+</html>
