@@ -9,13 +9,13 @@
     .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
     h1 { font-size: 1.6em; margin-bottom: 0.5em; }
     label { display: block; margin-top: 1em; font-weight: 500; }
-    input[type="text"], select, textarea {
+    input[type="text"], select, textarea, .rich-value {
       width: 100%; padding: 8px; margin-top: 4px; border: 1px solid #ccc; border-radius: 4px;
       font-size: 1em; box-sizing: border-box;
     }
     .fields { margin-top: 1.5em; }
     .field-row { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 10px; }
-    .field-row input, .field-row select, .field-row textarea { flex: 1; }
+    .field-row input, .field-row select, .field-row textarea, .field-row .rich-value { flex: 1; }
     .field-row button { background: #e74c3c; color: #fff; border: none; border-radius: 4px; padding: 6px 10px; cursor: pointer; }
     .field-row button:hover { background: #c0392b; }
     .add-btn { background: #3498db; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; margin-top: 8px; cursor: pointer; }
@@ -55,12 +55,6 @@
     </div>
   </div>
   <script>
-    // Field formatting options
-    const FORMATS = [
-      { value: "none", label: "None" },
-      { value: "bullets", label: "Bullets" }
-    ];
-
     // Restore last state
     window.onload = function() {
       const saved = localStorage.getItem('jiraGenState');
@@ -98,30 +92,29 @@
       name.value = data.name || '';
       name.required = true;
 
-      const value = document.createElement('textarea');
-      value.placeholder = 'Value';
-      value.rows = 1;
-      value.value = data.value || '';
-
-      const format = document.createElement('select');
-      FORMATS.forEach(f => {
-        const opt = document.createElement('option');
-        opt.value = f.value;
-        opt.textContent = f.label;
-        format.appendChild(opt);
-      });
-      format.value = data.format || 'none';
+      const value = document.createElement('div');
+      value.contentEditable = 'true';
+      value.className = 'rich-value';
+      value.placeholder = 'Value (use * or - for bullet points, mixed with regular text)';
+      value.style.minHeight = '80px';
+      value.style.width = '100%';
+      value.style.border = '1px solid #ccc';
+      value.style.borderRadius = '4px';
+      value.style.padding = '8px';
+      value.style.fontSize = '1em';
+      value.innerHTML = data.value || '';
+      value.oninput = saveState;
 
       const remove = document.createElement('button');
       remove.type = 'button';
       remove.textContent = 'Remove';
       remove.onclick = () => { fieldsDiv.removeChild(row); saveState(); };
 
-      [name, value, format].forEach(el => el.oninput = saveState);
+      name.oninput = saveState;
+value.oninput = saveState;
 
       row.appendChild(name);
       row.appendChild(value);
-      row.appendChild(format);
       row.appendChild(remove);
       fieldsDiv.appendChild(row);
       saveState();
@@ -132,17 +125,22 @@
       const rows = document.querySelectorAll('.field-row');
       return Array.from(rows).map(row => ({
         name: row.children[0].value.trim(),
-        value: row.children[1].value,
-        format: row.children[2].value
+        value: row.children[1].innerHTML
       })).filter(f => f.name);
     }
 
-    // Format value for Jira (bullets, etc.)
-    function formatValue(val, fmt) {
-      if (fmt === 'bullets') {
-        return val.split('\n').map(line => line.trim() ? `* ${line.trim()}` : '').filter(Boolean).join('\n');
-      }
-      return val;
+    // Smart format value: detect bullets (lines starting with * or -) and plain text
+    function smartFormatValue(val) {
+      const lines = val.split('\n');
+      return lines.map(line => {
+        const trimmed = line.trim();
+        // If line starts with * or -, keep it as bullet
+        if (trimmed.startsWith('*') || trimmed.startsWith('-')) {
+          return trimmed.startsWith('*') ? trimmed : '* ' + trimmed.substring(1).trim();
+        }
+        // Otherwise keep as plain text
+        return trimmed;
+      }).filter(Boolean).join('\n');
     }
 
     // Generate the Jira link
@@ -155,7 +153,7 @@
 
       let url = `${baseUrl}/secure/CreateIssueDetails!init.jspa?pid=${encodeURIComponent(pid)}&issuetype=${encodeURIComponent(issueType)}`;
       fields.forEach(f => {
-        let val = formatValue(f.value, f.format);
+        let val = smartFormatValue(f.value.replace(/<br\s*\/?>/gi, '\n').replace(/<div>/gi, '\n').replace(/<[^>]+>/g, ''));
         url += `&${encodeURIComponent(f.name)}=${encodeURIComponent(val)}`;
       });
 
