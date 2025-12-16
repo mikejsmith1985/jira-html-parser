@@ -14,10 +14,29 @@
       font-size: 1em; box-sizing: border-box;
     }
     .fields { margin-top: 1.5em; }
-    .field-row { display: flex; gap: 8px; align-items: flex-end; margin-bottom: 10px; }
-    .field-row input, .field-row select, .field-row textarea, .field-row .rich-value { flex: 1; }
-    .field-row button { background: #e74c3c; color: #fff; border: none; border-radius: 4px; padding: 6px 10px; cursor: pointer; }
-    .field-row button:hover { background: #c0392b; }
+    .field-row {
+      display: flex; gap: 6px; align-items: flex-end; margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .field-select {
+      flex: 1; min-width: 150px;
+      padding: 8px; border: 1px solid #ccc; border-radius: 4px;
+      font-size: 1em; box-sizing: border-box;
+    }
+    .manage-fields-btn {
+      background: #3498db; color: #fff; border: none; border-radius: 4px;
+      padding: 8px 12px; cursor: pointer; font-size: 0.95em; white-space: nowrap;
+    }
+    .manage-fields-btn:hover { background: #217dbb; }
+    .field-row .rich-value {
+      flex: 2; min-width: 200px;
+      min-height: 80px; padding: 8px;
+    }
+    .remove-field-btn {
+      background: #e74c3c; color: #fff; border: none; border-radius: 4px;
+      padding: 8px 12px; cursor: pointer; font-size: 0.95em; white-space: nowrap;
+    }
+    .remove-field-btn:hover { background: #c0392b; }
     .add-btn { background: #3498db; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; margin-top: 8px; cursor: pointer; }
     .add-btn:hover { background: #217dbb; }
     .generate-btn { background: #27ae60; color: #fff; border: none; border-radius: 4px; padding: 12px 24px; font-size: 1.1em; margin-top: 20px; cursor: pointer; width: 100%; }
@@ -54,16 +73,96 @@
       <button class="copy-btn" onclick="copyLink()">Copy</button>
     </div>
   </div>
+
+  <!-- Field Management Modal -->
+  <div id="fieldManagerModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:8px;padding:24px;max-width:500px;width:90vw;max-height:80vh;overflow-y:auto;">
+      <h2>Manage Fields</h2>
+      <div id="fieldsList" style="margin-top:16px;max-height:300px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:8px;"></div>
+      <div style="margin-top:16px;display:flex;gap:8px;">
+        <input type="text" id="fieldIdInput" placeholder="Field ID (e.g. customfield_10001)" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;">
+        <input type="text" id="fieldLabelInput" placeholder="Label (e.g. Custom Field)" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;">
+        <button type="button" onclick="addFieldDefinition()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Add</button>
+      </div>
+      <div style="margin-top:16px;text-align:right;gap:8px;display:flex;justify-content:flex-end;">
+        <button type="button" onclick="closeFieldManager()" style="background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Close</button>
+      </div>
+    </div>
+  </div>
   <script>
-    // Restore last state
+    // ========================================================================
+    // FIELD DEFINITIONS - Persistence Layer
+    // ========================================================================
+
+    const DEFAULT_FIELDS = [
+      { id: "summary", label: "Summary", category: "standard" },
+      { id: "description", label: "Description", category: "standard" },
+      { id: "priority", label: "Priority", category: "standard" },
+      { id: "assignee", label: "Assignee", category: "standard" },
+      { id: "labels", label: "Labels", category: "standard" },
+      { id: "due date", label: "Due Date", category: "standard" },
+      { id: "component", label: "Component", category: "standard" }
+    ];
+
+    function loadFieldDefinitions() {
+      try {
+        const stored = localStorage.getItem('jiraFieldDefinitions');
+        if (!stored) return DEFAULT_FIELDS;
+        const parsed = JSON.parse(stored);
+        if (!Array.isArray(parsed)) return DEFAULT_FIELDS;
+        return parsed.filter(f => f.id && f.label);
+      } catch (e) {
+        console.error('Failed to load field definitions:', e);
+        return DEFAULT_FIELDS;
+      }
+    }
+
+    function saveFieldDefinitions(definitions) {
+      try {
+        const unique = Array.from(new Map(definitions.map(d => [d.id, d])).values());
+        localStorage.setItem('jiraFieldDefinitions', JSON.stringify(unique));
+        return true;
+      } catch (e) {
+        console.error('Failed to save field definitions:', e);
+        throw new Error('Could not save field definitions (localStorage full?)');
+      }
+    }
+
+    function migrateFieldNames(fields, fieldDefinitions) {
+      return fields.map(field => {
+        if (!field.fieldId && field.name) {
+          const def = fieldDefinitions.find(d => d.id === field.name);
+          if (def) {
+            return { ...field, fieldId: def.id };
+          }
+          const newDef = { id: field.name, label: field.name, category: 'custom' };
+          fieldDefinitions.push(newDef);
+          return { ...field, fieldId: newDef.id };
+        }
+        return field;
+      });
+    }
+
+    // ========================================================================
+    // RESTORE LAST STATE & MIGRATION
+    // ========================================================================
     window.onload = function() {
+      const fieldDefinitions = loadFieldDefinitions();
       const saved = localStorage.getItem('jiraGenState');
       if (saved) {
         const state = JSON.parse(saved);
         document.getElementById('baseUrl').value = state.baseUrl || '';
         document.getElementById('projectId').value = state.projectId || '';
         document.getElementById('issueTypeId').value = state.issueTypeId || '';
-        state.fields && state.fields.forEach(f => addField(f));
+
+        if (state.fields && state.fields.length > 0) {
+          // Migrate old format to new format if needed
+          const migratedFields = migrateFieldNames(state.fields, fieldDefinitions);
+          saveFieldDefinitions(fieldDefinitions);
+          migratedFields.forEach(f => addField(f));
+        } else {
+          addField();
+        }
       } else {
         addField();
       }
@@ -80,53 +179,82 @@
       localStorage.setItem('jiraGenState', JSON.stringify(state));
     }
 
-    // Add a new field row
+    // Add a new field row with dropdown
     function addField(data = {}) {
       const fieldsDiv = document.getElementById('fields');
       const row = document.createElement('div');
       row.className = 'field-row';
+      row.setAttribute('data-field-id', data.fieldId || '');
 
-      const name = document.createElement('input');
-      name.type = 'text';
-      name.placeholder = 'Field (e.g. summary, description, customfield_12345)';
-      name.value = data.name || '';
-      name.required = true;
+      // Field selection dropdown
+      const fieldSelect = document.createElement('select');
+      fieldSelect.className = 'field-select';
 
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = '-- Select Field --';
+      fieldSelect.appendChild(placeholder);
+
+      const definitions = loadFieldDefinitions();
+      definitions.forEach(def => {
+        const option = document.createElement('option');
+        option.value = def.id;
+        option.textContent = def.label;
+        fieldSelect.appendChild(option);
+      });
+
+      if (data.fieldId) {
+        fieldSelect.value = data.fieldId;
+      }
+      fieldSelect.onchange = saveState;
+
+      // Manage Fields button
+      const manageBtn = document.createElement('button');
+      manageBtn.type = 'button';
+      manageBtn.className = 'manage-fields-btn';
+      manageBtn.textContent = 'Manage Fields';
+      manageBtn.onclick = (e) => {
+        e.preventDefault();
+        openFieldManager();
+      };
+
+      // Rich text value editor
       const value = document.createElement('div');
       value.contentEditable = 'true';
       value.className = 'rich-value';
-      value.placeholder = 'Value (use * or - for bullet points, mixed with regular text)';
       value.style.minHeight = '80px';
       value.style.width = '100%';
-      value.style.border = '1px solid #ccc';
-      value.style.borderRadius = '4px';
-      value.style.padding = '8px';
-      value.style.fontSize = '1em';
       value.innerHTML = data.value || '';
       value.oninput = saveState;
 
+      // Remove button
       const remove = document.createElement('button');
       remove.type = 'button';
+      remove.className = 'remove-field-btn';
       remove.textContent = 'Remove';
       remove.onclick = () => { fieldsDiv.removeChild(row); saveState(); };
 
-      name.oninput = saveState;
-value.oninput = saveState;
-
-      row.appendChild(name);
+      row.appendChild(fieldSelect);
+      row.appendChild(manageBtn);
       row.appendChild(value);
       row.appendChild(remove);
       fieldsDiv.appendChild(row);
       saveState();
     }
 
-    // Get all field data
+    // Get all field data from rows
     function getFields() {
       const rows = document.querySelectorAll('.field-row');
-      return Array.from(rows).map(row => ({
-        name: row.children[0].value.trim(),
-        value: row.children[1].innerHTML
-      })).filter(f => f.name);
+      return Array.from(rows).map(row => {
+        const fieldSelect = row.querySelector('.field-select');
+        const richValue = row.querySelector('.rich-value');
+        const fieldId = fieldSelect ? fieldSelect.value : '';
+        return {
+          fieldId: fieldId,
+          name: fieldId, // Keep name for backward compatibility with URL generation
+          value: richValue ? richValue.innerHTML : ''
+        };
+      }).filter(f => f.fieldId);
     }
 
     // Convert HTML formatting from contentEditable to Jira Wiki markup
@@ -204,6 +332,198 @@ value.oninput = saveState;
       document.getElementById('output').style.display = 'block';
       saveState();
     };
+
+    // ========================================================================
+    // FIELD MANAGER - Modal UI Functions
+    // ========================================================================
+
+    function openFieldManager() {
+      const modal = document.getElementById('fieldManagerModal');
+      modal.style.display = 'flex';
+      refreshFieldsList();
+    }
+
+    function closeFieldManager() {
+      const modal = document.getElementById('fieldManagerModal');
+      modal.style.display = 'none';
+      document.getElementById('fieldIdInput').value = '';
+      document.getElementById('fieldLabelInput').value = '';
+    }
+
+    function refreshFieldsList() {
+      const fieldsList = document.getElementById('fieldsList');
+      const definitions = loadFieldDefinitions();
+
+      fieldsList.innerHTML = '';
+      if (definitions.length === 0) {
+        fieldsList.innerHTML = '<div style="color:#999;">No fields defined</div>';
+        return;
+      }
+
+      definitions.forEach((def, index) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;gap:8px;align-items:center;padding:8px;border-bottom:1px solid #eee;justify-content:space-between;';
+
+        const info = document.createElement('div');
+        info.style.cssText = 'flex:1;';
+        info.innerHTML = `<div style="font-weight:500;">${escapeHtml(def.label)}</div><div style="font-size:0.9em;color:#666;">${escapeHtml(def.id)}</div>`;
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.style.cssText = 'background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.9em;';
+        deleteBtn.onclick = () => {
+          deleteFieldDefinition(index);
+        };
+
+        row.appendChild(info);
+        row.appendChild(deleteBtn);
+        fieldsList.appendChild(row);
+      });
+    }
+
+    function addFieldDefinition() {
+      const fieldId = document.getElementById('fieldIdInput').value.trim();
+      const fieldLabel = document.getElementById('fieldLabelInput').value.trim();
+
+      if (!fieldId || !fieldLabel) {
+        alert('Please enter both Field ID and Label');
+        return;
+      }
+
+      try {
+        const definitions = loadFieldDefinitions();
+        const existingIndex = definitions.findIndex(d => d.id === fieldId);
+
+        if (existingIndex >= 0) {
+          definitions[existingIndex].label = fieldLabel;
+        } else {
+          definitions.push({ id: fieldId, label: fieldLabel, category: 'custom' });
+        }
+
+        saveFieldDefinitions(definitions);
+
+        // Update all dropdowns
+        updateAllFieldSelects();
+
+        // Clear inputs
+        document.getElementById('fieldIdInput').value = '';
+        document.getElementById('fieldLabelInput').value = '';
+
+        // Refresh list
+        refreshFieldsList();
+        saveState();
+      } catch (e) {
+        alert('Error saving field definition: ' + e.message);
+      }
+    }
+
+    function deleteFieldDefinition(index) {
+      if (!confirm('Delete this field definition?')) return;
+
+      try {
+        const definitions = loadFieldDefinitions();
+        definitions.splice(index, 1);
+        saveFieldDefinitions(definitions);
+
+        // Update all dropdowns
+        updateAllFieldSelects();
+
+        // Refresh list
+        refreshFieldsList();
+        saveState();
+      } catch (e) {
+        alert('Error deleting field definition: ' + e.message);
+      }
+    }
+
+    function updateAllFieldSelects() {
+      const definitions = loadFieldDefinitions();
+      const rows = document.querySelectorAll('.field-row');
+
+      rows.forEach(row => {
+        const select = row.querySelector('.field-select');
+        const currentValue = select.value;
+
+        // Clear options except placeholder
+        while (select.options.length > 1) {
+          select.remove(1);
+        }
+
+        // Add all definitions
+        definitions.forEach(def => {
+          const option = document.createElement('option');
+          option.value = def.id;
+          option.textContent = def.label;
+          select.appendChild(option);
+        });
+
+        // Restore selection
+        select.value = currentValue;
+      });
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // ========================================================================
+    // CONFIGURATION PRESETS - Functions for saving/loading templates
+    // ========================================================================
+
+    function loadConfigurationPresets() {
+      try {
+        const stored = localStorage.getItem('jiraConfigurationPresets');
+        if (!stored) return [];
+        const parsed = JSON.parse(stored);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        console.error('Failed to load presets:', e);
+        return [];
+      }
+    }
+
+    function saveConfigurationPreset(preset) {
+      try {
+        if (!preset.id || !preset.name) {
+          throw new Error('Preset must have id and name');
+        }
+        const presets = loadConfigurationPresets();
+        const index = presets.findIndex(p => p.id === preset.id);
+        if (index >= 0) {
+          presets[index] = preset;
+        } else {
+          presets.push(preset);
+        }
+        localStorage.setItem('jiraConfigurationPresets', JSON.stringify(presets));
+        return preset;
+      } catch (e) {
+        throw new Error('Failed to save preset: ' + e.message);
+      }
+    }
+
+    function deleteConfigurationPreset(presetId) {
+      try {
+        const presets = loadConfigurationPresets();
+        const index = presets.findIndex(p => p.id === presetId);
+        if (index < 0) {
+          throw new Error('Preset not found');
+        }
+        presets.splice(index, 1);
+        localStorage.setItem('jiraConfigurationPresets', JSON.stringify(presets));
+        return true;
+      } catch (e) {
+        throw new Error('Failed to delete preset: ' + e.message);
+      }
+    }
+
+    function generatePresetId(name) {
+      return name.toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '') + '-' + Date.now();
+    }
 
     // Copy link to clipboard
     function copyLink() {
