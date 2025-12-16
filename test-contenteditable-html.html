@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ContentEditable HTML Debug</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+    .container { max-width: 800px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px #0001; }
+    h1 { color: #333; }
+    label { display: block; margin-top: 16px; font-weight: bold; color: #555; }
+    .editor {
+      border: 2px solid #3498db; padding: 10px; margin-top: 8px; min-height: 100px;
+      border-radius: 4px; font-size: 14px; line-height: 1.5; background: #fff;
+    }
+    .controls { margin-top: 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+    button {
+      background: #3498db; color: #fff; border: none; padding: 8px 16px;
+      border-radius: 4px; cursor: pointer; font-weight: bold;
+    }
+    button:hover { background: #2980b9; }
+    button.disabled { background: #bdc3c7; cursor: not-allowed; }
+    .output-section { margin-top: 20px; border-top: 2px solid #eee; padding-top: 20px; }
+    .output {
+      background: #f9f9f9; border: 1px solid #ddd; padding: 12px;
+      border-radius: 4px; margin-top: 8px; word-break: break-all;
+      font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto;
+    }
+    .label-small { font-size: 12px; color: #999; margin-top: 8px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ContentEditable HTML Debug Tool</h1>
+    <p>Use this tool to test what HTML your browser generates when you use formatting in a contentEditable div.</p>
+
+    <label>Rich Text Editor (Try bold, italic, underline, bullets):</label>
+    <div class="editor" id="editor" contenteditable="true">
+      Type here and use Ctrl+B for bold, Ctrl+I for italic, Ctrl+U for underline...
+    </div>
+    <p class="label-small">Hint: Select text and use Ctrl+B (bold), Ctrl+I (italic), Ctrl+U (underline)</p>
+
+    <div class="controls">
+      <button onclick="makeSelection('bold')">🔨 Bold (Ctrl+B)</button>
+      <button onclick="makeSelection('italic')">🔨 Italic (Ctrl+I)</button>
+      <button onclick="makeSelection('underline')">🔨 Underline (Ctrl+U)</button>
+      <button onclick="makeBulletList()">🔨 Bullet List</button>
+      <button onclick="clearEditor()">🗑️ Clear</button>
+    </div>
+
+    <div class="output-section">
+      <h2>📊 Debug Output</h2>
+
+      <label><strong>Raw innerHTML (what gets sent in URL):</strong></label>
+      <div class="output" id="output-raw">
+        [Click "Show HTML" to display]
+      </div>
+
+      <label><strong>htmlToJiraMarkup() Result (what should appear in Jira):</strong></label>
+      <div class="output" id="output-converted">
+        [Click "Show HTML" to display]
+      </div>
+
+      <label><strong>URL Encoded (final URL parameter):</strong></label>
+      <div class="output" id="output-encoded">
+        [Click "Show HTML" to display]
+      </div>
+
+      <button onclick="updateOutput()" style="margin-top: 16px; background: #27ae60;">✓ Update Output</button>
+      <button onclick="copyToClipboard()" style="margin-top: 16px; background: #f39c12;">📋 Copy Raw HTML</button>
+    </div>
+
+    <div class="output-section">
+      <h2>🧪 Conversion Function Test</h2>
+      <p>This shows what the conversion function does with the HTML you've entered:</p>
+      <button onclick="testConversion()">Test Conversion</button>
+      <div class="output" id="output-test" style="margin-top: 8px;">
+        [Results will appear here]
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const editor = document.getElementById('editor');
+
+    // Clear the editor on page load
+    window.onload = function() {
+      editor.innerHTML = '';
+      updateOutput();
+    };
+
+    // htmlToJiraMarkup function from jira-link-generator.html
+    function htmlToJiraMarkup(html) {
+      let text = html;
+
+      // Handle lists: convert <li> items to Jira bullet format with newlines between items
+      text = text.replace(/<li[^>]*>(.*?)<\/li>/gi, (match, content) => {
+        const itemText = htmlToJiraMarkup(content);
+        return '* ' + itemText.trim() + '\n';
+      });
+
+      // Remove <ul>, <ol> tags but keep content
+      text = text.replace(/<\/?(?:ul|ol)[^>]*>/gi, '');
+
+      // Convert bold: <b> and <strong> to *text*
+      text = text.replace(/<(?:b|strong)[^>]*>(.*?)<\/(?:b|strong)>/gi, '*$1*');
+
+      // Convert italic: <i> and <em> to _text_
+      text = text.replace(/<(?:i|em)[^>]*>(.*?)<\/(?:i|em)>/gi, '_$1_');
+
+      // Convert underline: <u> to +text+
+      text = text.replace(/<u[^>]*>(.*?)<\/u>/gi, '+$1+');
+
+      // Convert <br> and <br/> to newlines
+      text = text.replace(/<br\s*\/?>/gi, '\n');
+
+      // Convert <div> to newlines (but preserve the content)
+      text = text.replace(/<div[^>]*>/gi, '\n');
+      text = text.replace(/<\/div>/gi, '');
+
+      // Remove any other remaining HTML tags
+      text = text.replace(/<[^>]+>/g, '');
+
+      return text;
+    }
+
+    // smartFormatValue from jira-link-generator.html
+    function smartFormatValue(val) {
+      let formatted = htmlToJiraMarkup(val);
+      formatted = formatted.replace(/\n\n+/g, '\n');
+      const lines = formatted.split('\n');
+      return lines.map(line => {
+        const trimmed = line.trim();
+        if (!trimmed) return '';
+        if (trimmed.startsWith('*')) {
+          return trimmed;
+        }
+        return trimmed;
+      }).filter(Boolean).join('\n');
+    }
+
+    function updateOutput() {
+      const rawHtml = editor.innerHTML;
+      const converted = htmlToJiraMarkup(rawHtml);
+      const encoded = encodeURIComponent(converted);
+
+      document.getElementById('output-raw').textContent = rawHtml || '(empty)';
+      document.getElementById('output-converted').textContent = converted || '(empty)';
+      document.getElementById('output-encoded').textContent = encoded || '(empty)';
+    }
+
+    function testConversion() {
+      const rawHtml = editor.innerHTML;
+      if (!rawHtml.trim()) {
+        document.getElementById('output-test').textContent = 'Editor is empty. Add some formatted text first!';
+        return;
+      }
+
+      const result = {
+        raw: rawHtml,
+        converted: htmlToJiraMarkup(rawHtml),
+        smart: smartFormatValue(rawHtml),
+        encoded: encodeURIComponent(smartFormatValue(rawHtml))
+      };
+
+      let output = 'Raw HTML:\n' + result.raw + '\n\n';
+      output += 'After htmlToJiraMarkup():\n' + result.converted + '\n\n';
+      output += 'After smartFormatValue():\n' + result.smart + '\n\n';
+      output += 'After URL encoding:\n' + result.encoded + '\n\n';
+      output += '--- Summary ---\n';
+      output += 'Has formatting tags (<b>, <i>, <u>)? ' + (/(<b>|<strong>|<i>|<em>|<u>)/.test(result.raw) ? 'YES' : 'NO') + '\n';
+      output += 'Converted to Jira markup? ' + ((/\*|\+|_/.test(result.converted)) ? 'YES' : 'NO') + '\n';
+      output += 'Result is URL-safe? ' + (encodeURIComponent(result.smart) === result.encoded ? 'YES' : 'NO');
+
+      document.getElementById('output-test').textContent = output;
+    }
+
+    function makeSelection(command) {
+      document.execCommand(command, false, null);
+      editor.focus();
+      updateOutput();
+    }
+
+    function makeBulletList() {
+      document.execCommand('insertUnorderedList', false, null);
+      editor.focus();
+      updateOutput();
+    }
+
+    function clearEditor() {
+      editor.innerHTML = '';
+      updateOutput();
+    }
+
+    function copyToClipboard() {
+      const rawHtml = document.getElementById('output-raw').textContent;
+      navigator.clipboard.writeText(rawHtml).then(() => {
+        alert('Copied to clipboard!');
+      });
+    }
+
+    // Update output whenever user types
+    editor.addEventListener('input', updateOutput);
+    editor.addEventListener('keyup', updateOutput);
+    editor.addEventListener('mouseup', updateOutput);
+  </script>
+</body>
+</html>

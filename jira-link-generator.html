@@ -16,25 +16,25 @@
     .fields { margin-top: 1.5em; }
     .field-row {
       display: flex; gap: 6px; align-items: flex-end; margin-bottom: 10px;
-      flex-wrap: wrap;
+      flex-wrap: nowrap;
     }
     .field-select {
-      flex: 1; min-width: 150px;
+      flex: 0 0 auto; width: 150px;
       padding: 8px; border: 1px solid #ccc; border-radius: 4px;
       font-size: 1em; box-sizing: border-box;
     }
     .manage-fields-btn {
       background: #3498db; color: #fff; border: none; border-radius: 4px;
-      padding: 8px 12px; cursor: pointer; font-size: 0.95em; white-space: nowrap;
+      padding: 8px 12px; cursor: pointer; font-size: 0.95em; white-space: nowrap; flex-shrink: 0;
     }
     .manage-fields-btn:hover { background: #217dbb; }
     .field-row .rich-value {
-      flex: 2; min-width: 200px;
+      flex: 1; min-width: 0;
       min-height: 80px; padding: 8px;
     }
     .remove-field-btn {
       background: #e74c3c; color: #fff; border: none; border-radius: 4px;
-      padding: 8px 12px; cursor: pointer; font-size: 0.95em; white-space: nowrap;
+      padding: 8px 12px; cursor: pointer; font-size: 0.95em; white-space: nowrap; flex-shrink: 0;
     }
     .remove-field-btn:hover { background: #c0392b; }
     .add-btn { background: #3498db; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; margin-top: 8px; cursor: pointer; }
@@ -46,7 +46,9 @@
     .copy-btn:hover { background: #d4ac0d; }
     @media (max-width: 600px) {
       .container { padding: 12px; }
-      .field-row { flex-direction: column; gap: 4px; }
+      .field-row { flex-direction: column; gap: 4px; flex-wrap: wrap; align-items: stretch; }
+      .field-select { width: 100%; }
+      .field-row .rich-value { min-height: 60px; }
     }
   </style>
 </head>

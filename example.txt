@@ -1,0 +1,40 @@
+Base URL:
+https://jira.express-scripts.com/
+Project ID:
+75213
+issueType:
+18501
+Field:
+summary
+Value:
+This is the issue title
+Formatting:
+none
+Field
+description
+Value:
+What issue/feature were you testing
+What was your scenario
+What was your expected result
+What was your actual results
+Formatting:
+bullets
+Field
+customfield_11800
+Value
+Document what your expectations are for a satisfactory resolution.
+Formatting:
+none
+Field:
+customfield_20700
+Value:
+54507
+Formatting:
+none
+
+Output Link:
+https://jira.express-scripts.com/secure/CreateIssueDetails!init.jspa?pid=75213&issuetype=18501&summary=This is the issue title&description=%2A What issue%2Ffeature were you testing%3F%0A%2A What was your scenario%3F%0A%2A What was your expected result%3F%0A%2A What was your actual result&customfield_11800=Document what your expectations are for a satisfactory resolution.&customfield_20700=54507
+
+The Application knows:
+- implement "secure/CreateIssueDetails!init.jspa?" between the base url and the project
+- project is formatted as pid=value in the URL output
