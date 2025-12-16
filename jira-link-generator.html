@@ -129,14 +129,57 @@ value.oninput = saveState;
       })).filter(f => f.name);
     }
 
-    // Smart format value: detect bullets (lines starting with * or -) and plain text
+    // Convert HTML formatting from contentEditable to Jira Wiki markup
+    function htmlToJiraMarkup(html) {
+      let text = html;
+
+      // Handle lists: convert <li> items to Jira bullet format with newlines between items
+      text = text.replace(/<li[^>]*>(.*?)<\/li>/gi, (match, content) => {
+        const itemText = htmlToJiraMarkup(content);
+        return '* ' + itemText.trim() + '\n';
+      });
+
+      // Remove <ul>, <ol> tags but keep content
+      text = text.replace(/<\/?(?:ul|ol)[^>]*>/gi, '');
+
+      // Convert bold: <b> and <strong> to *text*
+      text = text.replace(/<(?:b|strong)[^>]*>(.*?)<\/(?:b|strong)>/gi, '*$1*');
+
+      // Convert italic: <i> and <em> to _text_
+      text = text.replace(/<(?:i|em)[^>]*>(.*?)<\/(?:i|em)>/gi, '_$1_');
+
+      // Convert underline: <u> to +text+
+      text = text.replace(/<u[^>]*>(.*?)<\/u>/gi, '+$1+');
+
+      // Convert <br> and <br/> to newlines
+      text = text.replace(/<br\s*\/?>/gi, '\n');
+
+      // Convert <div> to newlines (but preserve the content)
+      text = text.replace(/<div[^>]*>/gi, '\n');
+      text = text.replace(/<\/div>/gi, '');
+
+      // Remove any other remaining HTML tags
+      text = text.replace(/<[^>]+>/g, '');
+
+      return text;
+    }
+
+    // Smart format value: detect bullets and preserve formatting
     function smartFormatValue(val) {
-      const lines = val.split('\n');
+      // First convert HTML formatting to Jira markup
+      let formatted = htmlToJiraMarkup(val);
+
+      // Clean up multiple consecutive newlines
+      formatted = formatted.replace(/\n\n+/g, '\n');
+
+      // Split by lines and clean up
+      const lines = formatted.split('\n');
       return lines.map(line => {
         const trimmed = line.trim();
-        // If line starts with * or -, keep it as bullet
-        if (trimmed.startsWith('*') || trimmed.startsWith('-')) {
-          return trimmed.startsWith('*') ? trimmed : '* ' + trimmed.substring(1).trim();
+        if (!trimmed) return '';
+        // If line starts with * (bullet), keep it as is
+        if (trimmed.startsWith('*')) {
+          return trimmed;
         }
         // Otherwise keep as plain text
         return trimmed;
@@ -153,7 +196,7 @@ value.oninput = saveState;
 
       let url = `${baseUrl}/secure/CreateIssueDetails!init.jspa?pid=${encodeURIComponent(pid)}&issuetype=${encodeURIComponent(issueType)}`;
       fields.forEach(f => {
-        let val = smartFormatValue(f.value.replace(/<br\s*\/?>/gi, '\n').replace(/<div>/gi, '\n').replace(/<[^>]+>/g, ''));
+        let val = smartFormatValue(f.value);
         url += `&${encodeURIComponent(f.name)}=${encodeURIComponent(val)}`;
       });
 

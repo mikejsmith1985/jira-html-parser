@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Test: Rich Text Formatting Conversion</title>
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; margin: 20px; background: #f5f5f5; }
+    .container { max-width: 900px; margin: 0 auto; background: #fff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px #0001; }
+    h1 { color: #333; }
+    .test-case { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 4px; background: #fafafa; }
+    .test-case h3 { margin-top: 0; color: #0066cc; }
+    .editor { min-height: 60px; padding: 8px; border: 1px solid #ccc; border-radius: 4px; background: #fff; margin: 8px 0; contenteditable: true; }
+    .output { background: #e8f4f8; padding: 10px; border-radius: 4px; font-family: monospace; white-space: pre-wrap; word-break: break-all; margin: 8px 0; }
+    .success { color: #28a745; font-weight: bold; }
+    .fail { color: #dc3545; font-weight: bold; }
+    .button-group { margin: 10px 0; }
+    button { padding: 6px 12px; margin-right: 5px; border: none; border-radius: 4px; cursor: pointer; background: #0066cc; color: #fff; }
+    button:hover { background: #0052a3; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Rich Text Formatting Test Suite</h1>
+    <p>Test that bold, italics, underline, and bullets are properly converted to Jira Wiki markup.</p>
+
+    <div class="test-case">
+      <h3>Test 1: Bold Formatting</h3>
+      <p>Try: Type "Hello", select it, click <strong>Bold</strong>, then click "Convert"</p>
+      <div class="editor" id="editor1"></div>
+      <div class="button-group">
+        <button onclick="testConvert(1)">Convert</button>
+        <button onclick="makeBold(1)">Bold</button>
+        <button onclick="makeItalic(1)">Italic</button>
+        <button onclick="makeUnderline(1)">Underline</button>
+      </div>
+      Expected: <code>*Hello*</code>
+      <div class="output" id="result1"></div>
+    </div>
+
+    <div class="test-case">
+      <h3>Test 2: Italic Formatting</h3>
+      <p>Try: Type "Important", select it, click <strong>Italic</strong>, then click "Convert"</p>
+      <div class="editor" id="editor2"></div>
+      <div class="button-group">
+        <button onclick="testConvert(2)">Convert</button>
+        <button onclick="makeBold(2)">Bold</button>
+        <button onclick="makeItalic(2)">Italic</button>
+        <button onclick="makeUnderline(2)">Underline</button>
+      </div>
+      Expected: <code>_Important_</code>
+      <div class="output" id="result2"></div>
+    </div>
+
+    <div class="test-case">
+      <h3>Test 3: Underline Formatting</h3>
+      <p>Try: Type "Emphasis", select it, click <strong>Underline</strong>, then click "Convert"</p>
+      <div class="editor" id="editor3"></div>
+      <div class="button-group">
+        <button onclick="testConvert(3)">Convert</button>
+        <button onclick="makeBold(3)">Bold</button>
+        <button onclick="makeItalic(3)">Italic</button>
+        <button onclick="makeUnderline(3)">Underline</button>
+      </div>
+      Expected: <code>+Emphasis+</code>
+      <div class="output" id="result3"></div>
+    </div>
+
+    <div class="test-case">
+      <h3>Test 4: Mixed Formatting</h3>
+      <p>Pre-loaded with mixed formatting. Click "Convert" to see result.</p>
+      <div class="editor" id="editor4"><b>Bold</b>, <i>italic</i>, and <u>underlined</u> text.</div>
+      <div class="button-group">
+        <button onclick="testConvert(4)">Convert</button>
+      </div>
+      Expected: <code>*Bold*, _italic_, and +underlined+ text.</code>
+      <div class="output" id="result4"></div>
+    </div>
+
+    <div class="test-case">
+      <h3>Test 5: Bullet Points</h3>
+      <p>Pre-loaded with bullet list. Click "Convert" to see result.</p>
+      <div class="editor" id="editor5">
+        <ul>
+          <li>First item</li>
+          <li>Second item</li>
+          <li><b>Bold</b> item</li>
+        </ul>
+      </div>
+      <div class="button-group">
+        <button onclick="testConvert(5)">Convert</button>
+      </div>
+      Expected: Bullets with proper formatting preserved
+      <div class="output" id="result5"></div>
+    </div>
+
+    <div class="test-case">
+      <h3>Test 6: Complex Example</h3>
+      <p>Pre-loaded complex content. Click "Convert" to see result.</p>
+      <div class="editor" id="editor6">
+        <b>Summary:</b> This is important<br/>
+        <i>Details:</i><ul><li>Point 1</li><li><u>Point 2</u></li></ul>
+      </div>
+      <div class="button-group">
+        <button onclick="testConvert(6)">Convert</button>
+      </div>
+      <div class="output" id="result6"></div>
+    </div>
+  </div>
+
+  <script>
+    // Convert HTML formatting from contentEditable to Jira Wiki markup
+    function htmlToJiraMarkup(html) {
+      let text = html;
+
+      // Handle lists: convert <li> items to Jira bullet format
+      text = text.replace(/<li[^>]*>(.*?)<\/li>/gi, (match, content) => {
+        const itemText = htmlToJiraMarkup(content);
+        return '* ' + itemText.trim();
+      });
+
+      // Remove <ul>, <ol> tags but keep content
+      text = text.replace(/<\/?(?:ul|ol)[^>]*>/gi, '');
+
+      // Convert bold: <b> and <strong> to *text*
+      text = text.replace(/<(?:b|strong)[^>]*>(.*?)<\/(?:b|strong)>/gi, '*$1*');
+
+      // Convert italic: <i> and <em> to _text_
+      text = text.replace(/<(?:i|em)[^>]*>(.*?)<\/(?:i|em)>/gi, '_$1_');
+
+      // Convert underline: <u> to +text+
+      text = text.replace(/<u[^>]*>(.*?)<\/u>/gi, '+$1+');
+
+      // Convert <br> and <br/> to newlines
+      text = text.replace(/<br\s*\/?>/gi, '\n');
+
+      // Convert <div> to newlines (but preserve the content)
+      text = text.replace(/<div[^>]*>/gi, '\n');
+      text = text.replace(/<\/div>/gi, '');
+
+      // Remove any other remaining HTML tags
+      text = text.replace(/<[^>]+>/g, '');
+
+      return text;
+    }
+
+    // Smart format value: detect bullets and preserve formatting
+    function smartFormatValue(val) {
+      // First convert HTML formatting to Jira markup
+      let formatted = htmlToJiraMarkup(val);
+
+      // Clean up multiple consecutive newlines
+      formatted = formatted.replace(/\n\n+/g, '\n');
+
+      // Split by lines and clean up
+      const lines = formatted.split('\n');
+      return lines.map(line => {
+        const trimmed = line.trim();
+        if (!trimmed) return '';
+        // If line starts with * (bullet), keep it as is
+        if (trimmed.startsWith('*')) {
+          return trimmed;
+        }
+        // Otherwise keep as plain text
+        return trimmed;
+      }).filter(Boolean).join('\n');
+    }
+
+    function testConvert(num) {
+      const editor = document.getElementById('editor' + num);
+      const html = editor.innerHTML;
+      const result = smartFormatValue(html);
+      document.getElementById('result' + num).textContent = result;
+    }
+
+    function makeBold(num) {
+      document.getElementById('editor' + num).focus();
+      document.execCommand('bold');
+    }
+
+    function makeItalic(num) {
+      document.getElementById('editor' + num).focus();
+      document.execCommand('italic');
+    }
+
+    function makeUnderline(num) {
+      document.getElementById('editor' + num).focus();
+      document.execCommand('underline');
+    }
+
+    // Auto-test on load
+    window.addEventListener('load', () => {
+      testConvert(4);
+      testConvert(5);
+      testConvert(6);
+    });
+  </script>
+</body>
+</html>
