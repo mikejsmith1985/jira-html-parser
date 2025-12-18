@@ -109,9 +109,10 @@
       <div style="margin-top:16px;display:flex;gap:8px;">
         <input type="text" id="fieldIdInput" placeholder="Field ID (e.g. customfield_10001)" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;">
         <input type="text" id="fieldLabelInput" placeholder="Label (e.g. Custom Field)" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;">
-        <button type="button" onclick="addFieldDefinition()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Add</button>
+        <button type="button" onclick="addFieldDefinition()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;" id="addFieldBtn">Add</button>
       </div>
       <div style="margin-top:16px;text-align:right;gap:8px;display:flex;justify-content:flex-end;">
+        <button type="button" onclick="cancelEditField()" id="cancelEditFieldBtn" style="display:none;background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Cancel</button>
         <button type="button" onclick="closeFieldManager()" style="background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Close</button>
       </div>
     </div>
@@ -472,8 +473,37 @@
     function closeFieldManager() {
       const modal = document.getElementById('fieldManagerModal');
       modal.style.display = 'none';
+      cancelEditField();
+    }
+
+    function editFieldDefinition(index) {
+      const definitions = loadFieldDefinitions();
+      const def = definitions[index];
+      if (!def) return;
+
+      currentEditingFieldIndex = index;
+      document.getElementById('fieldIdInput').value = def.id;
+      document.getElementById('fieldIdInput').disabled = true;
+      document.getElementById('fieldLabelInput').value = def.label;
+      document.getElementById('fieldLabelInput').focus();
+
+      const addBtn = document.getElementById('addFieldBtn');
+      const cancelBtn = document.getElementById('cancelEditFieldBtn');
+      addBtn.textContent = 'Update';
+      addBtn.style.background = '#27ae60';
+      cancelBtn.style.display = 'inline-block';
+    }
+
+    function cancelEditField() {
+      currentEditingFieldIndex = null;
       document.getElementById('fieldIdInput').value = '';
+      document.getElementById('fieldIdInput').disabled = false;
       document.getElementById('fieldLabelInput').value = '';
+      const addBtn = document.getElementById('addFieldBtn');
+      const cancelBtn = document.getElementById('cancelEditFieldBtn');
+      addBtn.textContent = 'Add';
+      addBtn.style.background = '#3498db';
+      cancelBtn.style.display = 'none';
     }
 
     function refreshFieldsList() {
@@ -519,24 +549,23 @@
 
       try {
         const definitions = loadFieldDefinitions();
-        const existingIndex = definitions.findIndex(d => d.id === fieldId);
 
-        if (existingIndex >= 0) {
-          definitions[existingIndex].label = fieldLabel;
+        if (currentEditingFieldIndex !== null) {
+          // Update existing field
+          definitions[currentEditingFieldIndex].label = fieldLabel;
         } else {
-          definitions.push({ id: fieldId, label: fieldLabel, category: 'custom' });
+          // Add new field
+          const existingIndex = definitions.findIndex(d => d.id === fieldId);
+          if (existingIndex >= 0) {
+            definitions[existingIndex].label = fieldLabel;
+          } else {
+            definitions.push({ id: fieldId, label: fieldLabel, category: 'custom' });
+          }
         }
 
         saveFieldDefinitions(definitions);
-
-        // Update all dropdowns
         updateAllFieldSelects();
-
-        // Clear inputs
-        document.getElementById('fieldIdInput').value = '';
-        document.getElementById('fieldLabelInput').value = '';
-
-        // Refresh list
+        cancelEditField();
         refreshFieldsList();
         saveState();
       } catch (e) {
@@ -786,6 +815,34 @@
       document.getElementById('managePresetsModal').style.display = 'none';
     }
 
+    function editConfigurationPreset(presetId) {
+      const presets = loadConfigurationPresets();
+      const preset = presets.find(p => p.id === presetId);
+      if (!preset) {
+        alert('Preset not found');
+        return;
+      }
+
+      // Load the preset into the form
+      document.getElementById('baseUrl').value = preset.baseUrl || '';
+      document.getElementById('projectId').value = preset.projectId || '';
+      document.getElementById('issueTypeId').value = preset.issueTypeId || '';
+
+      // Clear existing fields
+      document.getElementById('fields').innerHTML = '';
+
+      // Add preset fields
+      if (preset.fields && preset.fields.length > 0) {
+        preset.fields.forEach(f => addField(f));
+      } else {
+        addField();
+      }
+
+      closeManagePresetsModal();
+      saveState();
+      alert(`Loaded preset: ${preset.name}. Make changes and save as a new preset or overwrite this one.`);
+    }
+
     function refreshPresetsList() {
       const presetsList = document.getElementById('presetsList');
       const presets = loadConfigurationPresets();
@@ -853,3 +910,4 @@
   </script>
 </body>
 </html>
+
