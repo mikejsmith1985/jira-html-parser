@@ -32,6 +32,19 @@
       flex: 1; min-width: 0;
       min-height: 80px; padding: 8px;
     }
+    .editor-container {
+      flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px;
+    }
+    .formatting-toolbar {
+      display: flex; gap: 4px; padding: 6px; background: #f0f0f0; border-radius: 4px;
+    }
+    .formatting-toolbar button {
+      padding: 6px 10px; background: #e74c3c; color: #fff; border: none; border-radius: 4px;
+      cursor: pointer; font-size: 0.9em; font-weight: 600; min-width: 32px;
+    }
+    .formatting-toolbar button:hover {
+      background: #c0392b;
+    }
     .remove-field-btn {
       background: #e74c3c; color: #fff; border: none; border-radius: 4px;
       padding: 8px 12px; cursor: pointer; font-size: 0.95em; white-space: nowrap; flex-shrink: 0;
@@ -279,7 +292,24 @@
         openFieldManager();
       };
 
-      // Rich text value editor
+      // Editor container with toolbar
+      const editorContainer = document.createElement('div');
+      editorContainer.className = 'editor-container';
+
+      // Formatting toolbar
+      const toolbar = document.createElement('div');
+      toolbar.className = 'formatting-toolbar';
+
+      const formatButtons = [
+        { label: 'B', cmd: 'bold', title: 'Bold' },
+        { label: 'I', cmd: 'italic', title: 'Italic' },
+        { label: 'U', cmd: 'underline', title: 'Underline' },
+        { label: 'S', cmd: 'strikeThrough', title: 'Strikethrough' },
+        { label: '•', cmd: 'insertUnorderedList', title: 'Bullet List' },
+        { label: '1.', cmd: 'insertOrderedList', title: 'Numbered List' },
+        { label: '⌫', cmd: 'removeFormat', title: 'Clear Formatting' }
+      ];
+
       const value = document.createElement('div');
       value.contentEditable = 'true';
       value.className = 'rich-value';
@@ -287,6 +317,23 @@
       value.style.width = '100%';
       value.innerHTML = data.value || '';
       value.oninput = saveState;
+
+      formatButtons.forEach(({ label, cmd, title }) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = label;
+        btn.title = title;
+        btn.onclick = (e) => {
+          e.preventDefault();
+          value.focus();
+          document.execCommand(cmd, false, null);
+          saveState();
+        };
+        toolbar.appendChild(btn);
+      });
+
+      editorContainer.appendChild(toolbar);
+      editorContainer.appendChild(value);
 
       // Remove button
       const remove = document.createElement('button');
@@ -320,37 +367,55 @@
 
     // Convert HTML formatting from contentEditable to Jira Wiki markup
     function htmlToJiraMarkup(html) {
-      let text = html;
+      const temp = document.createElement('div');
+      temp.innerHTML = html;
 
-      // Handle lists: convert <li> items to Jira bullet format with newlines between items
-      text = text.replace(/<li[^>]*>(.*?)<\/li>/gi, (match, content) => {
-        const itemText = htmlToJiraMarkup(content);
-        return '* ' + itemText.trim() + '\n';
-      });
+      function traverse(node) {
+        if (node.nodeType === 3) { // Node.TEXT_NODE
+          return node.textContent;
+        }
+        if (node.nodeType !== 1) return ''; // Node.ELEMENT_NODE
 
-      // Remove <ul>, <ol> tags but keep content
-      text = text.replace(/<\/?(?:ul|ol)[^>]*>/gi, '');
+        const tagName = node.tagName.toLowerCase();
+        let content = '';
+        
+        for (const child of node.childNodes) {
+          content += traverse(child);
+        }
 
-      // Convert bold: <b> and <strong> to *text*
-      text = text.replace(/<(?:b|strong)[^>]*>(.*?)<\/(?:b|strong)>/gi, '*$1*');
+        switch (tagName) {
+          case 'b':
+          case 'strong':
+            return '*' + content + '*';
+          case 'i':
+          case 'em':
+            return '_' + content + '_';
+          case 'u':
+            return '+' + content + '+';
+          case 's':
+          case 'strike':
+          case 'del':
+            return '-' + content + '-';
+          case 'br':
+            return '\n';
+          case 'div':
+            return '\n' + content;
+          case 'p':
+            return '\n' + content + '\n';
+          case 'li':
+             const parent = node.parentNode;
+             const parentTag = parent ? parent.tagName.toLowerCase() : '';
+             const prefix = parentTag === 'ol' ? '# ' : '* ';
+             return prefix + content.trim() + '\n';
+          case 'ul':
+          case 'ol':
+            return content;
+          default:
+            return content;
+        }
+      }
 
-      // Convert italic: <i> and <em> to _text_
-      text = text.replace(/<(?:i|em)[^>]*>(.*?)<\/(?:i|em)>/gi, '_$1_');
-
-      // Convert underline: <u> to +text+
-      text = text.replace(/<u[^>]*>(.*?)<\/u>/gi, '+$1+');
-
-      // Convert <br> and <br/> to newlines
-      text = text.replace(/<br\s*\/?>/gi, '\n');
-
-      // Convert <div> to newlines (but preserve the content)
-      text = text.replace(/<div[^>]*>/gi, '\n');
-      text = text.replace(/<\/div>/gi, '');
-
-      // Remove any other remaining HTML tags
-      text = text.replace(/<[^>]+>/g, '');
-
-      return text;
+      return traverse(temp);
     }
 
     // Smart format value: detect bullets and preserve formatting
