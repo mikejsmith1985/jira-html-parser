@@ -162,6 +162,7 @@
     </div>
   </div>
   <script>
+    let currentEditingFieldIndex = null;
     // ========================================================================
     // FIELD DEFINITIONS - Persistence Layer
     // ========================================================================
@@ -532,8 +533,20 @@
           deleteFieldDefinition(index);
         };
 
+        const buttons = document.createElement('div');
+        buttons.style.cssText = 'display:flex;gap:6px;';
+
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.textContent = 'Edit';
+        editBtn.style.cssText = 'background:#3498db;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.9em;';
+        editBtn.onclick = () => editFieldDefinition(index);
+
+        buttons.appendChild(editBtn);
+        buttons.appendChild(editBtn);
+         buttons.appendChild(deleteBtn);
         row.appendChild(info);
-        row.appendChild(deleteBtn);
+        row.appendChild(buttons);
         fieldsList.appendChild(row);
       });
     }
@@ -872,10 +885,16 @@
         }
         info.innerHTML = infoHtml;
 
-        const buttons = document.createElement('div');
-        buttons.style.cssText = 'display:flex;gap:8px;';
+                const buttons = document.createElement('div');
+         buttons.style.cssText = 'display:flex;gap:8px;';
 
-        const deleteBtn = document.createElement('button');
+         const editBtn = document.createElement('button');
+         editBtn.type = 'button';
+         editBtn.textContent = 'Edit';
+         editBtn.style.cssText = 'background:#3498db;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.9em;';
+         editBtn.onclick = () => editConfigurationPreset(preset.id);
+
+         const deleteBtn = document.createElement('button');
         deleteBtn.type = 'button';
         deleteBtn.textContent = 'Delete';
         deleteBtn.style.cssText = 'background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.9em;';
@@ -891,7 +910,8 @@
           }
         };
 
-        buttons.appendChild(deleteBtn);
+        buttons.appendChild(editBtn);
+         buttons.appendChild(deleteBtn);
         row.appendChild(info);
         row.appendChild(buttons);
         presetsList.appendChild(row);
@@ -910,4 +930,7 @@
   </script>
 </body>
 </html>
+
+
+
 
