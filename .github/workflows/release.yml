@@ -80,6 +80,10 @@ jobs:
         with:
           tag_name: v${{ steps.version.outputs.new }}
           name: Release v${{ steps.version.outputs.new }}
+          files: |
+            jira-link-generator.html
+            package.json
+            README.md
           body: |
             # Release v${{ steps.version.outputs.new }}
             
@@ -94,8 +98,13 @@ jobs:
             ${{ steps.commit.outputs.message }}
             ```
             
+            ## Quick Start
+            Download `jira-link-generator.html` and open it in your web browser to use.
+            
             ## Installation
-            Open `jira-link-generator.html` in your web browser.
+            1. Download `jira-link-generator.html` from the release assets
+            2. Open it in any modern web browser (Chrome, Firefox, Safari, Edge)
+            3. No installation or server required - works 100% offline
             
             ## Testing
             Run tests with: `npm test`
