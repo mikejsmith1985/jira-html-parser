@@ -104,10 +104,18 @@
   <!-- Field Management Modal -->
   <div id="fieldManagerModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
     <div style="background:#fff;border-radius:8px;padding:24px;max-width:500px;width:90vw;max-height:80vh;overflow-y:auto;">
-      <h2>Manage Fields</h2>
-      <div id="fieldsList" style="margin-top:16px;max-height:300px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:8px;"></div>
+      <h2>Manage Fields & Configuration</h2>
+      
+      <div style="margin-top:16px;">
+        <h3 style="font-size:1em;color:#2c3e50;margin-bottom:8px;">Configuration Items</h3>
+        <div id="configItemsList" style="margin-bottom:16px;max-height:150px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:8px;background:#f9f9f9;"></div>
+        
+        <h3 style="font-size:1em;color:#2c3e50;margin-top:16px;margin-bottom:8px;">Custom Fields</h3>
+        <div id="fieldsList" style="margin-bottom:16px;max-height:200px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:8px;"></div>
+      </div>
+      
       <div style="margin-top:16px;display:flex;gap:8px;">
-        <input type="text" id="fieldIdInput" placeholder="Field ID (e.g. customfield_10001)" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;">
+        <input type="text" id="fieldIdInput" placeholder="ID (e.g. customfield_10001)" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;">
         <input type="text" id="fieldLabelInput" placeholder="Label (e.g. Custom Field)" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;">
         <button type="button" onclick="addFieldDefinition()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;" id="addFieldBtn">Add</button>
       </div>
@@ -164,8 +172,14 @@
   <script>
     let currentEditingFieldIndex = null;
     // ========================================================================
-    // FIELD DEFINITIONS - Persistence Layer
+    // CONFIGURATION ITEMS - Persistence Layer
     // ========================================================================
+
+    const DEFAULT_CONFIG_ITEMS = [
+      { id: "baseUrl", label: "Base URL", category: "config" },
+      { id: "projectId", label: "Project ID", category: "config" },
+      { id: "issueTypeId", label: "Issue Type ID", category: "config" }
+    ];
 
     const DEFAULT_FIELDS = [
       { id: "summary", label: "Summary", category: "standard" },
@@ -176,6 +190,34 @@
       { id: "due date", label: "Due Date", category: "standard" },
       { id: "component", label: "Component", category: "standard" }
     ];
+
+    // ========================================================================
+    // CONFIGURATION ITEMS - Persistence Layer
+    // ========================================================================
+
+    function loadConfigurationItems() {
+      try {
+        const stored = localStorage.getItem('jiraConfigItems');
+        if (!stored) return DEFAULT_CONFIG_ITEMS;
+        const parsed = JSON.parse(stored);
+        if (!Array.isArray(parsed)) return DEFAULT_CONFIG_ITEMS;
+        return parsed.filter(c => c.id && c.label);
+      } catch (e) {
+        console.error('Failed to load config items:', e);
+        return DEFAULT_CONFIG_ITEMS;
+      }
+    }
+
+    function saveConfigurationItems(items) {
+      try {
+        const unique = Array.from(new Map(items.map(d => [d.id, d])).values());
+        localStorage.setItem('jiraConfigItems', JSON.stringify(unique));
+        return true;
+      } catch (e) {
+        console.error('Failed to save config items:', e);
+        throw new Error('Could not save configuration items (localStorage full?)');
+      }
+    }
 
     function loadFieldDefinitions() {
       try {
@@ -468,6 +510,7 @@
     function openFieldManager() {
       const modal = document.getElementById('fieldManagerModal');
       modal.style.display = 'flex';
+      refreshConfigItemsList();
       refreshFieldsList();
     }
 
@@ -492,6 +535,7 @@
       const cancelBtn = document.getElementById('cancelEditFieldBtn');
       addBtn.textContent = 'Update';
       addBtn.style.background = '#27ae60';
+      addBtn.onclick = () => addFieldDefinition();
       cancelBtn.style.display = 'inline-block';
     }
 
@@ -504,7 +548,108 @@
       const cancelBtn = document.getElementById('cancelEditFieldBtn');
       addBtn.textContent = 'Add';
       addBtn.style.background = '#3498db';
+      addBtn.onclick = () => addFieldDefinition();
       cancelBtn.style.display = 'none';
+    }
+
+    function refreshConfigItemsList() {
+      const configItemsList = document.getElementById('configItemsList');
+      const items = loadConfigurationItems();
+
+      configItemsList.innerHTML = '';
+      if (items.length === 0) {
+        configItemsList.innerHTML = '<div style="color:#999;">No configuration items</div>';
+        return;
+      }
+
+      items.forEach((item, index) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;gap:8px;align-items:center;padding:6px;border-bottom:1px solid #eee;justify-content:space-between;';
+
+        const info = document.createElement('div');
+        info.style.cssText = 'flex:1;font-size:0.9em;';
+        info.innerHTML = `<div style="font-weight:500;font-size:0.95em;">${escapeHtml(item.label)}</div><div style="color:#666;font-size:0.85em;">${escapeHtml(item.id)}</div>`;
+
+        const buttons = document.createElement('div');
+        buttons.style.cssText = 'display:flex;gap:4px;';
+
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.textContent = 'Edit';
+        editBtn.style.cssText = 'background:#3498db;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer;font-size:0.85em;';
+        editBtn.onclick = () => editConfigurationItem(index);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.style.cssText = 'background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer;font-size:0.85em;';
+        deleteBtn.onclick = () => {
+          deleteConfigurationItem(index);
+        };
+
+        buttons.appendChild(editBtn);
+        buttons.appendChild(deleteBtn);
+        row.appendChild(info);
+        row.appendChild(buttons);
+        configItemsList.appendChild(row);
+      });
+    }
+
+    function editConfigurationItem(index) {
+      const items = loadConfigurationItems();
+      const item = items[index];
+      if (!item) return;
+
+      currentEditingFieldIndex = index;
+      document.getElementById('fieldIdInput').value = item.id;
+      document.getElementById('fieldIdInput').disabled = true;
+      document.getElementById('fieldLabelInput').value = item.label;
+      document.getElementById('fieldLabelInput').focus();
+
+      const addBtn = document.getElementById('addFieldBtn');
+      const cancelBtn = document.getElementById('cancelEditFieldBtn');
+      addBtn.textContent = 'Update';
+      addBtn.style.background = '#27ae60';
+      addBtn.onclick = () => updateConfigurationItem();
+      cancelBtn.style.display = 'inline-block';
+    }
+
+    function updateConfigurationItem() {
+      const fieldLabel = document.getElementById('fieldLabelInput').value.trim();
+
+      if (!fieldLabel) {
+        alert('Please enter a label');
+        return;
+      }
+
+      try {
+        const items = loadConfigurationItems();
+        if (currentEditingFieldIndex !== null) {
+          items[currentEditingFieldIndex].label = fieldLabel;
+        }
+        saveConfigurationItems(items);
+        cancelEditField();
+        refreshConfigItemsList();
+        saveState();
+      } catch (e) {
+        alert('Error updating configuration item: ' + e.message);
+      }
+    }
+
+    function deleteConfigurationItem(index) {
+      if (!confirm('Delete this configuration item?')) return;
+
+      try {
+        const items = loadConfigurationItems();
+        const deletedItem = items[index];
+        items.splice(index, 1);
+        saveConfigurationItems(items);
+
+        refreshConfigItemsList();
+        saveState();
+      } catch (e) {
+        alert('Error deleting configuration item: ' + e.message);
+      }
     }
 
     function refreshFieldsList() {
@@ -556,30 +701,46 @@
       const fieldLabel = document.getElementById('fieldLabelInput').value.trim();
 
       if (!fieldId || !fieldLabel) {
-        alert('Please enter both Field ID and Label');
+        alert('Please enter both ID and Label');
         return;
       }
 
       try {
-        const definitions = loadFieldDefinitions();
+        // Check if this is a configuration item
+        const configItems = loadConfigurationItems();
+        const isConfigItem = configItems.some(c => c.id === fieldId);
 
-        if (currentEditingFieldIndex !== null) {
-          // Update existing field
-          definitions[currentEditingFieldIndex].label = fieldLabel;
-        } else {
-          // Add new field
-          const existingIndex = definitions.findIndex(d => d.id === fieldId);
-          if (existingIndex >= 0) {
-            definitions[existingIndex].label = fieldLabel;
-          } else {
-            definitions.push({ id: fieldId, label: fieldLabel, category: 'custom' });
+        if (isConfigItem) {
+          // Update configuration item
+          const index = configItems.findIndex(c => c.id === fieldId);
+          if (index >= 0) {
+            if (currentEditingFieldIndex !== null && currentEditingFieldIndex === index) {
+              configItems[index].label = fieldLabel;
+            }
           }
-        }
+          saveConfigurationItems(configItems);
+          cancelEditField();
+          refreshConfigItemsList();
+        } else {
+          // Handle custom fields
+          const definitions = loadFieldDefinitions();
 
-        saveFieldDefinitions(definitions);
-        updateAllFieldSelects();
-        cancelEditField();
-        refreshFieldsList();
+          if (currentEditingFieldIndex !== null) {
+            definitions[currentEditingFieldIndex].label = fieldLabel;
+          } else {
+            const existingIndex = definitions.findIndex(d => d.id === fieldId);
+            if (existingIndex >= 0) {
+              definitions[existingIndex].label = fieldLabel;
+            } else {
+              definitions.push({ id: fieldId, label: fieldLabel, category: 'custom' });
+            }
+          }
+
+          saveFieldDefinitions(definitions);
+          updateAllFieldSelects();
+          cancelEditField();
+          refreshFieldsList();
+        }
         saveState();
       } catch (e) {
         alert('Error saving field definition: ' + e.message);
