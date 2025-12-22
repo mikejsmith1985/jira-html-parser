@@ -1095,3 +1095,516 @@
 
 
 
+
+        formData.fields.forEach(field => addField(field));
+
+        // Reset dropdown
+        select.value = '';
+      } catch (e) {
+        alert('Error loading preset: ' + e.message);
+      }
+    }
+
+    // ========================================================================
+    // FIELD MANAGER - Modal UI Functions
+    // ========================================================================
+
+    function openFieldManager() {
+      const modal = document.getElementById('fieldManagerModal');
+      modal.style.display = 'flex';
+      refreshConfigItemsList();
+      refreshFieldsList();
+    }
+
+    function closeFieldManager() {
+      const modal = document.getElementById('fieldManagerModal');
+      modal.style.display = 'none';
+      cancelEditField();
+    }
+
+    function editFieldDefinition(index) {
+      const definitions = loadFieldDefinitions();
+      const def = definitions[index];
+      if (!def) return;
+
+      currentEditingFieldIndex = index;
+      document.getElementById('fieldIdInput').value = def.id;
+      document.getElementById('fieldIdInput').disabled = true;
+      document.getElementById('fieldLabelInput').value = def.label;
+      document.getElementById('fieldLabelInput').focus();
+
+      const addBtn = document.getElementById('addFieldBtn');
+      const cancelBtn = document.getElementById('cancelEditFieldBtn');
+      addBtn.textContent = 'Update';
+      addBtn.style.background = '#27ae60';
+      addBtn.onclick = () => addFieldDefinition();
+      cancelBtn.style.display = 'inline-block';
+    }
+
+    function cancelEditField() {
+      currentEditingFieldIndex = null;
+      document.getElementById('fieldIdInput').value = '';
+      document.getElementById('fieldIdInput').disabled = false;
+      document.getElementById('fieldLabelInput').value = '';
+      const addBtn = document.getElementById('addFieldBtn');
+      const cancelBtn = document.getElementById('cancelEditFieldBtn');
+      addBtn.textContent = 'Add';
+      addBtn.style.background = '#3498db';
+      addBtn.onclick = () => addFieldDefinition();
+      cancelBtn.style.display = 'none';
+    }
+
+    function refreshConfigItemsList() {
+      const configItemsList = document.getElementById('configItemsList');
+      const items = loadConfigurationItems();
+
+      configItemsList.innerHTML = '';
+      if (items.length === 0) {
+        configItemsList.innerHTML = '<div style="color:#999;">No configuration items</div>';
+        return;
+      }
+
+      items.forEach((item, index) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;gap:8px;align-items:center;padding:6px;border-bottom:1px solid #eee;justify-content:space-between;';
+
+        const info = document.createElement('div');
+        info.style.cssText = 'flex:1;font-size:0.9em;';
+        info.innerHTML = `<div style="font-weight:500;font-size:0.95em;">${escapeHtml(item.label)}</div><div style="color:#666;font-size:0.85em;">${escapeHtml(item.id)}</div>`;
+
+        const buttons = document.createElement('div');
+        buttons.style.cssText = 'display:flex;gap:4px;';
+
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.textContent = 'Edit';
+        editBtn.style.cssText = 'background:#3498db;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer;font-size:0.85em;';
+        editBtn.onclick = () => editConfigurationItem(index);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.style.cssText = 'background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer;font-size:0.85em;';
+        deleteBtn.onclick = () => {
+          deleteConfigurationItem(index);
+        };
+
+        buttons.appendChild(editBtn);
+        buttons.appendChild(deleteBtn);
+        row.appendChild(info);
+        row.appendChild(buttons);
+        configItemsList.appendChild(row);
+      });
+    }
+
+    function editConfigurationItem(index) {
+      const items = loadConfigurationItems();
+      const item = items[index];
+      if (!item) return;
+
+      currentEditingFieldIndex = index;
+      document.getElementById('fieldIdInput').value = item.id;
+      document.getElementById('fieldIdInput').disabled = true;
+      document.getElementById('fieldLabelInput').value = item.label;
+      document.getElementById('fieldLabelInput').focus();
+
+      const addBtn = document.getElementById('addFieldBtn');
+      const cancelBtn = document.getElementById('cancelEditFieldBtn');
+      addBtn.textContent = 'Update';
+      addBtn.style.background = '#27ae60';
+      addBtn.onclick = () => updateConfigurationItem();
+      cancelBtn.style.display = 'inline-block';
+    }
+
+    function updateConfigurationItem() {
+      const fieldLabel = document.getElementById('fieldLabelInput').value.trim();
+
+      if (!fieldLabel) {
+        alert('Please enter a label');
+        return;
+      }
+
+      try {
+        const items = loadConfigurationItems();
+        if (currentEditingFieldIndex !== null) {
+          items[currentEditingFieldIndex].label = fieldLabel;
+        }
+        saveConfigurationItems(items);
+        cancelEditField();
+        refreshConfigItemsList();
+        saveState();
+      } catch (e) {
+        alert('Error updating configuration item: ' + e.message);
+      }
+    }
+
+    function deleteConfigurationItem(index) {
+      if (!confirm('Delete this configuration item?')) return;
+
+      try {
+        const items = loadConfigurationItems();
+        const deletedItem = items[index];
+        items.splice(index, 1);
+        saveConfigurationItems(items);
+
+        refreshConfigItemsList();
+        saveState();
+      } catch (e) {
+        alert('Error deleting configuration item: ' + e.message);
+      }
+    }
+
+    function refreshFieldsList() {
+      const fieldsList = document.getElementById('fieldsList');
+      const definitions = loadFieldDefinitions();
+
+      fieldsList.innerHTML = '';
+      if (definitions.length === 0) {
+        fieldsList.innerHTML = '<div style="color:#999;">No fields defined</div>';
+        return;
+      }
+
+      definitions.forEach((def, index) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;gap:8px;align-items:center;padding:8px;border-bottom:1px solid #eee;justify-content:space-between;';
+
+        const info = document.createElement('div');
+        info.style.cssText = 'flex:1;';
+        info.innerHTML = `<div style="font-weight:500;">${escapeHtml(def.label)}</div><div style="font-size:0.9em;color:#666;">${escapeHtml(def.id)}</div>`;
+
+        const buttons = document.createElement('div');
+        buttons.style.cssText = 'display:flex;gap:4px;';
+
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.textContent = 'Edit';
+        editBtn.style.cssText = 'background:#3498db;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer;font-size:0.85em;';
+        editBtn.onclick = () => editFieldDefinition(index);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.style.cssText = 'background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer;font-size:0.85em;';
+        deleteBtn.onclick = () => deleteFieldDefinition(index);
+
+        buttons.appendChild(editBtn);
+        buttons.appendChild(deleteBtn);
+        row.appendChild(info);
+        row.appendChild(buttons);
+        fieldsList.appendChild(row);
+      });
+    }
+
+    function addFieldDefinition() {
+      const fieldId = document.getElementById('fieldIdInput').value.trim();
+      const fieldLabel = document.getElementById('fieldLabelInput').value.trim();
+
+      if (!fieldId || !fieldLabel) {
+        alert('Please enter both ID and Label');
+        return;
+      }
+
+      try {
+        // Check if this is a configuration item
+        const configItems = loadConfigurationItems();
+        const isConfigItem = configItems.some(c => c.id === fieldId);
+
+        if (isConfigItem) {
+          // Update configuration item
+          const index = configItems.findIndex(c => c.id === fieldId);
+          if (index >= 0) {
+            if (currentEditingFieldIndex !== null && currentEditingFieldIndex === index) {
+              configItems[index].label = fieldLabel;
+            }
+          }
+          saveConfigurationItems(configItems);
+          cancelEditField();
+          refreshConfigItemsList();
+        } else {
+          // Handle custom fields
+          const definitions = loadFieldDefinitions();
+
+          if (currentEditingFieldIndex !== null) {
+            definitions[currentEditingFieldIndex].label = fieldLabel;
+          } else {
+            const existingIndex = definitions.findIndex(d => d.id === fieldId);
+            if (existingIndex >= 0) {
+              definitions[existingIndex].label = fieldLabel;
+            } else {
+              definitions.push({ id: fieldId, label: fieldLabel, category: 'custom' });
+            }
+          }
+
+          saveFieldDefinitions(definitions);
+          updateAllFieldSelects();
+          cancelEditField();
+          refreshFieldsList();
+        }
+        saveState();
+      } catch (e) {
+        alert('Error saving field definition: ' + e.message);
+      }
+    }
+
+    function deleteFieldDefinition(index) {
+      if (!confirm('Delete this field definition?')) return;
+
+      try {
+        const definitions = loadFieldDefinitions();
+        definitions.splice(index, 1);
+        saveFieldDefinitions(definitions);
+
+        // Update all dropdowns
+        updateAllFieldSelects();
+
+        // Refresh list
+        refreshFieldsList();
+        saveState();
+      } catch (e) {
+        alert('Error deleting field definition: ' + e.message);
+      }
+    }
+
+    function updateAllFieldSelects() {
+      const definitions = loadFieldDefinitions();
+      const rows = document.querySelectorAll('.field-row');
+
+      rows.forEach(row => {
+        const select = row.querySelector('.field-select');
+        const currentValue = select.value;
+
+        // Clear options except placeholder
+        while (select.options.length > 1) {
+          select.remove(1);
+        }
+
+        // Add all definitions
+        definitions.forEach(def => {
+          const option = document.createElement('option');
+          option.value = def.id;
+          option.textContent = def.label;
+          select.appendChild(option);
+        });
+
+        // Restore selection
+        select.value = currentValue;
+      });
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // ========================================================================
+    // CONFIGURATION PRESETS - Functions for saving/loading templates
+    // ========================================================================
+
+    function loadConfigurationPresets() {
+      try {
+        const stored = localStorage.getItem('jiraConfigurationPresets');
+        if (!stored) return [];
+        const parsed = JSON.parse(stored);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        console.error('Failed to load presets:', e);
+        return [];
+      }
+    }
+
+    function saveConfigurationPreset(preset) {
+      try {
+        if (!preset.id || !preset.name) {
+          throw new Error('Preset must have id and name');
+        }
+        const presets = loadConfigurationPresets();
+        const index = presets.findIndex(p => p.id === preset.id);
+        if (index >= 0) {
+          presets[index] = preset;
+        } else {
+          presets.push(preset);
+        }
+        localStorage.setItem('jiraConfigurationPresets', JSON.stringify(presets));
+        return preset;
+      } catch (e) {
+        throw new Error('Failed to save preset: ' + e.message);
+      }
+    }
+
+    function deleteConfigurationPreset(presetId) {
+      try {
+        const presets = loadConfigurationPresets();
+        const index = presets.findIndex(p => p.id === presetId);
+        if (index < 0) {
+          throw new Error('Preset not found');
+        }
+        presets.splice(index, 1);
+        localStorage.setItem('jiraConfigurationPresets', JSON.stringify(presets));
+        return true;
+      } catch (e) {
+        throw new Error('Failed to delete preset: ' + e.message);
+      }
+    }
+
+    function applyPresetToForm(presetId) {
+      const presets = loadConfigurationPresets();
+      const preset = presets.find(p => p.id === presetId);
+      if (!preset) throw new Error('Preset not found');
+
+      return {
+        baseUrl: preset.baseUrl || '',
+        projectId: preset.projectId || '',
+        issueTypeId: preset.issueTypeId || '',
+        fields: preset.fields || []
+      };
+    }
+
+    function generatePresetId(name) {
+      return 'preset_' + name.toLowerCase().replace(/\s+/g, '_') + '_' + Date.now();
+    }
+
+    function openManagePresetsModal() {
+      const modal = document.getElementById('managePresetsModal');
+      if (!modal) return;
+      modal.style.display = 'flex';
+      refreshPresetsList();
+    }
+
+    function closeManagePresetsModal() {
+      const modal = document.getElementById('managePresetsModal');
+      if (!modal) return;
+      modal.style.display = 'none';
+    }
+
+    function refreshPresetsList() {
+      const presetsList = document.getElementById('presetsList');
+      if (!presetsList) return;
+
+      const presets = loadConfigurationPresets();
+      presetsList.innerHTML = '';
+
+      if (presets.length === 0) {
+        presetsList.innerHTML = '<div style="padding:16px;color:#999;">No presets saved yet</div>';
+        return;
+      }
+
+      presets.forEach((preset, index) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'padding:12px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;';
+
+        const info = document.createElement('div');
+        info.style.cssText = 'flex:1;';
+        info.innerHTML = `<div style="font-weight:500;margin-bottom:4px;">${escapeHtml(preset.name)}</div><div style="font-size:0.85em;color:#666;">${preset.description || ''}</div><div style="font-size:0.8em;color:#999;margin-top:4px;">Created: ${new Date(preset.createdAt).toLocaleString()}</div>`;
+
+        const buttons = document.createElement('div');
+        buttons.style.cssText = 'display:flex;gap:8px;';
+
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.textContent = 'Edit';
+        editBtn.style.cssText = 'background:#3498db;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;';
+        editBtn.onclick = () => editConfigurationPreset(index);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.style.cssText = 'background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;';
+        deleteBtn.onclick = () => {
+          if (confirm('Delete this preset?')) {
+            try {
+              deleteConfigurationPreset(preset.id);
+              refreshPresetsList();
+              populatePresetDropdown();
+            } catch (e) {
+              alert('Error: ' + e.message);
+            }
+          }
+        };
+
+        buttons.appendChild(editBtn);
+        buttons.appendChild(deleteBtn);
+        row.appendChild(info);
+        row.appendChild(buttons);
+        presetsList.appendChild(row);
+      });
+    }
+
+    function editConfigurationPreset(index) {
+      const presets = loadConfigurationPresets();
+      const preset = presets[index];
+      if (!preset) return;
+
+      const newName = prompt('Enter new preset name:', preset.name);
+      if (!newName) return;
+
+      preset.name = newName;
+      try {
+        saveConfigurationPreset(preset);
+        refreshPresetsList();
+        populatePresetDropdown();
+      } catch (e) {
+        alert('Error updating preset: ' + e.message);
+      }
+    }
+
+    function openSavePresetModal() {
+      const modal = document.getElementById('savePresetModal');
+      if (!modal) return;
+      modal.style.display = 'flex';
+    }
+
+    function closeSavePresetModal() {
+      const modal = document.getElementById('savePresetModal');
+      if (!modal) return;
+      modal.style.display = 'none';
+      document.getElementById('presetName').value = '';
+      document.getElementById('presetDescription').value = '';
+      document.getElementById('lockBaseUrl').checked = false;
+      document.getElementById('lockProjectId').checked = false;
+      document.getElementById('lockIssueTypeId').checked = false;
+    }
+
+    function saveCurrentAsPreset() {
+      const name = document.getElementById('presetName').value.trim();
+      const description = document.getElementById('presetDescription').value.trim();
+      const lockBaseUrl = document.getElementById('lockBaseUrl').checked;
+      const lockProjectId = document.getElementById('lockProjectId').checked;
+      const lockIssueTypeId = document.getElementById('lockIssueTypeId').checked;
+
+      if (!name) {
+        alert('Please enter a preset name');
+        return;
+      }
+
+      try {
+        const baseUrl = document.getElementById('baseUrl').value;
+        const projectId = document.getElementById('projectId').value;
+        const issueTypeId = document.getElementById('issueTypeId').value;
+        const fields = getFields();
+
+        const preset = {
+          id: generatePresetId(name),
+          name: name,
+          fields: fields,
+          createdAt: Date.now()
+        };
+
+        if (description) preset.description = description;
+        if (lockBaseUrl && baseUrl) preset.baseUrl = baseUrl;
+        if (lockProjectId && projectId) preset.projectId = projectId;
+        if (lockIssueTypeId && issueTypeId) preset.issueTypeId = issueTypeId;
+
+        saveConfigurationPreset(preset);
+
+        // Refresh preset dropdown
+        populatePresetDropdown();
+
+        closeSavePresetModal();
+        alert('Preset saved successfully!');
+      } catch (e) {
+        alert('Error saving preset: ' + e.message);
+      }
+    }
+  </script>
+</html>
