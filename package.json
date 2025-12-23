@@ -28,6 +28,7 @@
   "homepage": "https://github.com/mikejsmith1985/jira-html-parser#readme",
   "type": "commonjs",
   "devDependencies": {
-    "@playwright/test": "^1.57.0"
+    "@playwright/test": "^1.57.0",
+    "playwright": "^1.57.0"
   }
 }
