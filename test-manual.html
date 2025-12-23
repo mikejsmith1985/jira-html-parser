@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Configuration Dropdowns</title>
+</head>
+<body>
+  <h1>Manual Test - Configuration Dropdowns</h1>
+  
+  <h2>Test 1: Check Dropdowns Exist</h2>
+  <iframe src="jira-link-generator.html" style="width:100%;height:400px;border:2px solid #ccc;"></iframe>
+  
+  <h2>Test 2: Console Output</h2>
+  <button onclick="runTests()">Run Tests</button>
+  <pre id="output" style="background:#f5f5f5;padding:15px;border:1px solid #ddd;"></pre>
+  
+  <script>
+    function log(msg) {
+      document.getElementById('output').textContent += msg + '\n';
+    }
+    
+    function runTests() {
+      document.getElementById('output').textContent = '';
+      const iframe = document.querySelector('iframe');
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
+      
+      log('=== Testing Configuration Dropdowns ===');
+      log('');
+      
+      // Test 1: Check dropdowns exist
+      const baseUrl = iframeDoc.getElementById('baseUrl');
+      const projectId = iframeDoc.getElementById('projectId');
+      const issueTypeId = iframeDoc.getElementById('issueTypeId');
+      
+      log('✓ baseUrl element: ' + (baseUrl ? baseUrl.tagName : 'NOT FOUND'));
+      log('✓ projectId element: ' + (projectId ? projectId.tagName : 'NOT FOUND'));
+      log('✓ issueTypeId element: ' + (issueTypeId ? issueTypeId.tagName : 'NOT FOUND'));
+      log('');
+      
+      // Test 2: Check if they're SELECT elements
+      log('baseUrl is SELECT: ' + (baseUrl && baseUrl.tagName === 'SELECT'));
+      log('projectId is SELECT: ' + (projectId && projectId.tagName === 'SELECT'));
+      log('issueTypeId is SELECT: ' + (issueTypeId && issueTypeId.tagName === 'SELECT'));
+      log('');
+      
+      // Test 3: Check for Manage buttons
+      const manageButtons = iframeDoc.querySelectorAll('button');
+      const manageButtonCount = Array.from(manageButtons).filter(b => b.textContent.includes('Manage')).length;
+      log('✓ Manage buttons found: ' + manageButtonCount);
+      log('');
+      
+      // Test 4: Check if openConfigurationManager exists
+      const hasFunction = typeof iframe.contentWindow.openConfigurationManager === 'function';
+      log('✓ openConfigurationManager function exists: ' + hasFunction);
+      log('');
+      
+      // Test 5: Try to call it
+      if (hasFunction) {
+        try {
+          iframe.contentWindow.openConfigurationManager();
+          log('✓ openConfigurationManager() called successfully');
+          
+          const modal = iframeDoc.getElementById('configManagerModal');
+          log('✓ Modal element exists: ' + !!modal);
+          if (modal) {
+            log('✓ Modal display style: ' + modal.style.display);
+            log('✓ Modal is visible: ' + (modal.style.display === 'flex'));
+          }
+        } catch (e) {
+          log('✗ Error calling openConfigurationManager: ' + e.message);
+        }
+      }
+      
+      log('');
+      log('=== Tests Complete ===');
+    }
+  </script>
+</body>
+</html>
