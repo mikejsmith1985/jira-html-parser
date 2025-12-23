@@ -79,13 +79,28 @@
 
     <form id="jiraForm" autocomplete="off">
       <label>Base URL
-        <input type="text" id="baseUrl" placeholder="e.g. https://jira.example.com/" required>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="baseUrl" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" required onchange="saveState()">
+            <option value="">-- Select Base URL --</option>
+          </select>
+          <button type="button" onclick="openConfigurationManager()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:10px 16px;cursor:pointer;white-space:nowrap;font-weight:500;">Manage</button>
+        </div>
       </label>
       <label>Project ID (pid)
-        <input type="text" id="projectId" placeholder="e.g. 12345" required>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="projectId" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" required onchange="saveState()">
+            <option value="">-- Select Project ID --</option>
+          </select>
+          <button type="button" onclick="openConfigurationManager()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:10px 16px;cursor:pointer;white-space:nowrap;font-weight:500;">Manage</button>
+        </div>
       </label>
       <label>Issue Type ID
-        <input type="text" id="issueTypeId" placeholder="e.g. 10001" required>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="issueTypeId" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" required onchange="saveState()">
+            <option value="">-- Select Issue Type ID --</option>
+          </select>
+          <button type="button" onclick="openConfigurationManager()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:10px 16px;cursor:pointer;white-space:nowrap;font-weight:500;">Manage</button>
+        </div>
       </label>
       <div class="fields" id="fields"></div>
       <button type="button" class="add-btn" onclick="addField()">+ Add Field</button>
@@ -169,6 +184,49 @@
       </div>
     </div>
   </div>
+
+  <!-- Configuration Manager Modal -->
+  <div id="configManagerModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:8px;padding:24px;max-width:600px;width:90vw;max-height:80vh;overflow-y:auto;">
+      <h2>Manage Saved Configurations</h2>
+      
+      <div style="margin-top:16px;">
+        <h3 style="font-size:1.1em;color:#2c3e50;margin-bottom:12px;">Add New Configuration</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px;background:#f9f9f9;border-radius:4px;">
+          <div style="grid-column:1/3;">
+            <label style="display:block;margin-bottom:4px;font-weight:500;font-size:0.9em;">Alias / Label *</label>
+            <input type="text" id="configAliasInput" placeholder="e.g. Production, Dev, Staging" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block;margin-bottom:4px;font-weight:500;font-size:0.9em;">Base URL *</label>
+            <input type="text" id="configBaseUrlInput" placeholder="https://jira.company.com" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block;margin-bottom:4px;font-weight:500;font-size:0.9em;">Project ID *</label>
+            <input type="text" id="configProjectIdInput" placeholder="PROJ" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+          </div>
+          <div>
+            <label style="display:block;margin-bottom:4px;font-weight:500;font-size:0.9em;">Issue Type ID *</label>
+            <input type="text" id="configIssueTypeIdInput" placeholder="10001" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+          </div>
+          <div style="grid-column:1/3;text-align:right;margin-top:8px;">
+            <button type="button" onclick="saveNewConfiguration()" style="background:#27ae60;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-weight:500;" id="saveConfigBtn">Save Configuration</button>
+            <button type="button" onclick="cancelConfigEdit()" id="cancelConfigBtn" style="display:none;background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;margin-left:8px;">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:24px;">
+        <h3 style="font-size:1.1em;color:#2c3e50;margin-bottom:12px;">Saved Configurations</h3>
+        <div id="savedConfigsList" style="max-height:300px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:8px;"></div>
+      </div>
+
+      <div style="margin-top:16px;text-align:right;gap:8px;display:flex;justify-content:flex-end;">
+        <button type="button" onclick="closeConfigurationManager()" style="background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Close</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     let currentEditingFieldIndex = null;
     // ========================================================================
@@ -1606,5 +1664,347 @@
         alert('Error saving preset: ' + e.message);
       }
     }
+
+    // ========================================================================
+    // CONFIGURATION MANAGER - Saved Configurations with Aliases
+    // ========================================================================
+
+    function loadSavedConfigurations() {
+      try {
+        const stored = localStorage.getItem('jiraSavedConfigurations');
+        if (!stored) return [];
+        const parsed = JSON.parse(stored);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        console.error('Failed to load saved configurations:', e);
+        return [];
+      }
+    }
+
+    function saveSavedConfigurations(configurations) {
+      try {
+        localStorage.setItem('jiraSavedConfigurations', JSON.stringify(configurations));
+        return true;
+      } catch (e) {
+        console.error('Failed to save configurations:', e);
+        throw new Error('Could not save configurations (localStorage full?)');
+      }
+    }
+
+    function generateConfigId() {
+      return 'config_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    function openConfigurationManager() {
+      const modal = document.getElementById('configManagerModal');
+      modal.style.display = 'flex';
+      refreshSavedConfigsList();
+      populateAllConfigDropdowns();
+    }
+
+    function closeConfigurationManager() {
+      const modal = document.getElementById('configManagerModal');
+      modal.style.display = 'none';
+      cancelConfigEdit();
+    }
+
+    let currentEditingConfigId = null;
+
+    function saveNewConfiguration() {
+      const alias = document.getElementById('configAliasInput').value.trim();
+      const baseUrl = document.getElementById('configBaseUrlInput').value.trim();
+      const projectId = document.getElementById('configProjectIdInput').value.trim();
+      const issueTypeId = document.getElementById('configIssueTypeIdInput').value.trim();
+
+      if (!alias || !baseUrl || !projectId || !issueTypeId) {
+        alert('Please fill in all fields');
+        return;
+      }
+
+      try {
+        const configurations = loadSavedConfigurations();
+        
+        if (currentEditingConfigId) {
+          // Update existing
+          const index = configurations.findIndex(c => c.id === currentEditingConfigId);
+          if (index >= 0) {
+            configurations[index] = {
+              id: currentEditingConfigId,
+              alias: alias,
+              baseUrl: baseUrl,
+              projectId: projectId,
+              issueTypeId: issueTypeId,
+              updatedAt: Date.now()
+            };
+          }
+        } else {
+          // Add new
+          configurations.push({
+            id: generateConfigId(),
+            alias: alias,
+            baseUrl: baseUrl,
+            projectId: projectId,
+            issueTypeId: issueTypeId,
+            createdAt: Date.now()
+          });
+        }
+
+        saveSavedConfigurations(configurations);
+        refreshSavedConfigsList();
+        populateAllConfigDropdowns();
+        cancelConfigEdit();
+        alert('Configuration saved successfully!');
+      } catch (e) {
+        alert('Error saving configuration: ' + e.message);
+      }
+    }
+
+    function cancelConfigEdit() {
+      currentEditingConfigId = null;
+      document.getElementById('configAliasInput').value = '';
+      document.getElementById('configBaseUrlInput').value = '';
+      document.getElementById('configProjectIdInput').value = '';
+      document.getElementById('configIssueTypeIdInput').value = '';
+      document.getElementById('saveConfigBtn').textContent = 'Save Configuration';
+      document.getElementById('saveConfigBtn').style.background = '#27ae60';
+      document.getElementById('cancelConfigBtn').style.display = 'none';
+    }
+
+    function refreshSavedConfigsList() {
+      const list = document.getElementById('savedConfigsList');
+      const configurations = loadSavedConfigurations();
+
+      list.innerHTML = '';
+      
+      if (configurations.length === 0) {
+        list.innerHTML = '<div style="padding:16px;color:#999;text-align:center;">No saved configurations yet.<br>Add one above to get started!</div>';
+        return;
+      }
+
+      configurations.forEach((config, index) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'padding:12px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:flex-start;';
+
+        const info = document.createElement('div');
+        info.style.cssText = 'flex:1;';
+        info.innerHTML = `
+          <div style="font-weight:600;margin-bottom:6px;font-size:1.05em;color:#2c3e50;">${escapeHtml(config.alias)}</div>
+          <div style="font-size:0.9em;color:#666;margin-bottom:2px;"><strong>URL:</strong> ${escapeHtml(config.baseUrl)}</div>
+          <div style="font-size:0.9em;color:#666;margin-bottom:2px;"><strong>Project:</strong> ${escapeHtml(config.projectId)}</div>
+          <div style="font-size:0.9em;color:#666;"><strong>Issue Type:</strong> ${escapeHtml(config.issueTypeId)}</div>
+        `;
+
+        const buttons = document.createElement('div');
+        buttons.style.cssText = 'display:flex;gap:8px;flex-direction:column;';
+
+        const useBtn = document.createElement('button');
+        useBtn.type = 'button';
+        useBtn.textContent = 'Use';
+        useBtn.style.cssText = 'background:#27ae60;color:#fff;border:none;border-radius:4px;padding:6px 16px;cursor:pointer;font-size:0.9em;white-space:nowrap;';
+        useBtn.onclick = () => {
+          applyConfiguration(config.id);
+          closeConfigurationManager();
+        };
+
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.textContent = 'Edit';
+        editBtn.style.cssText = 'background:#3498db;color:#fff;border:none;border-radius:4px;padding:6px 16px;cursor:pointer;font-size:0.9em;';
+        editBtn.onclick = () => editConfiguration(config.id);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.style.cssText = 'background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:6px 16px;cursor:pointer;font-size:0.9em;';
+        deleteBtn.onclick = () => deleteConfiguration(config.id);
+
+        buttons.appendChild(useBtn);
+        buttons.appendChild(editBtn);
+        buttons.appendChild(deleteBtn);
+        row.appendChild(info);
+        row.appendChild(buttons);
+        list.appendChild(row);
+      });
+    }
+
+    function editConfiguration(configId) {
+      const configurations = loadSavedConfigurations();
+      const config = configurations.find(c => c.id === configId);
+      if (!config) return;
+
+      currentEditingConfigId = configId;
+      document.getElementById('configAliasInput').value = config.alias;
+      document.getElementById('configBaseUrlInput').value = config.baseUrl;
+      document.getElementById('configProjectIdInput').value = config.projectId;
+      document.getElementById('configIssueTypeIdInput').value = config.issueTypeId;
+      document.getElementById('saveConfigBtn').textContent = 'Update Configuration';
+      document.getElementById('saveConfigBtn').style.background = '#3498db';
+      document.getElementById('cancelConfigBtn').style.display = 'inline-block';
+
+      // Scroll to form
+      document.getElementById('configAliasInput').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    function deleteConfiguration(configId) {
+      if (!confirm('Delete this configuration?')) return;
+
+      try {
+        const configurations = loadSavedConfigurations();
+        const filtered = configurations.filter(c => c.id !== configId);
+        saveSavedConfigurations(filtered);
+        refreshSavedConfigsList();
+        populateAllConfigDropdowns();
+        alert('Configuration deleted');
+      } catch (e) {
+        alert('Error deleting configuration: ' + e.message);
+      }
+    }
+
+    function applyConfiguration(configId) {
+      const configurations = loadSavedConfigurations();
+      const config = configurations.find(c => c.id === configId);
+      if (!config) return;
+
+      document.getElementById('baseUrl').value = config.baseUrl;
+      document.getElementById('projectId').value = config.projectId;
+      document.getElementById('issueTypeId').value = config.issueTypeId;
+
+      // Remember last used
+      localStorage.setItem('lastUsedConfigId', configId);
+      
+      saveState();
+    }
+
+    function populateAllConfigDropdowns() {
+      populateBaseUrlDropdown();
+      populateProjectIdDropdown();
+      populateIssueTypeIdDropdown();
+    }
+
+    function populateBaseUrlDropdown() {
+      const select = document.getElementById('baseUrl');
+      const configurations = loadSavedConfigurations();
+      const currentValue = select.value;
+      
+      // Clear existing options except first
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+
+      // Get unique base URLs with their aliases
+      const urlMap = new Map();
+      configurations.forEach(config => {
+        if (!urlMap.has(config.baseUrl)) {
+          urlMap.set(config.baseUrl, []);
+        }
+        urlMap.get(config.baseUrl).push(config.alias);
+      });
+
+      urlMap.forEach((aliases, url) => {
+        const option = document.createElement('option');
+        option.value = url;
+        option.textContent = aliases.join(', ') + ': ' + url;
+        select.appendChild(option);
+      });
+
+      // Restore selection if it still exists
+      if (currentValue) {
+        select.value = currentValue;
+      }
+    }
+
+    function populateProjectIdDropdown() {
+      const select = document.getElementById('projectId');
+      const configurations = loadSavedConfigurations();
+      const currentValue = select.value;
+      
+      // Clear existing options except first
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+
+      // Get unique project IDs with their aliases
+      const projectMap = new Map();
+      configurations.forEach(config => {
+        if (!projectMap.has(config.projectId)) {
+          projectMap.set(config.projectId, []);
+        }
+        projectMap.get(config.projectId).push(config.alias);
+      });
+
+      projectMap.forEach((aliases, projectId) => {
+        const option = document.createElement('option');
+        option.value = projectId;
+        option.textContent = aliases.join(', ') + ': ' + projectId;
+        select.appendChild(option);
+      });
+
+      // Restore selection if it still exists
+      if (currentValue) {
+        select.value = currentValue;
+      }
+    }
+
+    function populateIssueTypeIdDropdown() {
+      const select = document.getElementById('issueTypeId');
+      const configurations = loadSavedConfigurations();
+      const currentValue = select.value;
+      
+      // Clear existing options except first
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+
+      // Get unique issue type IDs with their aliases
+      const typeMap = new Map();
+      configurations.forEach(config => {
+        if (!typeMap.has(config.issueTypeId)) {
+          typeMap.set(config.issueTypeId, []);
+        }
+        typeMap.get(config.issueTypeId).push(config.alias);
+      });
+
+      typeMap.forEach((aliases, issueTypeId) => {
+        const option = document.createElement('option');
+        option.value = issueTypeId;
+        option.textContent = aliases.join(', ') + ': ' + issueTypeId;
+        select.appendChild(option);
+      });
+
+      // Restore selection if it still exists
+      if (currentValue) {
+        select.value = currentValue;
+      }
+    }
+
+    function applyBaseUrlFromDropdown() {
+      // No longer needed - dropdown IS the input
+      saveState();
+    }
+
+    function applyProjectIdFromDropdown() {
+      // No longer needed - dropdown IS the input
+      saveState();
+    }
+
+    function applyIssueTypeIdFromDropdown() {
+      // No longer needed - dropdown IS the input
+      saveState();
+    }
+
+    // Initialize dropdowns on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      populateAllConfigDropdowns();
+      
+      // Restore last used configuration if exists
+      const lastUsedId = localStorage.getItem('lastUsedConfigId');
+      if (lastUsedId) {
+        const config = loadSavedConfigurations().find(c => c.id === lastUsedId);
+        if (config && !document.getElementById('baseUrl').value) {
+          // Only apply if form is empty
+          applyConfiguration(lastUsedId);
+        }
+      }
+    });
   </script>
 </html>

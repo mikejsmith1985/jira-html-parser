@@ -20,10 +20,14 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/mikejsmith1985/jira-html-parser"
+    "url": "git+https://github.com/mikejsmith1985/jira-html-parser.git"
   },
   "bugs": {
     "url": "https://github.com/mikejsmith1985/jira-html-parser/issues"
   },
-  "homepage": "https://github.com/mikejsmith1985/jira-html-parser#readme"
+  "homepage": "https://github.com/mikejsmith1985/jira-html-parser#readme",
+  "type": "commonjs",
+  "devDependencies": {
+    "@playwright/test": "^1.57.0"
+  }
 }
