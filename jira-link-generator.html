@@ -33,10 +33,11 @@
       min-height: 80px; padding: 8px;
     }
     .editor-container {
-      flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px;
+      flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; align-self: stretch;
     }
     .formatting-toolbar {
-      display: flex; gap: 4px; padding: 6px; background: #f0f0f0; border-radius: 4px;
+      display: flex; gap: 4px; padding: 6px; background: #f0f0f0; border-radius: 4px; width: 100%;
+      box-sizing: border-box;
     }
     .formatting-toolbar button {
       padding: 6px 10px; background: #e74c3c; color: #fff; border: none; border-radius: 4px;
@@ -129,9 +130,27 @@
         <div id="fieldsList" style="margin-bottom:16px;max-height:200px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:8px;"></div>
       </div>
       
-      <div style="margin-top:16px;display:flex;gap:8px;">
-        <input type="text" id="fieldIdInput" placeholder="ID (e.g. customfield_10001)" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;">
-        <input type="text" id="fieldLabelInput" placeholder="Label (e.g. Custom Field)" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;">
+      <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="fieldIdInput" placeholder="ID (e.g. customfield_10001)" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;">
+          <input type="text" id="fieldLabelInput" placeholder="Label (e.g. Custom Field)" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;">
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <label style="margin:0;font-weight:500;">Field Type:</label>
+          <select id="fieldTypeSelect" onchange="toggleFieldTypeOptions()" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;">
+            <option value="text">Text (Rich Editor)</option>
+            <option value="combobox">Combobox (Dropdown)</option>
+          </select>
+        </div>
+        <div id="comboboxOptionsSection" style="display:none;border:1px solid #ddd;border-radius:4px;padding:12px;background:#f9f9f9;">
+          <div style="font-weight:500;margin-bottom:8px;">Combobox Options:</div>
+          <div id="comboboxOptionsList" style="max-height:150px;overflow-y:auto;margin-bottom:8px;"></div>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="optionLabelInput" placeholder="Label (e.g. High)" style="flex:1;padding:6px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
+            <input type="text" id="optionValueInput" placeholder="Value (e.g. 1)" style="flex:1;padding:6px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
+            <button type="button" onclick="addComboboxOption()" style="background:#27ae60;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.9em;">Add Option</button>
+          </div>
+        </div>
         <button type="button" onclick="addFieldDefinition()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;" id="addFieldBtn">Add</button>
       </div>
       <div style="margin-top:16px;text-align:right;gap:8px;display:flex;justify-content:flex-end;">
@@ -300,13 +319,13 @@
     ];
 
     const DEFAULT_FIELDS = [
-      { id: "summary", label: "Summary", category: "standard" },
-      { id: "description", label: "Description", category: "standard" },
-      { id: "priority", label: "Priority", category: "standard" },
-      { id: "assignee", label: "Assignee", category: "standard" },
-      { id: "labels", label: "Labels", category: "standard" },
-      { id: "due date", label: "Due Date", category: "standard" },
-      { id: "component", label: "Component", category: "standard" }
+      { id: "summary", label: "Summary", category: "standard", fieldType: "text" },
+      { id: "description", label: "Description", category: "standard", fieldType: "text" },
+      { id: "priority", label: "Priority", category: "standard", fieldType: "text" },
+      { id: "assignee", label: "Assignee", category: "standard", fieldType: "text" },
+      { id: "labels", label: "Labels", category: "standard", fieldType: "text" },
+      { id: "due date", label: "Due Date", category: "standard", fieldType: "text" },
+      { id: "component", label: "Component", category: "standard", fieldType: "text" }
     ];
 
     // ========================================================================
@@ -442,7 +461,6 @@
       if (data.fieldId) {
         fieldSelect.value = data.fieldId;
       }
-      fieldSelect.onchange = saveState;
 
       // Manage Fields button
       const manageBtn = document.createElement('button');
@@ -454,48 +472,113 @@
         openFieldManager();
       };
 
-      // Editor container with toolbar
-      const editorContainer = document.createElement('div');
-      editorContainer.className = 'editor-container';
+      // Value input container (will be populated based on field type)
+      const valueContainer = document.createElement('div');
+      valueContainer.className = 'editor-container';
+      valueContainer.style.flex = '1';
+      valueContainer.style.minWidth = '0';
 
-      // Formatting toolbar
-      const toolbar = document.createElement('div');
-      toolbar.className = 'formatting-toolbar';
+      // Function to render the appropriate input based on field type
+      const renderFieldInput = (preserveValue = false) => {
+        const selectedFieldId = fieldSelect.value;
+        const currentDefinitions = loadFieldDefinitions(); // Get fresh definitions
+        const fieldDef = currentDefinitions.find(d => d.id === selectedFieldId);
+        
+        // Save current value if preserving
+        let currentValue = '';
+        if (preserveValue) {
+          const existingInput = valueContainer.querySelector('.rich-value');
+          if (existingInput) {
+            if (existingInput.tagName === 'SELECT') {
+              currentValue = existingInput.value;
+            } else if (existingInput.contentEditable === 'true') {
+              currentValue = existingInput.innerHTML;
+            }
+          }
+        } else {
+          currentValue = data.value || '';
+        }
+        
+        valueContainer.innerHTML = '';
+        
+        if (!fieldDef || fieldDef.fieldType === 'text' || !fieldDef.fieldType) {
+          // Render rich text editor with formatting toolbar
+          const toolbar = document.createElement('div');
+          toolbar.className = 'formatting-toolbar';
+          toolbar.style.width = '100%';
 
-      const formatButtons = [
-        { label: 'B', cmd: 'bold', title: 'Bold' },
-        { label: 'I', cmd: 'italic', title: 'Italic' },
-        { label: 'U', cmd: 'underline', title: 'Underline' },
-        { label: 'S', cmd: 'strikeThrough', title: 'Strikethrough' },
-        { label: '•', cmd: 'insertUnorderedList', title: 'Bullet List' },
-        { label: '1.', cmd: 'insertOrderedList', title: 'Numbered List' },
-        { label: '⌫', cmd: 'removeFormat', title: 'Clear Formatting' }
-      ];
+          const formatButtons = [
+            { label: 'B', cmd: 'bold', title: 'Bold' },
+            { label: 'I', cmd: 'italic', title: 'Italic' },
+            { label: 'U', cmd: 'underline', title: 'Underline' },
+            { label: 'S', cmd: 'strikeThrough', title: 'Strikethrough' },
+            { label: '•', cmd: 'insertUnorderedList', title: 'Bullet List' },
+            { label: '1.', cmd: 'insertOrderedList', title: 'Numbered List' },
+            { label: '⌫', cmd: 'removeFormat', title: 'Clear Formatting' }
+          ];
 
-      const value = document.createElement('div');
-      value.contentEditable = 'true';
-      value.className = 'rich-value';
-      value.style.minHeight = '80px';
-      value.style.width = '100%';
-      value.innerHTML = data.value || '';
-      value.oninput = saveState;
+          const richValue = document.createElement('div');
+          richValue.contentEditable = 'true';
+          richValue.className = 'rich-value';
+          richValue.style.minHeight = '80px';
+          richValue.style.width = '100%';
+          richValue.innerHTML = currentValue;
+          richValue.oninput = saveState;
 
-      formatButtons.forEach(({ label, cmd, title }) => {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.textContent = label;
-        btn.title = title;
-        btn.onclick = (e) => {
-          e.preventDefault();
-          value.focus();
-          document.execCommand(cmd, false, null);
-          saveState();
-        };
-        toolbar.appendChild(btn);
-      });
+          formatButtons.forEach(({ label, cmd, title }) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = label;
+            btn.title = title;
+            btn.onclick = (e) => {
+              e.preventDefault();
+              richValue.focus();
+              document.execCommand(cmd, false, null);
+              saveState();
+            };
+            toolbar.appendChild(btn);
+          });
 
-      editorContainer.appendChild(toolbar);
-      editorContainer.appendChild(value);
+          valueContainer.appendChild(toolbar);
+          valueContainer.appendChild(richValue);
+        } else if (fieldDef.fieldType === 'combobox') {
+          // Render combobox dropdown
+          const comboSelect = document.createElement('select');
+          comboSelect.className = 'rich-value';
+          comboSelect.style.minHeight = 'auto';
+          comboSelect.style.padding = '8px';
+
+          const comboPlaceholder = document.createElement('option');
+          comboPlaceholder.value = '';
+          comboPlaceholder.textContent = '-- Select Option --';
+          comboSelect.appendChild(comboPlaceholder);
+
+          if (fieldDef.options && Array.isArray(fieldDef.options)) {
+            fieldDef.options.forEach(opt => {
+              const option = document.createElement('option');
+              option.value = opt.value;
+              option.textContent = opt.label;
+              comboSelect.appendChild(option);
+            });
+          }
+
+          if (currentValue) {
+            comboSelect.value = currentValue;
+          }
+          comboSelect.onchange = saveState;
+
+          valueContainer.appendChild(comboSelect);
+        }
+      };
+
+      // Initial render
+      renderFieldInput(false);
+
+      // Re-render when field selection changes
+      fieldSelect.onchange = () => {
+        renderFieldInput(false); // Don't preserve value when changing fields
+        saveState();
+      };
 
       // Remove button
       const remove = document.createElement('button');
@@ -506,7 +589,7 @@
 
       row.appendChild(fieldSelect);
       row.appendChild(manageBtn);
-      row.appendChild(value);
+      row.appendChild(valueContainer);
       row.appendChild(remove);
       fieldsDiv.appendChild(row);
       saveState();
@@ -517,12 +600,26 @@
       const rows = document.querySelectorAll('.field-row');
       return Array.from(rows).map(row => {
         const fieldSelect = row.querySelector('.field-select');
-        const richValue = row.querySelector('.rich-value');
         const fieldId = fieldSelect ? fieldSelect.value : '';
+        
+        // Check if it's a rich text editor or a combobox
+        const richValue = row.querySelector('.rich-value');
+        let value = '';
+        
+        if (richValue) {
+          if (richValue.tagName === 'SELECT') {
+            // It's a combobox - get the selected value (ID)
+            value = richValue.value;
+          } else if (richValue.contentEditable === 'true') {
+            // It's a rich text editor - get the HTML content
+            value = richValue.innerHTML;
+          }
+        }
+        
         return {
           fieldId: fieldId,
           name: fieldId, // Keep name for backward compatibility with URL generation
-          value: richValue ? richValue.innerHTML : ''
+          value: value
         };
       }).filter(f => f.fieldId);
     }
@@ -647,6 +744,9 @@
       document.getElementById('fieldIdInput').value = def.id;
       document.getElementById('fieldIdInput').disabled = true;
       document.getElementById('fieldLabelInput').value = def.label;
+      document.getElementById('fieldTypeSelect').value = def.fieldType || 'text';
+      currentComboboxOptions = def.options || [];
+      toggleFieldTypeOptions();
       document.getElementById('fieldLabelInput').focus();
 
       const addBtn = document.getElementById('addFieldBtn');
@@ -659,15 +759,81 @@
 
     function cancelEditField() {
       currentEditingFieldIndex = null;
+      currentComboboxOptions = [];
       document.getElementById('fieldIdInput').value = '';
       document.getElementById('fieldIdInput').disabled = false;
       document.getElementById('fieldLabelInput').value = '';
+      document.getElementById('fieldTypeSelect').value = 'text';
+      toggleFieldTypeOptions();
       const addBtn = document.getElementById('addFieldBtn');
       const cancelBtn = document.getElementById('cancelEditFieldBtn');
       addBtn.textContent = 'Add';
       addBtn.style.background = '#3498db';
       addBtn.onclick = () => addFieldDefinition();
       cancelBtn.style.display = 'none';
+    }
+
+    // Field Type & Combobox Options Management
+    let currentComboboxOptions = [];
+
+    function toggleFieldTypeOptions() {
+      const fieldType = document.getElementById('fieldTypeSelect').value;
+      const optionsSection = document.getElementById('comboboxOptionsSection');
+      optionsSection.style.display = fieldType === 'combobox' ? 'block' : 'none';
+      if (fieldType === 'combobox') {
+        refreshComboboxOptionsList();
+      }
+    }
+
+    function addComboboxOption() {
+      const labelInput = document.getElementById('optionLabelInput');
+      const valueInput = document.getElementById('optionValueInput');
+      const label = labelInput.value.trim();
+      const value = valueInput.value.trim();
+
+      if (!label || !value) {
+        alert('Both label and value are required');
+        return;
+      }
+
+      currentComboboxOptions.push({ label, value });
+      labelInput.value = '';
+      valueInput.value = '';
+      refreshComboboxOptionsList();
+    }
+
+    function removeComboboxOption(index) {
+      currentComboboxOptions.splice(index, 1);
+      refreshComboboxOptionsList();
+    }
+
+    function refreshComboboxOptionsList() {
+      const list = document.getElementById('comboboxOptionsList');
+      list.innerHTML = '';
+
+      if (currentComboboxOptions.length === 0) {
+        list.innerHTML = '<div style="color:#999;font-size:0.85em;padding:4px;">No options added</div>';
+        return;
+      }
+
+      currentComboboxOptions.forEach((opt, index) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;gap:8px;align-items:center;padding:4px;border-bottom:1px solid #ddd;';
+        
+        const info = document.createElement('div');
+        info.style.cssText = 'flex:1;font-size:0.85em;';
+        info.innerHTML = `<strong>${escapeHtml(opt.label)}</strong> → ${escapeHtml(opt.value)}`;
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.textContent = '×';
+        deleteBtn.style.cssText = 'background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:2px 8px;cursor:pointer;font-size:1.2em;line-height:1;';
+        deleteBtn.onclick = () => removeComboboxOption(index);
+        
+        row.appendChild(info);
+        row.appendChild(deleteBtn);
+        list.appendChild(row);
+      });
     }
 
     function refreshConfigItemsList() {
@@ -817,9 +983,15 @@
     function addFieldDefinition() {
       const fieldId = document.getElementById('fieldIdInput').value.trim();
       const fieldLabel = document.getElementById('fieldLabelInput').value.trim();
+      const fieldType = document.getElementById('fieldTypeSelect').value;
 
       if (!fieldId || !fieldLabel) {
         alert('Please enter both ID and Label');
+        return;
+      }
+
+      if (fieldType === 'combobox' && currentComboboxOptions.length === 0) {
+        alert('Please add at least one option for combobox fields');
         return;
       }
 
@@ -843,14 +1015,25 @@
           // Handle custom fields
           const definitions = loadFieldDefinitions();
 
+          const fieldData = { 
+            id: fieldId, 
+            label: fieldLabel, 
+            category: 'custom',
+            fieldType: fieldType
+          };
+
+          if (fieldType === 'combobox') {
+            fieldData.options = [...currentComboboxOptions];
+          }
+
           if (currentEditingFieldIndex !== null) {
-            definitions[currentEditingFieldIndex].label = fieldLabel;
+            definitions[currentEditingFieldIndex] = { ...definitions[currentEditingFieldIndex], ...fieldData };
           } else {
             const existingIndex = definitions.findIndex(d => d.id === fieldId);
             if (existingIndex >= 0) {
-              definitions[existingIndex].label = fieldLabel;
+              definitions[existingIndex] = { ...definitions[existingIndex], ...fieldData };
             } else {
-              definitions.push({ id: fieldId, label: fieldLabel, category: 'custom' });
+              definitions.push(fieldData);
             }
           }
 
@@ -1233,6 +1416,9 @@
       document.getElementById('fieldIdInput').value = def.id;
       document.getElementById('fieldIdInput').disabled = true;
       document.getElementById('fieldLabelInput').value = def.label;
+      document.getElementById('fieldTypeSelect').value = def.fieldType || 'text';
+      currentComboboxOptions = def.options || [];
+      toggleFieldTypeOptions();
       document.getElementById('fieldLabelInput').focus();
 
       const addBtn = document.getElementById('addFieldBtn');
@@ -1245,9 +1431,12 @@
 
     function cancelEditField() {
       currentEditingFieldIndex = null;
+      currentComboboxOptions = [];
       document.getElementById('fieldIdInput').value = '';
       document.getElementById('fieldIdInput').disabled = false;
       document.getElementById('fieldLabelInput').value = '';
+      document.getElementById('fieldTypeSelect').value = 'text';
+      toggleFieldTypeOptions();
       const addBtn = document.getElementById('addFieldBtn');
       const cancelBtn = document.getElementById('cancelEditFieldBtn');
       addBtn.textContent = 'Add';
@@ -1400,9 +1589,15 @@
     function addFieldDefinition() {
       const fieldId = document.getElementById('fieldIdInput').value.trim();
       const fieldLabel = document.getElementById('fieldLabelInput').value.trim();
+      const fieldType = document.getElementById('fieldTypeSelect').value;
 
       if (!fieldId || !fieldLabel) {
         alert('Please enter both ID and Label');
+        return;
+      }
+
+      if (fieldType === 'combobox' && currentComboboxOptions.length === 0) {
+        alert('Please add at least one option for combobox fields');
         return;
       }
 
@@ -1426,14 +1621,25 @@
           // Handle custom fields
           const definitions = loadFieldDefinitions();
 
+          const fieldData = { 
+            id: fieldId, 
+            label: fieldLabel, 
+            category: 'custom',
+            fieldType: fieldType
+          };
+
+          if (fieldType === 'combobox') {
+            fieldData.options = [...currentComboboxOptions];
+          }
+
           if (currentEditingFieldIndex !== null) {
-            definitions[currentEditingFieldIndex].label = fieldLabel;
+            definitions[currentEditingFieldIndex] = { ...definitions[currentEditingFieldIndex], ...fieldData };
           } else {
             const existingIndex = definitions.findIndex(d => d.id === fieldId);
             if (existingIndex >= 0) {
-              definitions[existingIndex].label = fieldLabel;
+              definitions[existingIndex] = { ...definitions[existingIndex], ...fieldData };
             } else {
-              definitions.push({ id: fieldId, label: fieldLabel, category: 'custom' });
+              definitions.push(fieldData);
             }
           }
 
