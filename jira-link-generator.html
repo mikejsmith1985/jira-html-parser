@@ -76,6 +76,8 @@
         <option value="">-- Load Preset --</option>
       </select>
       <button type="button" onclick="openManagePresetsModal()" style="background: #3498db; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer;">Manage Presets</button>
+      <button type="button" onclick="exportConfiguration()" style="background: #27ae60; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Export all configurations, fields, and dropdowns to a JSON file">Export Config</button>
+      <button type="button" onclick="openImportModal()" style="background: #e67e22; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Import configurations from a JSON file">Import Config</button>
     </div>
 
     <form id="jiraForm" autocomplete="off">
@@ -399,6 +401,16 @@
     // RESTORE LAST STATE & MIGRATION
     // ========================================================================
     window.onload = function() {
+      // Check for config URL parameter (e.g., ?config=https://...)
+      const params = new URLSearchParams(window.location.search);
+      const configUrl = params.get('config');
+      
+      if (configUrl) {
+        // Load configuration from URL before initializing form
+        loadConfigurationFromUrl(configUrl);
+        return; // Don't continue until config is loaded
+      }
+
       const fieldDefinitions = loadFieldDefinitions();
       const saved = localStorage.getItem('jiraGenState');
       if (saved) {
@@ -2544,6 +2556,147 @@
       if (currentValue) {
         select.value = currentValue;
       }
+    }
+
+    // ========================================================================
+    // CONFIGURATION EXPORT/IMPORT & URL LOADING
+    // ========================================================================
+
+    function exportConfiguration() {
+      try {
+        const config = {
+          version: '0.4.0',
+          exportedAt: new Date().toISOString(),
+          description: 'JIRA Issue Link Generator Configuration',
+          configItems: loadConfigurationItems(),
+          fieldDefinitions: loadFieldDefinitions(),
+          baseUrls: loadItems('jiraBaseUrls'),
+          projectIds: loadItems('jiraProjectIds'),
+          issueTypeIds: loadItems('jiraIssueTypeIds')
+        };
+
+        const jsonString = JSON.stringify(config, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `jira-config-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        alert('Configuration exported successfully!');
+      } catch (e) {
+        alert('Error exporting configuration: ' + e.message);
+      }
+    }
+
+    function importConfiguration(file) {
+      try {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const config = JSON.parse(e.target.result);
+
+          // Validate config structure
+          if (!config.version) {
+            throw new Error('Invalid configuration file: missing version');
+          }
+
+          // Import all data
+          if (config.configItems && Array.isArray(config.configItems)) {
+            saveConfigurationItems(config.configItems);
+          }
+          if (config.fieldDefinitions && Array.isArray(config.fieldDefinitions)) {
+            saveFieldDefinitions(config.fieldDefinitions);
+          }
+          if (config.baseUrls && Array.isArray(config.baseUrls)) {
+            saveItems('jiraBaseUrls', config.baseUrls);
+          }
+          if (config.projectIds && Array.isArray(config.projectIds)) {
+            saveItems('jiraProjectIds', config.projectIds);
+          }
+          if (config.issueTypeIds && Array.isArray(config.issueTypeIds)) {
+            saveItems('jiraIssueTypeIds', config.issueTypeIds);
+          }
+
+          alert('Configuration imported successfully! Reloading...');
+          window.location.reload();
+        };
+        reader.onerror = function() {
+          throw new Error('Failed to read file');
+        };
+        reader.readAsText(file);
+      } catch (e) {
+        alert('Error importing configuration: ' + e.message);
+      }
+    }
+
+    function loadConfigurationFromUrl(configUrl) {
+      try {
+        console.log('Loading configuration from URL:', configUrl);
+        
+        // Use fetch to load the config from URL
+        fetch(configUrl)
+          .then(response => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+          })
+          .then(config => {
+            // Validate config structure
+            if (!config.version) {
+              throw new Error('Invalid configuration: missing version');
+            }
+
+            // Only import if config is newer or first time
+            const lastImportTime = localStorage.getItem('jiraLastConfigImportTime');
+            const configTime = new Date(config.exportedAt).getTime();
+
+            // Import all data
+            if (config.configItems && Array.isArray(config.configItems)) {
+              saveConfigurationItems(config.configItems);
+            }
+            if (config.fieldDefinitions && Array.isArray(config.fieldDefinitions)) {
+              saveFieldDefinitions(config.fieldDefinitions);
+            }
+            if (config.baseUrls && Array.isArray(config.baseUrls)) {
+              saveItems('jiraBaseUrls', config.baseUrls);
+            }
+            if (config.projectIds && Array.isArray(config.projectIds)) {
+              saveItems('jiraProjectIds', config.projectIds);
+            }
+            if (config.issueTypeIds && Array.isArray(config.issueTypeIds)) {
+              saveItems('jiraIssueTypeIds', config.issueTypeIds);
+            }
+
+            // Save import timestamp
+            localStorage.setItem('jiraLastConfigImportTime', configTime);
+            localStorage.setItem('jiraLastConfigUrl', configUrl);
+
+            console.log('Configuration loaded from URL successfully');
+            // Reload to refresh UI with new config
+            window.location.reload();
+          })
+          .catch(e => {
+            console.error('Failed to load configuration from URL:', e);
+            // Don't alert - might be offline, let app continue
+          });
+      } catch (e) {
+        console.error('Error loading configuration from URL:', e);
+      }
+    }
+
+    function openImportModal() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          importConfiguration(file);
+        }
+      };
+      input.click();
     }
 
     // ========================================================================
