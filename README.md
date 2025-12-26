@@ -18,6 +18,14 @@ A powerful, client-side tool to generate pre-filled Jira issue creation links wi
 - Options management UI for combobox fields
 - Perfect for fields with fixed values (Story Points, Priority, etc.)
 
+🔄 **Configuration Export/Import** (v0.4.0+)
+- **Export Config**: Download all fields, types, and dropdown values as JSON
+- **Import Config**: Upload JSON file to instantly configure the app
+- **Auto-Load**: Use URL parameter `?config=<url>` to pre-configure automatically
+- **No API Required**: Works with Confluence, GitHub, S3, or any static file host
+- **Team Distribution**: Share single configuration file with entire team
+- **Easy Updates**: Modify config once, distribute to all users
+
 🎯 **Configuration Items Management** (v0.3.0+)
 - Edit labels for Base URL, Project ID, and Issue Type ID
 - Delete and restore configuration items
@@ -119,6 +127,57 @@ Options:
 When generating a link, if user selects "3 Points", 
 JIRA receives: `customfield_10001=54507`
 
+### Configuration Export/Import
+
+#### Export Your Configuration
+
+1. Build your custom fields and dropdown values in the app
+2. Click the green **"Export Config"** button
+3. A JSON file downloads: `jira-config-YYYY-MM-DD.json`
+4. Share this file with your team or attach to Confluence
+
+**What's exported**:
+- Custom field definitions (with types and combobox options)
+- Configuration item labels
+- Base URLs, Project IDs, and Issue Type ID values
+
+#### Import Configuration
+
+**Option A: Manual Import**
+1. Click the orange **"Import Config"** button
+2. Select a previously exported JSON file
+3. Application reloads with all configurations loaded
+4. Ready to use!
+
+**Option B: Auto-Load from URL**
+Add a query parameter to the HTML link:
+```
+jira-link-generator.html?config=https://confluence.example.com/download/attachments/123456/jira-config.json
+```
+
+Users click the link → Configuration auto-loads → No setup needed
+
+#### Team Setup on Confluence
+
+1. Create Confluence page: "JIRA Issue Link Generator"
+2. Upload both `jira-link-generator.html` and `jira-config.json`
+3. Create link with auto-load parameter:
+   ```
+   [Open JIRA Link Generator](jira-link-generator.html?config=https://confluence.../jira-config.json)
+   ```
+4. Share with team → Configuration auto-loads when users open the link
+
+#### Updating Configuration
+
+When you need to add fields or update dropdown values:
+1. Download current `jira-config.json` from Confluence
+2. Open `jira-link-generator.html`
+3. Click "Import Config" and select the file
+4. Make your changes
+5. Click "Export Config" to download the updated file
+6. Replace the file on Confluence
+7. Users auto-load the new configuration on next visit
+
 ### Save Presets
 
 1. Fill in form with your desired values
@@ -180,6 +239,10 @@ npm run test:validate    # HTML structure validation
 
 ## Documentation
 
+- **[EXPORT-IMPORT-QUICK-START.md](EXPORT-IMPORT-QUICK-START.md)** - Quick start guide for export/import (v0.4.0+)
+- **[CONFLUENCE-SETUP-GUIDE.md](CONFLUENCE-SETUP-GUIDE.md)** - Step-by-step Confluence integration guide (v0.4.0+)
+- **[CONFIGURATION-EXPORT-IMPORT.md](CONFIGURATION-EXPORT-IMPORT.md)** - Technical documentation for export/import (v0.4.0+)
+- **[EXPORT-IMPORT-IMPLEMENTATION.md](EXPORT-IMPORT-IMPLEMENTATION.md)** - Complete implementation details (v0.4.0+)
 - **[FIELD-TYPE-IMPLEMENTATION.md](FIELD-TYPE-IMPLEMENTATION.md)** - Field type system technical details (v0.4.0)
 - **[RELEASE-v0.4.0.md](RELEASE-v0.4.0.md)** - Latest release notes
 - **[CONFIG_ITEMS_USAGE_GUIDE.md](CONFIG_ITEMS_USAGE_GUIDE.md)** - Detailed user guide with examples
@@ -206,8 +269,15 @@ npm run test:validate    # HTML structure validation
   - Combobox fields with label/value pairs for JIRA IDs
   - Options management UI for combobox configuration
   - Dynamic rendering based on field type
+- 🔄 **Configuration Export/Import**
+  - One-click export of all configurations to JSON
+  - One-click import to load configurations from JSON
+  - URL parameter support for auto-loading (`?config=<url>`)
+  - No API required - works with Confluence, GitHub, S3, etc.
+  - Perfect for team distribution and centralized configuration
+  - CORS-compatible with graceful fallback
 - 📊 5 new comprehensive tests for field types (100% passing)
-- 📖 Enhanced documentation with examples
+- 📖 4 new comprehensive guides for export/import
 - 🎨 Improved formatting toolbar visibility and sizing
 
 ### v0.3.0
