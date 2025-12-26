@@ -6,11 +6,17 @@ A powerful, client-side tool to generate pre-filled Jira issue creation links wi
 
 ✨ **Core Features**
 - Generate pre-filled Jira issue links with custom fields
-- Rich text editing for field values (bold, italic, underline, strikethrough, lists)
 - Base URL, Project ID, and Issue Type ID management
 - Custom field definitions and persistence
 - Configuration presets for quick setup
 - Fully customizable configuration item labels
+
+📝 **Flexible Field Types** (v0.4.0+)
+- **Text Fields**: Rich text editing with full formatting toolbar (bold, italic, underline, strikethrough, lists)
+- **Combobox Fields**: Dropdown with label/value pairs for predefined options
+- Configure field type when creating custom fields
+- Options management UI for combobox fields
+- Perfect for fields with fixed values (Story Points, Priority, etc.)
 
 🎯 **Configuration Items Management** (v0.3.0+)
 - Edit labels for Base URL, Project ID, and Issue Type ID
@@ -53,7 +59,7 @@ A powerful, client-side tool to generate pre-filled Jira issue creation links wi
    - Copy the generated URL
    - Paste in browser to create pre-filled Jira issue
 
-### Manage Configuration Items
+### Manage Custom Fields
 
 Click "Manage Fields" button to access:
 
@@ -64,8 +70,54 @@ Click "Manage Fields" button to access:
 
 **Custom Fields Section**
 - Add/edit/delete custom field definitions
+- Choose field type: Text or Combobox
+  - **Text**: Rich text editor with formatting toolbar
+  - **Combobox**: Dropdown with label/value pairs
 - Field IDs and labels customizable
 - Shared with preset system
+
+#### Creating a Text Field
+1. Click "Manage Fields"
+2. Enter Field ID (e.g., `custom_field_123`)
+3. Enter Field Label (e.g., `Description`)
+4. Select Field Type: **Text (Rich Editor)**
+5. Click "Add"
+
+#### Creating a Combobox Field
+1. Click "Manage Fields"
+2. Enter Field ID (e.g., `customfield_10001`)
+3. Enter Field Label (e.g., `Story Points`)
+4. Select Field Type: **Combobox (Dropdown)**
+5. Add options:
+   - Enter Label (user-friendly text, e.g., "High")
+   - Enter Value (JIRA ID, e.g., "1")
+   - Click "Add Option"
+6. Repeat for all options needed
+7. Click "Add" to save field
+
+#### Using a Combobox Field
+When you select a combobox field in a field row:
+- A dropdown appears with your options
+- User sees the friendly label (e.g., "High")
+- JIRA receives the actual value (e.g., "1")
+- No typos - only valid options available
+
+### Example: Story Points Combobox
+```
+Field ID: customfield_10001
+Field Label: Story Points Selection
+Type: Combobox
+
+Options:
+  Label: "0 Points"  → Value: "104111"
+  Label: "1 Point"   → Value: "54505"
+  Label: "2 Points"  → Value: "54506"
+  Label: "3 Points"  → Value: "54507"
+  Label: "5 Points"  → Value: "54508"
+```
+
+When generating a link, if user selects "3 Points", 
+JIRA receives: `customfield_10001=54507`
 
 ### Save Presets
 
@@ -111,6 +163,9 @@ Run comprehensive tests:
 # Run all tests
 npm test
 
+# Run field type tests
+npm run test:field-types
+
 # Run specific test suite
 npm run test:config      # Config items tests
 npm run test:integration # Integration tests
@@ -118,10 +173,15 @@ npm run test:workflows   # End-to-end workflows
 npm run test:validate    # HTML structure validation
 ```
 
-**Test Coverage: 66 tests, 100% passing**
+**Test Coverage: 71 tests, 100% passing**
+- 5 field type tests (combobox, text, options, persistence)
+- 66 configuration and integration tests
+- Full coverage of new features
 
 ## Documentation
 
+- **[FIELD-TYPE-IMPLEMENTATION.md](FIELD-TYPE-IMPLEMENTATION.md)** - Field type system technical details (v0.4.0)
+- **[RELEASE-v0.4.0.md](RELEASE-v0.4.0.md)** - Latest release notes
 - **[CONFIG_ITEMS_USAGE_GUIDE.md](CONFIG_ITEMS_USAGE_GUIDE.md)** - Detailed user guide with examples
 - **[CONFIG_ITEMS_ENHANCEMENT.md](CONFIG_ITEMS_ENHANCEMENT.md)** - Technical implementation details
 - **[QUICK_REFERENCE.md](QUICK_REFERENCE.md)** - Quick start guide
@@ -140,7 +200,17 @@ npm run test:validate    # HTML structure validation
 
 ## Version History
 
-### v0.3.0 (Current)
+### v0.4.0 (Current)
+- ✨ **Field Type System**
+  - Text fields with rich text editor and formatting toolbar
+  - Combobox fields with label/value pairs for JIRA IDs
+  - Options management UI for combobox configuration
+  - Dynamic rendering based on field type
+- 📊 5 new comprehensive tests for field types (100% passing)
+- 📖 Enhanced documentation with examples
+- 🎨 Improved formatting toolbar visibility and sizing
+
+### v0.3.0
 - ✨ Configuration Items Management
   - Full management UI for Base URL, Project ID, Issue Type ID
   - Edit labels, delete/restore items
@@ -300,5 +370,5 @@ Contributions welcome!
 ---
 
 **Status: ✓ Production Ready**  
-**Last Updated**: December 2025  
-**Current Version**: 0.3.0
+**Last Updated**: December 26, 2025  
+**Current Version**: 0.4.0
