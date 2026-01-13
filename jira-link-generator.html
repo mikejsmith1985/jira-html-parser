@@ -2593,9 +2593,9 @@
     }
 
     function importConfiguration(file) {
-      try {
-        const reader = new FileReader();
-        reader.onload = function(e) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
           const config = JSON.parse(e.target.result);
 
           // Validate config structure
@@ -2622,14 +2622,14 @@
 
           alert('Configuration imported successfully! Reloading...');
           window.location.reload();
-        };
-        reader.onerror = function() {
-          throw new Error('Failed to read file');
-        };
-        reader.readAsText(file);
-      } catch (e) {
-        alert('Error importing configuration: ' + e.message);
-      }
+        } catch (e) {
+          alert('Error importing configuration: ' + e.message);
+        }
+      };
+      reader.onerror = function() {
+        alert('Error importing configuration: Failed to read file');
+      };
+      reader.readAsText(file);
     }
 
     function loadConfigurationFromUrl(configUrl) {

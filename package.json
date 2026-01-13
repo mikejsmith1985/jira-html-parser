@@ -4,11 +4,12 @@
   "description": "Jira Issue Link Generator - Create pre-filled Jira issue creation links with customizable fields",
   "main": "jira-link-generator.html",
   "scripts": {
-    "test": "node test-config-items.js && node test-config-items-integration.js && node test-e2e-workflows.js && node validate-html.js",
+    "test": "node test-config-items.js && node test-config-items-integration.js && node test-e2e-workflows.js && node validate-html.js && npx playwright test test-export-import.spec.js",
     "test:config": "node test-config-items.js",
     "test:integration": "node test-config-items-integration.js",
     "test:workflows": "node test-e2e-workflows.js",
-    "test:validate": "node validate-html.js"
+    "test:validate": "node validate-html.js",
+    "test:export-import": "npx playwright test test-export-import.spec.js"
   },
   "keywords": [
     "jira",
