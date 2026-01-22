@@ -1,0 +1,1867 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>ServiceNow Link Generator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6fa; margin: 0; padding: 0; }
+    .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+    h1 { font-size: 1.6em; margin-bottom: 0.5em; }
+    label { display: block; margin-top: 1em; font-weight: 500; }
+    input[type="text"], select, textarea, .rich-value {
+      width: 100%; padding: 8px; margin-top: 4px; border: 1px solid #ccc; border-radius: 4px;
+      font-size: 1em; box-sizing: border-box;
+    }
+    .fields { margin-top: 1.5em; }
+    .field-row {
+      display: flex; gap: 6px; align-items: flex-end; margin-bottom: 10px;
+      flex-wrap: nowrap;
+    }
+    .field-select {
+      flex: 0 0 auto; width: 150px;
+      padding: 8px; border: 1px solid #ccc; border-radius: 4px;
+      font-size: 1em; box-sizing: border-box;
+    }
+    .manage-fields-btn {
+      background: #3498db; color: #fff; border: none; border-radius: 4px;
+      padding: 8px 12px; cursor: pointer; font-size: 0.95em; white-space: nowrap; flex-shrink: 0;
+    }
+    .manage-fields-btn:hover { background: #217dbb; }
+    .field-row .rich-value {
+      flex: 1; min-width: 0;
+      min-height: 80px; padding: 8px;
+    }
+    .editor-container {
+      flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; align-self: stretch;
+    }
+    .formatting-toolbar {
+      display: flex; gap: 4px; padding: 6px; background: #f0f0f0; border-radius: 4px; width: 100%;
+      box-sizing: border-box;
+    }
+    .formatting-toolbar button {
+      padding: 6px 10px; background: #e74c3c; color: #fff; border: none; border-radius: 4px;
+      cursor: pointer; font-size: 0.9em; font-weight: 600; min-width: 32px;
+    }
+    .formatting-toolbar button:hover {
+      background: #c0392b;
+    }
+    .remove-field-btn {
+      background: #e74c3c; color: #fff; border: none; border-radius: 4px;
+      padding: 8px 12px; cursor: pointer; font-size: 0.95em; white-space: nowrap; flex-shrink: 0;
+    }
+    .remove-field-btn:hover { background: #c0392b; }
+    .add-btn { background: #3498db; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; margin-top: 8px; cursor: pointer; }
+    .add-btn:hover { background: #217dbb; }
+    .generate-btn { background: #27ae60; color: #fff; border: none; border-radius: 4px; padding: 12px 24px; font-size: 1.1em; margin-top: 20px; cursor: pointer; width: 100%; }
+    .generate-btn:hover { background: #1e874b; }
+    .output { margin-top: 2em; background: #f9f9f9; border-radius: 6px; padding: 16px; word-break: break-all; }
+    .copy-btn { background: #f1c40f; color: #333; border: none; border-radius: 4px; padding: 6px 12px; margin-left: 8px; cursor: pointer; }
+    .copy-btn:hover { background: #d4ac0d; }
+    @media (max-width: 600px) {
+      .container { padding: 12px; }
+      .field-row { flex-direction: column; gap: 4px; flex-wrap: wrap; align-items: stretch; }
+      .field-select { width: 100%; }
+      .field-row .rich-value { min-height: 60px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ServiceNow Link Generator</h1>
+
+    <!-- Load Preset Dropdown -->
+    <div style="margin-bottom: 20px; display: flex; gap: 8px; align-items: center;">
+      <select id="presetSelect" onchange="loadPresetFromDropdown()" style="flex: 1; padding: 8px; border: 1px solid #3498db; border-radius: 4px; font-size: 1em;">
+        <option value="">-- Load Preset --</option>
+      </select>
+      <button type="button" onclick="openManagePresetsModal()" style="background: #3498db; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer;">Manage Presets</button>
+      <button type="button" onclick="exportConfiguration()" style="background: #27ae60; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Export all configurations, fields, and dropdowns to a JSON file">Export Config</button>
+      <button type="button" onclick="openImportModal()" style="background: #e67e22; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Import configurations from a JSON file">Import Config</button>
+    </div>
+
+    <form id="snowForm" autocomplete="off">
+      <label>Base URL
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="baseUrl" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" required onchange="saveState()">
+            <option value="">-- Select Base URL --</option>
+          </select>
+          <button type="button" onclick="openBaseUrlManager()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:10px 16px;cursor:pointer;white-space:nowrap;font-weight:500;">Manage</button>
+        </div>
+      </label>
+      <label>Table Name
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="tableName" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" required onchange="saveState()">
+            <option value="">-- Select Table Name --</option>
+          </select>
+          <button type="button" onclick="openTableNameManager()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:10px 16px;cursor:pointer;white-space:nowrap;font-weight:500;">Manage</button>
+        </div>
+      </label>
+      <div class="fields" id="fields"></div>
+      <button type="button" class="add-btn" onclick="addField()">+ Add Field</button>
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button type="submit" class="generate-btn" style="flex: 1;">Generate Link</button>
+        <button type="button" onclick="openSavePresetModal()" style="background: #9b59b6; color: #fff; border: none; border-radius: 4px; padding: 12px 24px; font-size: 1.1em; cursor: pointer; flex: 1;">Save as Preset</button>
+      </div>
+    </form>
+    <div class="output" id="output" style="display:none;">
+      <strong>Generated Link:</strong>
+      <div id="link"></div>
+      <button class="copy-btn" onclick="copyLink()">Copy</button>
+    </div>
+  </div>
+
+  <!-- Field Management Modal -->
+  <div id="fieldManagerModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:8px;padding:24px;max-width:500px;width:90vw;max-height:80vh;overflow-y:auto;">
+      <h2>Manage Fields & Configuration</h2>
+      
+      <div style="margin-top:16px;">
+        <h3 style="font-size:1em;color:#2c3e50;margin-bottom:8px;">Configuration Items</h3>
+        <div id="configItemsList" style="margin-bottom:16px;max-height:150px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:8px;background:#f9f9f9;"></div>
+        
+        <h3 style="font-size:1em;color:#2c3e50;margin-top:16px;margin-bottom:8px;">Custom Fields</h3>
+        <div id="fieldsList" style="margin-bottom:16px;max-height:200px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:8px;"></div>
+      </div>
+      
+      <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;gap:8px;">
+          <input type="text" id="fieldIdInput" placeholder="ID (e.g. u_custom_field)" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;">
+          <input type="text" id="fieldLabelInput" placeholder="Label (e.g. Custom Field)" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;">
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <label style="margin:0;font-weight:500;">Field Type:</label>
+          <select id="fieldTypeSelect" onchange="toggleFieldTypeOptions()" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;">
+            <option value="text">Text (Rich Editor)</option>
+            <option value="combobox">Combobox (Dropdown)</option>
+          </select>
+        </div>
+        <div id="comboboxOptionsSection" style="display:none;border:1px solid #ddd;border-radius:4px;padding:12px;background:#f9f9f9;">
+          <div style="font-weight:500;margin-bottom:8px;">Combobox Options:</div>
+          <div id="comboboxOptionsList" style="max-height:150px;overflow-y:auto;margin-bottom:8px;"></div>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="optionLabelInput" placeholder="Label (e.g. High)" style="flex:1;padding:6px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
+            <input type="text" id="optionValueInput" placeholder="Value (e.g. 1)" style="flex:1;padding:6px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
+            <button type="button" onclick="addComboboxOption()" style="background:#27ae60;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.9em;">Add Option</button>
+          </div>
+        </div>
+        <button type="button" onclick="addFieldDefinition()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;" id="addFieldBtn">Add</button>
+      </div>
+      <div style="margin-top:16px;text-align:right;gap:8px;display:flex;justify-content:flex-end;">
+        <button type="button" onclick="cancelEditField()" id="cancelEditFieldBtn" style="display:none;background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Cancel</button>
+        <button type="button" onclick="closeFieldManager()" style="background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Save Preset Modal -->
+  <div id="savePresetModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:8px;padding:24px;max-width:500px;width:90vw;">
+      <h2>Save as Preset</h2>
+      <div style="margin-top:16px;">
+        <label style="display:block;margin-bottom:8px;font-weight:500;">Preset Name *</label>
+        <input type="text" id="presetNameInput" placeholder="e.g. Incident Report" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+      </div>
+      <div style="margin-top:16px;">
+        <label style="display:block;margin-bottom:8px;font-weight:500;">Description (optional)</label>
+        <textarea id="presetDescriptionInput" placeholder="What is this preset for?" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;min-height:60px;"></textarea>
+      </div>
+      <div style="margin-top:16px;padding:12px;background:#f5f5f5;border-radius:4px;">
+        <label style="display:flex;align-items:center;margin-bottom:8px;cursor:pointer;">
+          <input type="checkbox" id="lockBaseUrl" style="margin-right:8px;">
+          <span>Lock Base URL to: <strong id="baseUrlDisplay"></strong></span>
+        </label>
+        <label style="display:flex;align-items:center;cursor:pointer;">
+          <input type="checkbox" id="lockTableName" style="margin-right:8px;">
+          <span>Lock Table Name to: <strong id="tableNameDisplay"></strong></span>
+        </label>
+      </div>
+      <div style="margin-top:16px;text-align:right;gap:8px;display:flex;justify-content:flex-end;">
+        <button type="button" onclick="closeSavePresetModal()" style="background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Cancel</button>
+        <button type="button" onclick="saveCurrentAsPreset()" style="background:#9b59b6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Save Preset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Manage Presets Modal -->
+  <div id="managePresetsModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:8px;padding:24px;max-width:600px;width:90vw;max-height:80vh;overflow-y:auto;">
+      <h2>Manage Presets</h2>
+      <div id="presetsList" style="margin-top:16px;max-height:400px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:8px;"></div>
+      <div style="margin-top:16px;text-align:right;gap:8px;display:flex;justify-content:flex-end;">
+        <button type="button" onclick="closeManagePresetsModal()" style="background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Base URL Manager Modal -->
+  <div id="baseUrlManagerModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:8px;padding:24px;max-width:600px;width:90vw;max-height:80vh;overflow-y:auto;">
+      <h2>Manage Base URLs</h2>
+      
+      <div style="margin-top:16px;">
+        <h3 style="font-size:1.1em;color:#2c3e50;margin-bottom:12px;">Add New Base URL</h3>
+        <div style="padding:16px;background:#f9f9f9;border-radius:4px;">
+          <div style="margin-bottom:12px;">
+            <label style="display:block;margin-bottom:4px;font-weight:500;font-size:0.9em;">Alias / Label *</label>
+            <input type="text" id="baseUrlAliasInput" placeholder="e.g. Production, Dev, Staging" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+          </div>
+          <div style="margin-bottom:12px;">
+            <label style="display:block;margin-bottom:4px;font-weight:500;font-size:0.9em;">Base URL *</label>
+            <input type="text" id="baseUrlValueInput" placeholder="https://dev12345.service-now.com" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+          </div>
+          <div style="text-align:right;">
+            <button type="button" onclick="saveBaseUrl()" style="background:#27ae60;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-weight:500;" id="saveBaseUrlBtn">Save</button>
+            <button type="button" onclick="cancelBaseUrlEdit()" id="cancelBaseUrlBtn" style="display:none;background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;margin-left:8px;">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:24px;">
+        <h3 style="font-size:1.1em;color:#2c3e50;margin-bottom:12px;">Saved Base URLs</h3>
+        <div id="baseUrlSavedList" style="max-height:300px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:8px;"></div>
+      </div>
+
+      <div style="margin-top:16px;text-align:right;gap:8px;display:flex;justify-content:flex-end;">
+        <button type="button" onclick="closeBaseUrlManager()" style="background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Table Name Manager Modal -->
+  <div id="tableNameManagerModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:8px;padding:24px;max-width:600px;width:90vw;max-height:80vh;overflow-y:auto;">
+      <h2>Manage Table Names</h2>
+      
+      <div style="margin-top:16px;">
+        <h3 style="font-size:1.1em;color:#2c3e50;margin-bottom:12px;">Add New Table Name</h3>
+        <div style="padding:16px;background:#f9f9f9;border-radius:4px;">
+          <div style="margin-bottom:12px;">
+            <label style="display:block;margin-bottom:4px;font-weight:500;font-size:0.9em;">Alias / Label *</label>
+            <input type="text" id="tableNameAliasInput" placeholder="e.g. Incident, Change Request" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+          </div>
+          <div style="margin-bottom:12px;">
+            <label style="display:block;margin-bottom:4px;font-weight:500;font-size:0.9em;">Table Name *</label>
+            <input type="text" id="tableNameValueInput" placeholder="e.g. incident, change_request" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+          </div>
+          <div style="text-align:right;">
+            <button type="button" onclick="saveTableName()" style="background:#27ae60;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-weight:500;" id="saveTableNameBtn">Save</button>
+            <button type="button" onclick="cancelTableNameEdit()" id="cancelTableNameBtn" style="display:none;background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;margin-left:8px;">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:24px;">
+        <h3 style="font-size:1.1em;color:#2c3e50;margin-bottom:12px;">Saved Table Names</h3>
+        <div id="tableNameSavedList" style="max-height:300px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:8px;"></div>
+      </div>
+
+      <div style="margin-top:16px;text-align:right;gap:8px;display:flex;justify-content:flex-end;">
+        <button type="button" onclick="closeTableNameManager()" style="background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentEditingFieldIndex = null;
+    // ========================================================================
+    // CONFIGURATION ITEMS - Persistence Layer
+    // ========================================================================
+
+    const DEFAULT_CONFIG_ITEMS = [
+      { id: "baseUrl", label: "Base URL", category: "config" },
+      { id: "tableName", label: "Table Name", category: "config" }
+    ];
+
+    const DEFAULT_FIELDS = [
+      { id: "short_description", label: "Short Description", category: "standard", fieldType: "text" },
+      { id: "description", label: "Description", category: "standard", fieldType: "text" },
+      { id: "priority", label: "Priority", category: "standard", fieldType: "text" },
+      { id: "assigned_to", label: "Assigned To", category: "standard", fieldType: "text" },
+      { id: "category", label: "Category", category: "standard", fieldType: "text" },
+      { id: "urgency", label: "Urgency", category: "standard", fieldType: "text" },
+      { id: "impact", label: "Impact", category: "standard", fieldType: "text" }
+    ];
+
+    // ========================================================================
+    // CONFIGURATION ITEMS - Persistence Layer
+    // ========================================================================
+
+    function loadConfigurationItems() {
+      try {
+        const stored = localStorage.getItem('snowConfigItems');
+        if (!stored) return DEFAULT_CONFIG_ITEMS;
+        const parsed = JSON.parse(stored);
+        if (!Array.isArray(parsed)) return DEFAULT_CONFIG_ITEMS;
+        return parsed.filter(c => c.id && c.label);
+      } catch (e) {
+        console.error('Failed to load config items:', e);
+        return DEFAULT_CONFIG_ITEMS;
+      }
+    }
+
+    function saveConfigurationItems(items) {
+      try {
+        const unique = Array.from(new Map(items.map(d => [d.id, d])).values());
+        localStorage.setItem('snowConfigItems', JSON.stringify(unique));
+        return true;
+      } catch (e) {
+        console.error('Failed to save config items:', e);
+        throw new Error('Could not save configuration items (localStorage full?)');
+      }
+    }
+
+    function loadFieldDefinitions() {
+      try {
+        const stored = localStorage.getItem('snowFieldDefinitions');
+        if (!stored) return DEFAULT_FIELDS;
+        const parsed = JSON.parse(stored);
+        if (!Array.isArray(parsed)) return DEFAULT_FIELDS;
+        return parsed.filter(f => f.id && f.label);
+      } catch (e) {
+        console.error('Failed to load field definitions:', e);
+        return DEFAULT_FIELDS;
+      }
+    }
+
+    function saveFieldDefinitions(definitions) {
+      try {
+        const unique = Array.from(new Map(definitions.map(d => [d.id, d])).values());
+        localStorage.setItem('snowFieldDefinitions', JSON.stringify(unique));
+        return true;
+      } catch (e) {
+        console.error('Failed to save field definitions:', e);
+        throw new Error('Could not save field definitions (localStorage full?)');
+      }
+    }
+
+    function migrateFieldNames(fields, fieldDefinitions) {
+      return fields.map(field => {
+        if (!field.fieldId && field.name) {
+          const def = fieldDefinitions.find(d => d.id === field.name);
+          if (def) {
+            return { ...field, fieldId: def.id };
+          }
+          const newDef = { id: field.name, label: field.name, category: 'custom' };
+          fieldDefinitions.push(newDef);
+          return { ...field, fieldId: newDef.id };
+        }
+        return field;
+      });
+    }
+
+    // ========================================================================
+    // RESTORE LAST STATE & MIGRATION
+    // ========================================================================
+    window.onload = function() {
+      // Check for config URL parameter (e.g., ?config=https://...)
+      const params = new URLSearchParams(window.location.search);
+      const configUrl = params.get('config');
+      
+      if (configUrl) {
+        // Load configuration from URL before initializing form
+        loadConfigurationFromUrl(configUrl);
+        return; // Don't continue until config is loaded
+      }
+
+      const fieldDefinitions = loadFieldDefinitions();
+      const saved = localStorage.getItem('snowGenState');
+      if (saved) {
+        const state = JSON.parse(saved);
+        document.getElementById('baseUrl').value = state.baseUrl || '';
+        document.getElementById('tableName').value = state.tableName || '';
+
+        if (state.fields && state.fields.length > 0) {
+          // Migrate old format to new format if needed
+          const migratedFields = migrateFieldNames(state.fields, fieldDefinitions);
+          saveFieldDefinitions(fieldDefinitions);
+          migratedFields.forEach(f => addField(f));
+        } else {
+          addField();
+        }
+      } else {
+        addField();
+      }
+
+      // Populate preset dropdown
+      populatePresetDropdown();
+    };
+
+    // Save state
+    function saveState() {
+      const state = {
+        baseUrl: document.getElementById('baseUrl').value,
+        tableName: document.getElementById('tableName').value,
+        fields: getFields()
+      };
+      localStorage.setItem('snowGenState', JSON.stringify(state));
+    }
+
+    // Add a new field row with dropdown
+    function addField(data = {}) {
+      const fieldsDiv = document.getElementById('fields');
+      const row = document.createElement('div');
+      row.className = 'field-row';
+      row.setAttribute('data-field-id', data.fieldId || '');
+
+      // Field selection dropdown
+      const fieldSelect = document.createElement('select');
+      fieldSelect.className = 'field-select';
+
+      const placeholder = document.createElement('option');
+      placeholder.value = '';
+      placeholder.textContent = '-- Select Field --';
+      fieldSelect.appendChild(placeholder);
+
+      const definitions = loadFieldDefinitions();
+      definitions.forEach(def => {
+        const option = document.createElement('option');
+        option.value = def.id;
+        option.textContent = def.label;
+        fieldSelect.appendChild(option);
+      });
+
+      if (data.fieldId) {
+        fieldSelect.value = data.fieldId;
+      }
+
+      // Manage Fields button
+      const manageBtn = document.createElement('button');
+      manageBtn.type = 'button';
+      manageBtn.className = 'manage-fields-btn';
+      manageBtn.textContent = 'Manage Fields';
+      manageBtn.onclick = (e) => {
+        e.preventDefault();
+        openFieldManager();
+      };
+
+      // Value input container (will be populated based on field type)
+      const valueContainer = document.createElement('div');
+      valueContainer.className = 'editor-container';
+      valueContainer.style.flex = '1';
+      valueContainer.style.minWidth = '0';
+
+      // Function to render the appropriate input based on field type
+      const renderFieldInput = (preserveValue = false) => {
+        const selectedFieldId = fieldSelect.value;
+        const currentDefinitions = loadFieldDefinitions(); // Get fresh definitions
+        const fieldDef = currentDefinitions.find(d => d.id === selectedFieldId);
+        
+        // Save current value if preserving
+        let currentValue = '';
+        if (preserveValue) {
+          const existingInput = valueContainer.querySelector('.rich-value');
+          if (existingInput) {
+            if (existingInput.tagName === 'SELECT') {
+              currentValue = existingInput.value;
+            } else if (existingInput.contentEditable === 'true') {
+              currentValue = existingInput.innerHTML;
+            }
+          }
+        } else {
+          currentValue = data.value || '';
+        }
+        
+        valueContainer.innerHTML = '';
+        
+        if (!fieldDef || fieldDef.fieldType === 'text' || !fieldDef.fieldType) {
+          // Render rich text editor with formatting toolbar
+          const toolbar = document.createElement('div');
+          toolbar.className = 'formatting-toolbar';
+          toolbar.style.width = '100%';
+
+          const formatButtons = [
+            { label: 'B', cmd: 'bold', title: 'Bold' },
+            { label: 'I', cmd: 'italic', title: 'Italic' },
+            { label: 'U', cmd: 'underline', title: 'Underline' },
+            { label: 'S', cmd: 'strikeThrough', title: 'Strikethrough' },
+            { label: '•', cmd: 'insertUnorderedList', title: 'Bullet List' },
+            { label: '1.', cmd: 'insertOrderedList', title: 'Numbered List' },
+            { label: '⌫', cmd: 'removeFormat', title: 'Clear Formatting' }
+          ];
+
+          const richValue = document.createElement('div');
+          richValue.contentEditable = 'true';
+          richValue.className = 'rich-value';
+          richValue.style.minHeight = '80px';
+          richValue.style.width = '100%';
+          richValue.innerHTML = currentValue;
+          richValue.oninput = saveState;
+
+          formatButtons.forEach(({ label, cmd, title }) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.textContent = label;
+            btn.title = title;
+            btn.onclick = (e) => {
+              e.preventDefault();
+              richValue.focus();
+              document.execCommand(cmd, false, null);
+              saveState();
+            };
+            toolbar.appendChild(btn);
+          });
+
+          valueContainer.appendChild(toolbar);
+          valueContainer.appendChild(richValue);
+        } else if (fieldDef.fieldType === 'combobox') {
+          // Render combobox dropdown
+          const comboSelect = document.createElement('select');
+          comboSelect.className = 'rich-value';
+          comboSelect.style.minHeight = 'auto';
+          comboSelect.style.padding = '8px';
+
+          const comboPlaceholder = document.createElement('option');
+          comboPlaceholder.value = '';
+          comboPlaceholder.textContent = '-- Select Option --';
+          comboSelect.appendChild(comboPlaceholder);
+
+          if (fieldDef.options && Array.isArray(fieldDef.options)) {
+            fieldDef.options.forEach(opt => {
+              const option = document.createElement('option');
+              option.value = opt.value;
+              option.textContent = opt.label;
+              comboSelect.appendChild(option);
+            });
+          }
+
+          if (currentValue) {
+            comboSelect.value = currentValue;
+          }
+          comboSelect.onchange = saveState;
+
+          valueContainer.appendChild(comboSelect);
+        }
+      };
+
+      // Initial render
+      renderFieldInput(false);
+
+      // Re-render when field selection changes
+      fieldSelect.onchange = () => {
+        renderFieldInput(false); // Don't preserve value when changing fields
+        saveState();
+      };
+
+      // Remove button
+      const remove = document.createElement('button');
+      remove.type = 'button';
+      remove.className = 'remove-field-btn';
+      remove.textContent = 'Remove';
+      remove.onclick = () => { fieldsDiv.removeChild(row); saveState(); };
+
+      row.appendChild(fieldSelect);
+      row.appendChild(manageBtn);
+      row.appendChild(valueContainer);
+      row.appendChild(remove);
+      fieldsDiv.appendChild(row);
+      saveState();
+    }
+
+    // Get all field data from rows
+    function getFields() {
+      const rows = document.querySelectorAll('.field-row');
+      return Array.from(rows).map(row => {
+        const fieldSelect = row.querySelector('.field-select');
+        const fieldId = fieldSelect ? fieldSelect.value : '';
+        
+        // Check if it's a rich text editor or a combobox
+        const richValue = row.querySelector('.rich-value');
+        let value = '';
+        
+        if (richValue) {
+          if (richValue.tagName === 'SELECT') {
+            // It's a combobox - get the selected value (ID)
+            value = richValue.value;
+          } else if (richValue.contentEditable === 'true') {
+            // It's a rich text editor - get the HTML content
+            value = richValue.innerHTML;
+          }
+        }
+        
+        return {
+          fieldId: fieldId,
+          name: fieldId, // Keep name for backward compatibility with URL generation
+          value: value
+        };
+      }).filter(f => f.fieldId);
+    }
+
+    // Format value for ServiceNow - pass HTML directly (ServiceNow accepts HTML)
+    function smartFormatValue(val) {
+      // ServiceNow Rich Text fields accept standard HTML
+      // Just clean up the HTML a bit
+      let formatted = val;
+      
+      // Convert div line breaks to actual line breaks for plain text fields
+      formatted = formatted.replace(/<div><br><\/div>/gi, '\n');
+      formatted = formatted.replace(/<div>/gi, '\n');
+      formatted = formatted.replace(/<\/div>/gi, '');
+      formatted = formatted.replace(/<br\s*\/?>/gi, '\n');
+      
+      // For ServiceNow, we can pass the HTML directly or strip it for plain text
+      // Let's strip HTML tags for the URL parameter (ServiceNow will handle it)
+      const temp = document.createElement('div');
+      temp.innerHTML = formatted;
+      return temp.textContent || temp.innerText || '';
+    }
+
+    // Generate the ServiceNow link
+    document.getElementById('snowForm').onsubmit = function(e) {
+      e.preventDefault();
+      const baseUrl = document.getElementById('baseUrl').value.trim().replace(/\/+$/, '');
+      const tableName = document.getElementById('tableName').value.trim();
+      const fields = getFields();
+
+      // Build the sysparm_query string using ^ separator
+      const queryParts = [];
+      fields.forEach(f => {
+        let val = smartFormatValue(f.value);
+        if (val) {
+          queryParts.push(`${f.name}=${val}`);
+        }
+      });
+
+      const queryString = queryParts.join('^');
+      
+      // Build the ServiceNow URL: https://<BASE_URL>/<TABLE_NAME>.do?sys_id=-1&sysparm_query=<ENCODED_QUERY>
+      let url = `${baseUrl}/${tableName}.do?sys_id=-1`;
+      if (queryString) {
+        url += `&sysparm_query=${encodeURIComponent(queryString)}`;
+      }
+
+      document.getElementById('link').textContent = url;
+      document.getElementById('output').style.display = 'block';
+      saveState();
+    };
+
+    // ========================================================================
+    // FIELD MANAGER - Modal UI Functions
+    // ========================================================================
+
+    function openFieldManager() {
+      const modal = document.getElementById('fieldManagerModal');
+      modal.style.display = 'flex';
+      refreshConfigItemsList();
+      refreshFieldsList();
+    }
+
+    function closeFieldManager() {
+      const modal = document.getElementById('fieldManagerModal');
+      modal.style.display = 'none';
+      cancelEditField();
+    }
+
+    function editFieldDefinition(index) {
+      const definitions = loadFieldDefinitions();
+      const def = definitions[index];
+      if (!def) return;
+
+      currentEditingFieldIndex = index;
+      document.getElementById('fieldIdInput').value = def.id;
+      document.getElementById('fieldIdInput').disabled = true;
+      document.getElementById('fieldLabelInput').value = def.label;
+      document.getElementById('fieldTypeSelect').value = def.fieldType || 'text';
+      currentComboboxOptions = def.options || [];
+      toggleFieldTypeOptions();
+      document.getElementById('fieldLabelInput').focus();
+
+      const addBtn = document.getElementById('addFieldBtn');
+      const cancelBtn = document.getElementById('cancelEditFieldBtn');
+      addBtn.textContent = 'Update';
+      addBtn.style.background = '#27ae60';
+      addBtn.onclick = () => addFieldDefinition();
+      cancelBtn.style.display = 'inline-block';
+    }
+
+    function cancelEditField() {
+      currentEditingFieldIndex = null;
+      currentComboboxOptions = [];
+      document.getElementById('fieldIdInput').value = '';
+      document.getElementById('fieldIdInput').disabled = false;
+      document.getElementById('fieldLabelInput').value = '';
+      document.getElementById('fieldTypeSelect').value = 'text';
+      toggleFieldTypeOptions();
+      const addBtn = document.getElementById('addFieldBtn');
+      const cancelBtn = document.getElementById('cancelEditFieldBtn');
+      addBtn.textContent = 'Add';
+      addBtn.style.background = '#3498db';
+      addBtn.onclick = () => addFieldDefinition();
+      cancelBtn.style.display = 'none';
+    }
+
+    // Field Type & Combobox Options Management
+    let currentComboboxOptions = [];
+
+    function toggleFieldTypeOptions() {
+      const fieldType = document.getElementById('fieldTypeSelect').value;
+      const optionsSection = document.getElementById('comboboxOptionsSection');
+      optionsSection.style.display = fieldType === 'combobox' ? 'block' : 'none';
+      if (fieldType === 'combobox') {
+        refreshComboboxOptionsList();
+      }
+    }
+
+    function addComboboxOption() {
+      const labelInput = document.getElementById('optionLabelInput');
+      const valueInput = document.getElementById('optionValueInput');
+      const label = labelInput.value.trim();
+      const value = valueInput.value.trim();
+
+      if (!label || !value) {
+        alert('Both label and value are required');
+        return;
+      }
+
+      currentComboboxOptions.push({ label, value });
+      labelInput.value = '';
+      valueInput.value = '';
+      refreshComboboxOptionsList();
+    }
+
+    function removeComboboxOption(index) {
+      currentComboboxOptions.splice(index, 1);
+      refreshComboboxOptionsList();
+    }
+
+    function refreshComboboxOptionsList() {
+      const list = document.getElementById('comboboxOptionsList');
+      list.innerHTML = '';
+
+      if (currentComboboxOptions.length === 0) {
+        list.innerHTML = '<div style="color:#999;font-size:0.85em;padding:4px;">No options added</div>';
+        return;
+      }
+
+      currentComboboxOptions.forEach((opt, index) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;gap:8px;align-items:center;padding:4px;border-bottom:1px solid #ddd;';
+        
+        const info = document.createElement('div');
+        info.style.cssText = 'flex:1;font-size:0.85em;';
+        info.innerHTML = `<strong>${escapeHtml(opt.label)}</strong> → ${escapeHtml(opt.value)}`;
+        
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.textContent = '×';
+        deleteBtn.style.cssText = 'background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:2px 8px;cursor:pointer;font-size:1.2em;line-height:1;';
+        deleteBtn.onclick = () => removeComboboxOption(index);
+        
+        row.appendChild(info);
+        row.appendChild(deleteBtn);
+        list.appendChild(row);
+      });
+    }
+
+    function refreshConfigItemsList() {
+      const configItemsList = document.getElementById('configItemsList');
+      const items = loadConfigurationItems();
+
+      configItemsList.innerHTML = '';
+      if (items.length === 0) {
+        configItemsList.innerHTML = '<div style="color:#999;">No configuration items</div>';
+        return;
+      }
+
+      items.forEach((item, index) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;gap:8px;align-items:center;padding:6px;border-bottom:1px solid #eee;justify-content:space-between;';
+
+        const info = document.createElement('div');
+        info.style.cssText = 'flex:1;font-size:0.9em;';
+        info.innerHTML = `<div style="font-weight:500;font-size:0.95em;">${escapeHtml(item.label)}</div><div style="color:#666;font-size:0.85em;">${escapeHtml(item.id)}</div>`;
+
+        const buttons = document.createElement('div');
+        buttons.style.cssText = 'display:flex;gap:4px;';
+
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.textContent = 'Edit';
+        editBtn.style.cssText = 'background:#3498db;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer;font-size:0.85em;';
+        editBtn.onclick = () => editConfigurationItem(index);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.style.cssText = 'background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:4px 8px;cursor:pointer;font-size:0.85em;';
+        deleteBtn.onclick = () => {
+          deleteConfigurationItem(index);
+        };
+
+        buttons.appendChild(editBtn);
+        buttons.appendChild(deleteBtn);
+        row.appendChild(info);
+        row.appendChild(buttons);
+        configItemsList.appendChild(row);
+      });
+    }
+
+    function editConfigurationItem(index) {
+      const items = loadConfigurationItems();
+      const item = items[index];
+      if (!item) return;
+
+      currentEditingFieldIndex = index;
+      document.getElementById('fieldIdInput').value = item.id;
+      document.getElementById('fieldIdInput').disabled = true;
+      document.getElementById('fieldLabelInput').value = item.label;
+      document.getElementById('fieldLabelInput').focus();
+
+      const addBtn = document.getElementById('addFieldBtn');
+      const cancelBtn = document.getElementById('cancelEditFieldBtn');
+      addBtn.textContent = 'Update';
+      addBtn.style.background = '#27ae60';
+      addBtn.onclick = () => updateConfigurationItem();
+      cancelBtn.style.display = 'inline-block';
+    }
+
+    function updateConfigurationItem() {
+      const fieldLabel = document.getElementById('fieldLabelInput').value.trim();
+
+      if (!fieldLabel) {
+        alert('Please enter a label');
+        return;
+      }
+
+      try {
+        const items = loadConfigurationItems();
+        if (currentEditingFieldIndex !== null) {
+          items[currentEditingFieldIndex].label = fieldLabel;
+        }
+        saveConfigurationItems(items);
+        cancelEditField();
+        refreshConfigItemsList();
+        saveState();
+      } catch (e) {
+        alert('Error updating configuration item: ' + e.message);
+      }
+    }
+
+    function deleteConfigurationItem(index) {
+      if (!confirm('Delete this configuration item?')) return;
+
+      try {
+        const items = loadConfigurationItems();
+        const deletedItem = items[index];
+        items.splice(index, 1);
+        saveConfigurationItems(items);
+
+        refreshConfigItemsList();
+        saveState();
+      } catch (e) {
+        alert('Error deleting configuration item: ' + e.message);
+      }
+    }
+
+    function refreshFieldsList() {
+      const fieldsList = document.getElementById('fieldsList');
+      const definitions = loadFieldDefinitions();
+
+      fieldsList.innerHTML = '';
+      if (definitions.length === 0) {
+        fieldsList.innerHTML = '<div style="color:#999;">No fields defined</div>';
+        return;
+      }
+
+      definitions.forEach((def, index) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;gap:8px;align-items:center;padding:8px;border-bottom:1px solid #eee;justify-content:space-between;';
+
+        const info = document.createElement('div');
+        info.style.cssText = 'flex:1;';
+        info.innerHTML = `<div style="font-weight:500;">${escapeHtml(def.label)}</div><div style="font-size:0.9em;color:#666;">${escapeHtml(def.id)}</div>`;
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.style.cssText = 'background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.9em;';
+        deleteBtn.onclick = () => {
+          deleteFieldDefinition(index);
+        };
+
+        const buttons = document.createElement('div');
+        buttons.style.cssText = 'display:flex;gap:6px;';
+
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.textContent = 'Edit';
+        editBtn.style.cssText = 'background:#3498db;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.9em;';
+        editBtn.onclick = () => editFieldDefinition(index);
+
+        buttons.appendChild(editBtn);
+        buttons.appendChild(deleteBtn);
+        row.appendChild(info);
+        row.appendChild(buttons);
+        fieldsList.appendChild(row);
+      });
+    }
+
+    function addFieldDefinition() {
+      const fieldId = document.getElementById('fieldIdInput').value.trim();
+      const fieldLabel = document.getElementById('fieldLabelInput').value.trim();
+      const fieldType = document.getElementById('fieldTypeSelect').value;
+
+      if (!fieldId || !fieldLabel) {
+        alert('Please enter both ID and Label');
+        return;
+      }
+
+      if (fieldType === 'combobox' && currentComboboxOptions.length === 0) {
+        alert('Please add at least one option for combobox fields');
+        return;
+      }
+
+      try {
+        // Check if this is a configuration item
+        const configItems = loadConfigurationItems();
+        const isConfigItem = configItems.some(c => c.id === fieldId);
+
+        if (isConfigItem) {
+          // Update configuration item
+          const index = configItems.findIndex(c => c.id === fieldId);
+          if (index >= 0) {
+            if (currentEditingFieldIndex !== null && currentEditingFieldIndex === index) {
+              configItems[index].label = fieldLabel;
+            }
+          }
+          saveConfigurationItems(configItems);
+          cancelEditField();
+          refreshConfigItemsList();
+        } else {
+          // Handle custom fields
+          const definitions = loadFieldDefinitions();
+
+          const fieldData = { 
+            id: fieldId, 
+            label: fieldLabel, 
+            category: 'custom',
+            fieldType: fieldType
+          };
+
+          if (fieldType === 'combobox') {
+            fieldData.options = [...currentComboboxOptions];
+          }
+
+          if (currentEditingFieldIndex !== null) {
+            definitions[currentEditingFieldIndex] = { ...definitions[currentEditingFieldIndex], ...fieldData };
+          } else {
+            const existingIndex = definitions.findIndex(d => d.id === fieldId);
+            if (existingIndex >= 0) {
+              definitions[existingIndex] = { ...definitions[existingIndex], ...fieldData };
+            } else {
+              definitions.push(fieldData);
+            }
+          }
+
+          saveFieldDefinitions(definitions);
+          updateAllFieldSelects();
+          cancelEditField();
+          refreshFieldsList();
+        }
+        saveState();
+      } catch (e) {
+        alert('Error saving field definition: ' + e.message);
+      }
+    }
+
+    function deleteFieldDefinition(index) {
+      if (!confirm('Delete this field definition?')) return;
+
+      try {
+        const definitions = loadFieldDefinitions();
+        definitions.splice(index, 1);
+        saveFieldDefinitions(definitions);
+
+        // Update all dropdowns
+        updateAllFieldSelects();
+
+        // Refresh list
+        refreshFieldsList();
+        saveState();
+      } catch (e) {
+        alert('Error deleting field definition: ' + e.message);
+      }
+    }
+
+    function updateAllFieldSelects() {
+      const definitions = loadFieldDefinitions();
+      const rows = document.querySelectorAll('.field-row');
+
+      rows.forEach(row => {
+        const select = row.querySelector('.field-select');
+        const currentValue = select.value;
+
+        // Clear options except placeholder
+        while (select.options.length > 1) {
+          select.remove(1);
+        }
+
+        // Add all definitions
+        definitions.forEach(def => {
+          const option = document.createElement('option');
+          option.value = def.id;
+          option.textContent = def.label;
+          select.appendChild(option);
+        });
+
+        // Restore selection
+        select.value = currentValue;
+      });
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // ========================================================================
+    // CONFIGURATION PRESETS - Functions for saving/loading templates
+    // ========================================================================
+
+    function loadConfigurationPresets() {
+      try {
+        const stored = localStorage.getItem('snowConfigurationPresets');
+        if (!stored) return [];
+        const parsed = JSON.parse(stored);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        console.error('Failed to load presets:', e);
+        return [];
+      }
+    }
+
+    function saveConfigurationPreset(preset) {
+      try {
+        if (!preset.id || !preset.name) {
+          throw new Error('Preset must have id and name');
+        }
+        const presets = loadConfigurationPresets();
+        const index = presets.findIndex(p => p.id === preset.id);
+        if (index >= 0) {
+          presets[index] = preset;
+        } else {
+          presets.push(preset);
+        }
+        localStorage.setItem('snowConfigurationPresets', JSON.stringify(presets));
+        return preset;
+      } catch (e) {
+        throw new Error('Failed to save preset: ' + e.message);
+      }
+    }
+
+    function deleteConfigurationPreset(presetId) {
+      try {
+        const presets = loadConfigurationPresets();
+        const index = presets.findIndex(p => p.id === presetId);
+        if (index < 0) {
+          throw new Error('Preset not found');
+        }
+        presets.splice(index, 1);
+        localStorage.setItem('snowConfigurationPresets', JSON.stringify(presets));
+        return true;
+      } catch (e) {
+        throw new Error('Failed to delete preset: ' + e.message);
+      }
+    }
+
+    function generatePresetId(name) {
+      return name.toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^a-z0-9-]/g, '') + '-' + Date.now();
+    }
+
+    // ========================================================================
+    // PRESET UI - Modal Functions
+    // ========================================================================
+
+    function openSavePresetModal() {
+      const modal = document.getElementById('savePresetModal');
+      const baseUrl = document.getElementById('baseUrl').value || '(none)';
+      const tableName = document.getElementById('tableName').value || '(none)';
+
+      document.getElementById('baseUrlDisplay').textContent = baseUrl;
+      document.getElementById('tableNameDisplay').textContent = tableName;
+      document.getElementById('presetNameInput').value = '';
+      document.getElementById('presetDescriptionInput').value = '';
+      document.getElementById('lockBaseUrl').checked = false;
+      document.getElementById('lockTableName').checked = false;
+
+      modal.style.display = 'flex';
+      document.getElementById('presetNameInput').focus();
+    }
+
+    function closeSavePresetModal() {
+      document.getElementById('savePresetModal').style.display = 'none';
+    }
+
+    function saveCurrentAsPreset() {
+      const name = document.getElementById('presetNameInput').value.trim();
+      if (!name) {
+        alert('Please enter a preset name');
+        return;
+      }
+
+      try {
+        const baseUrl = document.getElementById('baseUrl').value.trim();
+        const tableName = document.getElementById('tableName').value.trim();
+        const lockBaseUrl = document.getElementById('lockBaseUrl').checked;
+        const lockTableName = document.getElementById('lockTableName').checked;
+        const description = document.getElementById('presetDescriptionInput').value.trim();
+
+        const fields = getFields();
+
+        const preset = {
+          id: generatePresetId(name),
+          name: name,
+          fields: fields,
+          createdAt: Date.now()
+        };
+
+        if (description) preset.description = description;
+        if (lockBaseUrl && baseUrl) preset.baseUrl = baseUrl;
+        if (lockTableName && tableName) preset.tableName = tableName;
+
+        saveConfigurationPreset(preset);
+
+        // Refresh preset dropdown
+        populatePresetDropdown();
+
+        closeSavePresetModal();
+        alert('Preset saved successfully!');
+      } catch (e) {
+        alert('Error saving preset: ' + e.message);
+      }
+    }
+
+    function populatePresetDropdown() {
+      const select = document.getElementById('presetSelect');
+      const presets = loadConfigurationPresets();
+
+      // Keep placeholder
+      select.innerHTML = '<option value="">-- Load Preset --</option>';
+
+      presets.forEach(preset => {
+        const option = document.createElement('option');
+        option.value = preset.id;
+        option.textContent = preset.name;
+        select.appendChild(option);
+      });
+    }
+
+    function loadPresetFromDropdown() {
+      const select = document.getElementById('presetSelect');
+      const presetId = select.value;
+
+      if (!presetId) return;
+
+      try {
+        const formData = applyPresetToForm(presetId);
+
+        // Clear fields
+        document.getElementById('fields').innerHTML = '';
+
+        // Populate form
+        document.getElementById('baseUrl').value = formData.baseUrl;
+        document.getElementById('tableName').value = formData.tableName;
+
+        // Add fields
+        formData.fields.forEach(f => addField(f));
+
+        saveState();
+        select.value = ''; // Reset dropdown
+        alert('Preset loaded successfully!');
+      } catch (e) {
+        alert('Error loading preset: ' + e.message);
+        select.value = '';
+      }
+    }
+
+    function applyPresetToForm(presetId) {
+      const presets = loadConfigurationPresets();
+      const preset = presets.find(p => p.id === presetId);
+      if (!preset) throw new Error('Preset not found');
+      return {
+        baseUrl: preset.baseUrl || '',
+        tableName: preset.tableName || '',
+        fields: preset.fields || []
+      };
+    }
+
+    function openManagePresetsModal() {
+      const modal = document.getElementById('managePresetsModal');
+      modal.style.display = 'flex';
+      refreshPresetsList();
+    }
+
+    function closeManagePresetsModal() {
+      document.getElementById('managePresetsModal').style.display = 'none';
+    }
+
+    function editConfigurationPreset(presetId) {
+      const presets = loadConfigurationPresets();
+      const preset = presets.find(p => p.id === presetId);
+      if (!preset) {
+        alert('Preset not found');
+        return;
+      }
+
+      // Load the preset into the form
+      document.getElementById('baseUrl').value = preset.baseUrl || '';
+      document.getElementById('tableName').value = preset.tableName || '';
+
+      // Clear existing fields
+      document.getElementById('fields').innerHTML = '';
+
+      // Add preset fields
+      if (preset.fields && preset.fields.length > 0) {
+        preset.fields.forEach(f => addField(f));
+      } else {
+        addField();
+      }
+
+      closeManagePresetsModal();
+      saveState();
+      alert(`Loaded preset: ${preset.name}. Make changes and save as a new preset or overwrite this one.`);
+    }
+
+    function refreshPresetsList() {
+      const presetsList = document.getElementById('presetsList');
+      const presets = loadConfigurationPresets();
+
+      presetsList.innerHTML = '';
+      if (presets.length === 0) {
+        presetsList.innerHTML = '<div style="color:#999;padding:20px;text-align:center;">No presets saved yet</div>';
+        return;
+      }
+
+      presets.forEach((preset, index) => {
+        const row = document.createElement('div');
+        row.style.cssText = 'padding:12px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;';
+
+        const info = document.createElement('div');
+        info.style.cssText = 'flex:1;';
+        let infoHtml = `<div style="font-weight:500;margin-bottom:4px;">${escapeHtml(preset.name)}</div>`;
+        if (preset.description) {
+          infoHtml += `<div style="font-size:0.9em;color:#666;">${escapeHtml(preset.description)}</div>`;
+        }
+        if (preset.baseUrl || preset.tableName) {
+          infoHtml += `<div style="font-size:0.85em;color:#999;margin-top:4px;">`;
+          if (preset.baseUrl) infoHtml += `URL: ${escapeHtml(preset.baseUrl)} • `;
+          if (preset.tableName) infoHtml += `Table: ${escapeHtml(preset.tableName)}`;
+          infoHtml += `</div>`;
+        }
+        info.innerHTML = infoHtml;
+
+        const buttons = document.createElement('div');
+        buttons.style.cssText = 'display:flex;gap:8px;';
+
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.textContent = 'Edit';
+        editBtn.style.cssText = 'background:#3498db;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.9em;';
+        editBtn.onclick = () => editConfigurationPreset(preset.id);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.style.cssText = 'background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.9em;';
+        deleteBtn.onclick = () => {
+          if (confirm('Delete this preset?')) {
+            try {
+              deleteConfigurationPreset(preset.id);
+              populatePresetDropdown();
+              refreshPresetsList();
+            } catch (e) {
+              alert('Error deleting preset: ' + e.message);
+            }
+          }
+        };
+
+        buttons.appendChild(editBtn);
+        buttons.appendChild(deleteBtn);
+        row.appendChild(info);
+        row.appendChild(buttons);
+        presetsList.appendChild(row);
+      });
+    }
+
+    // Copy link to clipboard
+    function copyLink() {
+      const link = document.getElementById('link').textContent;
+      navigator.clipboard.writeText(link).then(() => {
+        const btn = document.querySelector('.copy-btn');
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 1200);
+      });
+    }
+
+    // ========================================================================
+    // SEPARATE MODALS - Base URL, Table Name Manager
+    // ========================================================================
+
+    // Generic helper functions
+    function generateItemId(prefix) {
+      return prefix + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    function loadItems(storageKey) {
+      try {
+        const stored = localStorage.getItem(storageKey);
+        if (!stored) return [];
+        const parsed = JSON.parse(stored);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e) {
+        console.error(`Failed to load items from ${storageKey}:`, e);
+        return [];
+      }
+    }
+
+    function saveItems(storageKey, items) {
+      try {
+        if (!Array.isArray(items)) {
+          throw new Error('Items must be an array');
+        }
+        localStorage.setItem(storageKey, JSON.stringify(items));
+        return true;
+      } catch (e) {
+        console.error(`Failed to save items to ${storageKey}:`, e);
+        throw new Error('Could not save items (localStorage full?)');
+      }
+    }
+
+    // ========================================================================
+    // BASE URL MANAGER
+    // ========================================================================
+
+    let currentEditingBaseUrlId = null;
+
+    function openBaseUrlManager() {
+      const modal = document.getElementById('baseUrlManagerModal');
+      if (!modal) {
+        console.error('baseUrlManagerModal not found');
+        return;
+      }
+      modal.style.display = 'flex';
+      refreshBaseUrlList();
+    }
+
+    function closeBaseUrlManager() {
+      const modal = document.getElementById('baseUrlManagerModal');
+      if (!modal) return;
+      modal.style.display = 'none';
+      cancelBaseUrlEdit();
+    }
+
+    function saveBaseUrl() {
+      const alias = document.getElementById('baseUrlAliasInput').value.trim();
+      const value = document.getElementById('baseUrlValueInput').value.trim();
+
+      if (!alias || !value) {
+        alert('Please fill in all fields');
+        return;
+      }
+
+      // Validate URL format
+      if (!value.match(/^https?:\/\/.+/)) {
+        alert('Please enter a valid URL starting with http:// or https://');
+        return;
+      }
+
+      try {
+        const items = loadItems('snowSavedBaseUrls');
+        
+        if (currentEditingBaseUrlId) {
+          // Update existing
+          const index = items.findIndex(item => item.id === currentEditingBaseUrlId);
+          if (index >= 0) {
+            items[index].alias = alias;
+            items[index].value = value;
+            items[index].updatedAt = Date.now();
+          }
+        } else {
+          // Add new
+          items.push({
+            id: generateItemId('base_url'),
+            alias: alias,
+            value: value,
+            createdAt: Date.now()
+          });
+        }
+
+        saveItems('snowSavedBaseUrls', items);
+        populateBaseUrlDropdown();
+        refreshBaseUrlList();
+        cancelBaseUrlEdit();
+      } catch (e) {
+        alert('Error saving base URL: ' + e.message);
+      }
+    }
+
+    function editBaseUrl(itemId) {
+      const items = loadItems('snowSavedBaseUrls');
+      const item = items.find(i => i.id === itemId);
+      if (!item) return;
+
+      currentEditingBaseUrlId = itemId;
+      document.getElementById('baseUrlAliasInput').value = item.alias;
+      document.getElementById('baseUrlValueInput').value = item.value;
+      
+      const saveBtn = document.getElementById('saveBaseUrlBtn');
+      const cancelBtn = document.getElementById('cancelBaseUrlBtn');
+      saveBtn.textContent = 'Update';
+      saveBtn.style.background = '#3498db';
+      cancelBtn.style.display = 'inline-block';
+    }
+
+    function deleteBaseUrl(itemId) {
+      if (!confirm('Delete this base URL?')) return;
+
+      try {
+        const items = loadItems('snowSavedBaseUrls');
+        const filtered = items.filter(item => item.id !== itemId);
+        saveItems('snowSavedBaseUrls', filtered);
+        populateBaseUrlDropdown();
+        refreshBaseUrlList();
+      } catch (e) {
+        alert('Error deleting base URL: ' + e.message);
+      }
+    }
+
+    function applyBaseUrl(itemId) {
+      const items = loadItems('snowSavedBaseUrls');
+      const item = items.find(i => i.id === itemId);
+      if (!item) return;
+
+      document.getElementById('baseUrl').value = item.value;
+      closeBaseUrlManager();
+      saveState();
+    }
+
+    function cancelBaseUrlEdit() {
+      currentEditingBaseUrlId = null;
+      document.getElementById('baseUrlAliasInput').value = '';
+      document.getElementById('baseUrlValueInput').value = '';
+      
+      const saveBtn = document.getElementById('saveBaseUrlBtn');
+      const cancelBtn = document.getElementById('cancelBaseUrlBtn');
+      saveBtn.textContent = 'Save';
+      saveBtn.style.background = '#27ae60';
+      cancelBtn.style.display = 'none';
+    }
+
+    function refreshBaseUrlList() {
+      const list = document.getElementById('baseUrlSavedList');
+      if (!list) return;
+      
+      const items = loadItems('snowSavedBaseUrls');
+      list.innerHTML = '';
+      
+      if (items.length === 0) {
+        list.innerHTML = '<div style="padding:16px;color:#999;text-align:center;">No saved base URLs yet.<br>Add one above to get started!</div>';
+        return;
+      }
+
+      items.forEach(item => {
+        const row = document.createElement('div');
+        row.style.cssText = 'padding:12px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:flex-start;';
+
+        const info = document.createElement('div');
+        info.style.cssText = 'flex:1;';
+        info.innerHTML = `
+          <div style="font-weight:600;margin-bottom:6px;font-size:1.05em;color:#2c3e50;">${escapeHtml(item.alias)}</div>
+          <div style="font-size:0.9em;color:#666;">${escapeHtml(item.value)}</div>
+        `;
+
+        const buttons = document.createElement('div');
+        buttons.style.cssText = 'display:flex;gap:8px;flex-direction:column;';
+
+        const useBtn = document.createElement('button');
+        useBtn.type = 'button';
+        useBtn.textContent = 'Use';
+        useBtn.style.cssText = 'background:#27ae60;color:#fff;border:none;border-radius:4px;padding:6px 16px;cursor:pointer;font-size:0.9em;white-space:nowrap;';
+        useBtn.onclick = () => applyBaseUrl(item.id);
+
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.textContent = 'Edit';
+        editBtn.style.cssText = 'background:#3498db;color:#fff;border:none;border-radius:4px;padding:6px 16px;cursor:pointer;font-size:0.9em;';
+        editBtn.onclick = () => editBaseUrl(item.id);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.style.cssText = 'background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:6px 16px;cursor:pointer;font-size:0.9em;';
+        deleteBtn.onclick = () => deleteBaseUrl(item.id);
+
+        buttons.appendChild(useBtn);
+        buttons.appendChild(editBtn);
+        buttons.appendChild(deleteBtn);
+        row.appendChild(info);
+        row.appendChild(buttons);
+        list.appendChild(row);
+      });
+    }
+
+    function populateBaseUrlDropdown() {
+      const select = document.getElementById('baseUrl');
+      if (!select) return;
+      
+      const items = loadItems('snowSavedBaseUrls');
+      const currentValue = select.value;
+      
+      // Clear existing options except first
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+
+      // Add saved items
+      items.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.value;
+        option.textContent = `${item.alias}: ${item.value}`;
+        select.appendChild(option);
+      });
+
+      // Restore selection if it still exists
+      if (currentValue) {
+        select.value = currentValue;
+      }
+    }
+
+    // ========================================================================
+    // TABLE NAME MANAGER
+    // ========================================================================
+
+    let currentEditingTableNameId = null;
+
+    function openTableNameManager() {
+      const modal = document.getElementById('tableNameManagerModal');
+      if (!modal) {
+        console.error('tableNameManagerModal not found');
+        return;
+      }
+      modal.style.display = 'flex';
+      refreshTableNameList();
+    }
+
+    function closeTableNameManager() {
+      const modal = document.getElementById('tableNameManagerModal');
+      if (!modal) return;
+      modal.style.display = 'none';
+      cancelTableNameEdit();
+    }
+
+    function saveTableName() {
+      const alias = document.getElementById('tableNameAliasInput').value.trim();
+      const value = document.getElementById('tableNameValueInput').value.trim();
+
+      if (!alias || !value) {
+        alert('Please fill in all fields');
+        return;
+      }
+
+      // Validate table name format (lowercase letters, numbers, underscores)
+      if (!value.match(/^[a-z][a-z0-9_]*$/)) {
+        alert('Please enter a valid table name (lowercase letters, numbers, and underscores, starting with a letter)');
+        return;
+      }
+
+      try {
+        const items = loadItems('snowSavedTableNames');
+        
+        if (currentEditingTableNameId) {
+          // Update existing
+          const index = items.findIndex(item => item.id === currentEditingTableNameId);
+          if (index >= 0) {
+            items[index].alias = alias;
+            items[index].value = value;
+            items[index].updatedAt = Date.now();
+          }
+        } else {
+          // Add new
+          items.push({
+            id: generateItemId('table'),
+            alias: alias,
+            value: value,
+            createdAt: Date.now()
+          });
+        }
+
+        saveItems('snowSavedTableNames', items);
+        populateTableNameDropdown();
+        refreshTableNameList();
+        cancelTableNameEdit();
+      } catch (e) {
+        alert('Error saving table name: ' + e.message);
+      }
+    }
+
+    function editTableName(itemId) {
+      const items = loadItems('snowSavedTableNames');
+      const item = items.find(i => i.id === itemId);
+      if (!item) return;
+
+      currentEditingTableNameId = itemId;
+      document.getElementById('tableNameAliasInput').value = item.alias;
+      document.getElementById('tableNameValueInput').value = item.value;
+      
+      const saveBtn = document.getElementById('saveTableNameBtn');
+      const cancelBtn = document.getElementById('cancelTableNameBtn');
+      saveBtn.textContent = 'Update';
+      saveBtn.style.background = '#3498db';
+      cancelBtn.style.display = 'inline-block';
+    }
+
+    function deleteTableName(itemId) {
+      if (!confirm('Delete this table name?')) return;
+
+      try {
+        const items = loadItems('snowSavedTableNames');
+        const filtered = items.filter(item => item.id !== itemId);
+        saveItems('snowSavedTableNames', filtered);
+        populateTableNameDropdown();
+        refreshTableNameList();
+      } catch (e) {
+        alert('Error deleting table name: ' + e.message);
+      }
+    }
+
+    function applyTableName(itemId) {
+      const items = loadItems('snowSavedTableNames');
+      const item = items.find(i => i.id === itemId);
+      if (!item) return;
+
+      document.getElementById('tableName').value = item.value;
+      closeTableNameManager();
+      saveState();
+    }
+
+    function cancelTableNameEdit() {
+      currentEditingTableNameId = null;
+      document.getElementById('tableNameAliasInput').value = '';
+      document.getElementById('tableNameValueInput').value = '';
+      
+      const saveBtn = document.getElementById('saveTableNameBtn');
+      const cancelBtn = document.getElementById('cancelTableNameBtn');
+      saveBtn.textContent = 'Save';
+      saveBtn.style.background = '#27ae60';
+      cancelBtn.style.display = 'none';
+    }
+
+    function refreshTableNameList() {
+      const list = document.getElementById('tableNameSavedList');
+      if (!list) return;
+      
+      const items = loadItems('snowSavedTableNames');
+      list.innerHTML = '';
+      
+      if (items.length === 0) {
+        list.innerHTML = '<div style="padding:16px;color:#999;text-align:center;">No saved table names yet.<br>Add one above to get started!</div>';
+        return;
+      }
+
+      items.forEach(item => {
+        const row = document.createElement('div');
+        row.style.cssText = 'padding:12px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:flex-start;';
+
+        const info = document.createElement('div');
+        info.style.cssText = 'flex:1;';
+        info.innerHTML = `
+          <div style="font-weight:600;margin-bottom:6px;font-size:1.05em;color:#2c3e50;">${escapeHtml(item.alias)}</div>
+          <div style="font-size:0.9em;color:#666;">${escapeHtml(item.value)}</div>
+        `;
+
+        const buttons = document.createElement('div');
+        buttons.style.cssText = 'display:flex;gap:8px;flex-direction:column;';
+
+        const useBtn = document.createElement('button');
+        useBtn.type = 'button';
+        useBtn.textContent = 'Use';
+        useBtn.style.cssText = 'background:#27ae60;color:#fff;border:none;border-radius:4px;padding:6px 16px;cursor:pointer;font-size:0.9em;white-space:nowrap;';
+        useBtn.onclick = () => applyTableName(item.id);
+
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.textContent = 'Edit';
+        editBtn.style.cssText = 'background:#3498db;color:#fff;border:none;border-radius:4px;padding:6px 16px;cursor:pointer;font-size:0.9em;';
+        editBtn.onclick = () => editTableName(item.id);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.style.cssText = 'background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:6px 16px;cursor:pointer;font-size:0.9em;';
+        deleteBtn.onclick = () => deleteTableName(item.id);
+
+        buttons.appendChild(useBtn);
+        buttons.appendChild(editBtn);
+        buttons.appendChild(deleteBtn);
+        row.appendChild(info);
+        row.appendChild(buttons);
+        list.appendChild(row);
+      });
+    }
+
+    function populateTableNameDropdown() {
+      const select = document.getElementById('tableName');
+      if (!select) return;
+      
+      const items = loadItems('snowSavedTableNames');
+      const currentValue = select.value;
+      
+      // Clear existing options except first
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+
+      // Add saved items
+      items.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.value;
+        option.textContent = `${item.alias}: ${item.value}`;
+        select.appendChild(option);
+      });
+
+      // Restore selection if it still exists
+      if (currentValue) {
+        select.value = currentValue;
+      }
+    }
+
+    // ========================================================================
+    // CONFIGURATION EXPORT/IMPORT & URL LOADING
+    // ========================================================================
+
+    function exportConfiguration() {
+      try {
+        const config = {
+          version: '1.0.0',
+          exportedAt: new Date().toISOString(),
+          description: 'ServiceNow Link Generator Configuration',
+          configItems: loadConfigurationItems(),
+          fieldDefinitions: loadFieldDefinitions(),
+          baseUrls: loadItems('snowSavedBaseUrls'),
+          tableNames: loadItems('snowSavedTableNames')
+        };
+
+        const jsonString = JSON.stringify(config, null, 2);
+        const blob = new Blob([jsonString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `servicenow-config-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+
+        alert('Configuration exported successfully!');
+      } catch (e) {
+        alert('Error exporting configuration: ' + e.message);
+      }
+    }
+
+    function importConfiguration(file) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const config = JSON.parse(e.target.result);
+
+          // Validate config structure
+          if (!config.version) {
+            throw new Error('Invalid configuration file: missing version');
+          }
+
+          // Import all data
+          if (config.configItems && Array.isArray(config.configItems)) {
+            saveConfigurationItems(config.configItems);
+          }
+          if (config.fieldDefinitions && Array.isArray(config.fieldDefinitions)) {
+            saveFieldDefinitions(config.fieldDefinitions);
+          }
+          if (config.baseUrls && Array.isArray(config.baseUrls)) {
+            saveItems('snowSavedBaseUrls', config.baseUrls);
+          }
+          if (config.tableNames && Array.isArray(config.tableNames)) {
+            saveItems('snowSavedTableNames', config.tableNames);
+          }
+
+          alert('Configuration imported successfully! Reloading...');
+          window.location.reload();
+        } catch (e) {
+          alert('Error importing configuration: ' + e.message);
+        }
+      };
+      reader.onerror = function() {
+        alert('Error importing configuration: Failed to read file');
+      };
+      reader.readAsText(file);
+    }
+
+    function loadConfigurationFromUrl(configUrl) {
+      try {
+        console.log('Loading configuration from URL:', configUrl);
+        
+        // Use fetch to load the config from URL
+        fetch(configUrl)
+          .then(response => {
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            return response.json();
+          })
+          .then(config => {
+            // Validate config structure
+            if (!config.version) {
+              throw new Error('Invalid configuration: missing version');
+            }
+
+            // Import all data
+            if (config.configItems && Array.isArray(config.configItems)) {
+              saveConfigurationItems(config.configItems);
+            }
+            if (config.fieldDefinitions && Array.isArray(config.fieldDefinitions)) {
+              saveFieldDefinitions(config.fieldDefinitions);
+            }
+            if (config.baseUrls && Array.isArray(config.baseUrls)) {
+              saveItems('snowSavedBaseUrls', config.baseUrls);
+            }
+            if (config.tableNames && Array.isArray(config.tableNames)) {
+              saveItems('snowSavedTableNames', config.tableNames);
+            }
+
+            // Save import timestamp
+            localStorage.setItem('snowLastConfigUrl', configUrl);
+
+            console.log('Configuration loaded from URL successfully');
+            // Reload to refresh UI with new config
+            window.location.reload();
+          })
+          .catch(e => {
+            console.error('Failed to load configuration from URL:', e);
+            // Don't alert - might be offline, let app continue
+          });
+      } catch (e) {
+        console.error('Error loading configuration from URL:', e);
+      }
+    }
+
+    function openImportModal() {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.onchange = function(e) {
+        const file = e.target.files[0];
+        if (file) {
+          importConfiguration(file);
+        }
+      };
+      input.click();
+    }
+
+    // Initialize dropdowns on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      populateBaseUrlDropdown();
+      populateTableNameDropdown();
+    });
+  </script>
+</body>
+</html>

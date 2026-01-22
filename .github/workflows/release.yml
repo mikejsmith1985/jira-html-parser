@@ -82,6 +82,7 @@ jobs:
           name: Release v${{ steps.version.outputs.new }}
           files: |
             jira-link-generator.html
+            servicenow-link-generator.html
             package.json
             README.md
           body: |
@@ -99,10 +100,12 @@ jobs:
             ```
             
             ## Quick Start
-            Download `jira-link-generator.html` and open it in your web browser to use.
+            Download the HTML file for your platform and open it in your web browser:
+            - `jira-link-generator.html` - Generate pre-filled Jira issue links
+            - `servicenow-link-generator.html` - Generate pre-filled ServiceNow record links
             
             ## Installation
-            1. Download `jira-link-generator.html` from the release assets
+            1. Download your preferred HTML file from the release assets
             2. Open it in any modern web browser (Chrome, Firefox, Safari, Edge)
             3. No installation or server required - works 100% offline
             
@@ -110,7 +113,8 @@ jobs:
             Run tests with: `npm test`
             
             ## Features
-            - Jira Issue Link Generator
+            - **Jira Issue Link Generator** - Create pre-filled Jira issue URLs
+            - **ServiceNow Link Generator** - Create pre-filled ServiceNow record URLs
             - Configuration Items Management
             - Field Definitions & Presets
             - Rich Text Editing
