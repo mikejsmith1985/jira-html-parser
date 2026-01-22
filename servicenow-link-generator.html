@@ -589,18 +589,26 @@
 
     // Format value for ServiceNow - pass HTML directly (ServiceNow accepts HTML)
     function smartFormatValue(val) {
-      // ServiceNow Rich Text fields accept standard HTML
-      // Just clean up the HTML a bit
+      // For simple text fields like IDs, we want the exact text content
+      // For rich text fields, we might want to preserve HTML, but for URL parameters, 
+      // passing raw HTML can be problematic and ServiceNow often prefers plain text 
+      // or specific encoded HTML.
+      
+      // Check if the value looks like HTML (starts with tags)
+      if (!val || !val.match(/<[^>]+>/)) {
+          return val;
+      }
+
+      // If it contains HTML tags, strip them to be safe and ensure "value passed is EXACTLY as entered"
+      // for text-based inputs that might have been wrapped in divs by contentEditable
       let formatted = val;
       
-      // Convert div line breaks to actual line breaks for plain text fields
+      // Convert div line breaks to actual line breaks
       formatted = formatted.replace(/<div><br><\/div>/gi, '\n');
       formatted = formatted.replace(/<div>/gi, '\n');
       formatted = formatted.replace(/<\/div>/gi, '');
       formatted = formatted.replace(/<br\s*\/?>/gi, '\n');
       
-      // For ServiceNow, we can pass the HTML directly or strip it for plain text
-      // Let's strip HTML tags for the URL parameter (ServiceNow will handle it)
       const temp = document.createElement('div');
       temp.innerHTML = formatted;
       return temp.textContent || temp.innerText || '';
@@ -627,11 +635,7 @@
       // Build the ServiceNow URL: https://<BASE_URL>/<TABLE_NAME>.do?sys_id=-1&sysparm_query=<ENCODED_QUERY>
       let url = `${baseUrl}/${tableName}.do?sys_id=-1`;
       if (queryString) {
-        // Encode the query string
-        // We replace %3D with = to avoid visual confusion when field values start with "3d" (hex for =)
-        // But we keep %5E (^) encoded to ensure URL validity and compatibility
-        let encoded = encodeURIComponent(queryString).replace(/%3D/g, '=');
-        url += `&sysparm_query=${encoded}`;
+        url += `&sysparm_query=${encodeURIComponent(queryString)}`;
       }
 
       document.getElementById('link').textContent = url;
