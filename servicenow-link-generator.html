@@ -625,28 +625,29 @@
       const queryParts = [];
       fields.forEach(f => {
         let val = smartFormatValue(f.value);
+        
+        // CLEANING FIX for Issue #8:
+        // If a value matches the pattern of a 32-char hex string prefixed with "3D",
+        // strip the "3D" prefix. "3D" is the hex code for '=', and users sometimes
+        // paste values that include this encoded artifact.
+        // Pattern: Starts with 3D, followed by exactly 32 hex characters.
+        if (val && val.length === 34 && val.match(/^3D[0-9a-fA-F]{32}$/)) {
+            val = val.substring(2);
+        }
+
         if (val) {
           queryParts.push(`${f.name}=${val}`);
         }
       });
 
-      // CUSTOM ENCODING: Fix for Issue #8 (Duplicate 3D characters)
-      // We encode keys and values individually but keep the field separator (=) unencoded.
-      // We encode the tuple separator (^) as %5E.
-      // This produces: key=value%5Ekey2=value2
-      // This avoids visual confusion when values start with "3d" (which looks like %3D decoded)
-      // and ensures exact value passing without full query string encoding.
-      const encodedQueryString = queryParts.map(part => {
-        const splitIdx = part.indexOf('=');
-        const pName = part.substring(0, splitIdx);
-        const pValue = part.substring(splitIdx + 1);
-        return `${encodeURIComponent(pName)}=${encodeURIComponent(pValue)}`;
-      }).join('%5E');
+      const queryString = queryParts.join('^');
       
       // Build the ServiceNow URL: https://<BASE_URL>/<TABLE_NAME>.do?sys_id=-1&sysparm_query=<ENCODED_QUERY>
       let url = `${baseUrl}/${tableName}.do?sys_id=-1`;
-      if (encodedQueryString) {
-        url += `&sysparm_query=${encodedQueryString}`;
+      if (queryString) {
+        // Encode the ENTIRE query string using standard encodeURIComponent
+        // This ensures compatibility with ServiceNow's URL decoder.
+        url += `&sysparm_query=${encodeURIComponent(queryString)}`;
       }
 
       document.getElementById('link').textContent = url;
