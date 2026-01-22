@@ -627,7 +627,12 @@
       // Build the ServiceNow URL: https://<BASE_URL>/<TABLE_NAME>.do?sys_id=-1&sysparm_query=<ENCODED_QUERY>
       let url = `${baseUrl}/${tableName}.do?sys_id=-1`;
       if (queryString) {
-        url += `&sysparm_query=${encodeURIComponent(queryString)}`;
+        // Encode the query string, but keep = and ^ unencoded for readability and to prevent confusion
+        // e.g. "3d" at start of ID vs "%3D" (hex for =)
+        let encoded = encodeURIComponent(queryString)
+          .replace(/%3D/g, '=')
+          .replace(/%5E/g, '^');
+        url += `&sysparm_query=${encoded}`;
       }
 
       document.getElementById('link').textContent = url;
