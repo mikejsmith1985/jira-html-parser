@@ -630,18 +630,23 @@
         }
       });
 
-      const queryString = queryParts.join('^');
+      // CUSTOM ENCODING: Fix for Issue #8 (Duplicate 3D characters)
+      // We encode keys and values individually but keep the field separator (=) unencoded.
+      // We encode the tuple separator (^) as %5E.
+      // This produces: key=value%5Ekey2=value2
+      // This avoids visual confusion when values start with "3d" (which looks like %3D decoded)
+      // and ensures exact value passing without full query string encoding.
+      const encodedQueryString = queryParts.map(part => {
+        const splitIdx = part.indexOf('=');
+        const pName = part.substring(0, splitIdx);
+        const pValue = part.substring(splitIdx + 1);
+        return `${encodeURIComponent(pName)}=${encodeURIComponent(pValue)}`;
+      }).join('%5E');
       
       // Build the ServiceNow URL: https://<BASE_URL>/<TABLE_NAME>.do?sys_id=-1&sysparm_query=<ENCODED_QUERY>
       let url = `${baseUrl}/${tableName}.do?sys_id=-1`;
-      if (queryString) {
-        // Encode the query string using encodeURIComponent
-        // This will result in %3D for = and %5E for ^
-        // Example: field=value -> field%3Dvalue
-        // If a value starts with "3d" (hex for =), it will look like field%3D3dvalue
-        // This is visually confusing but technically correct URL encoding.
-        // ServiceNow handles standard URL encoding correctly.
-        url += `&sysparm_query=${encodeURIComponent(queryString)}`;
+      if (encodedQueryString) {
+        url += `&sysparm_query=${encodedQueryString}`;
       }
 
       document.getElementById('link').textContent = url;
