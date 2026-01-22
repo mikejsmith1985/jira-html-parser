@@ -635,6 +635,12 @@
       // Build the ServiceNow URL: https://<BASE_URL>/<TABLE_NAME>.do?sys_id=-1&sysparm_query=<ENCODED_QUERY>
       let url = `${baseUrl}/${tableName}.do?sys_id=-1`;
       if (queryString) {
+        // Encode the query string using encodeURIComponent
+        // This will result in %3D for = and %5E for ^
+        // Example: field=value -> field%3Dvalue
+        // If a value starts with "3d" (hex for =), it will look like field%3D3dvalue
+        // This is visually confusing but technically correct URL encoding.
+        // ServiceNow handles standard URL encoding correctly.
         url += `&sysparm_query=${encodeURIComponent(queryString)}`;
       }
 
