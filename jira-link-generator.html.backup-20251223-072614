@@ -33,11 +33,10 @@
       min-height: 80px; padding: 8px;
     }
     .editor-container {
-      flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; align-self: stretch;
+      flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px;
     }
     .formatting-toolbar {
-      display: flex; gap: 4px; padding: 6px; background: #f0f0f0; border-radius: 4px; width: 100%;
-      box-sizing: border-box;
+      display: flex; gap: 4px; padding: 6px; background: #f0f0f0; border-radius: 4px;
     }
     .formatting-toolbar button {
       padding: 6px 10px; background: #e74c3c; color: #fff; border: none; border-radius: 4px;
@@ -76,8 +75,6 @@
         <option value="">-- Load Preset --</option>
       </select>
       <button type="button" onclick="openManagePresetsModal()" style="background: #3498db; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer;">Manage Presets</button>
-      <button type="button" onclick="exportConfiguration()" style="background: #27ae60; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Export all configurations, fields, and dropdowns to a JSON file">Export Config</button>
-      <button type="button" onclick="openImportModal()" style="background: #e67e22; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Import configurations from a JSON file">Import Config</button>
     </div>
 
     <form id="jiraForm" autocomplete="off">
@@ -86,7 +83,7 @@
           <select id="baseUrl" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" required onchange="saveState()">
             <option value="">-- Select Base URL --</option>
           </select>
-          <button type="button" onclick="openBaseUrlManager()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:10px 16px;cursor:pointer;white-space:nowrap;font-weight:500;">Manage</button>
+          <button type="button" onclick="openConfigurationManager()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:10px 16px;cursor:pointer;white-space:nowrap;font-weight:500;">Manage</button>
         </div>
       </label>
       <label>Project ID (pid)
@@ -94,7 +91,7 @@
           <select id="projectId" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" required onchange="saveState()">
             <option value="">-- Select Project ID --</option>
           </select>
-          <button type="button" onclick="openProjectIdManager()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:10px 16px;cursor:pointer;white-space:nowrap;font-weight:500;">Manage</button>
+          <button type="button" onclick="openConfigurationManager()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:10px 16px;cursor:pointer;white-space:nowrap;font-weight:500;">Manage</button>
         </div>
       </label>
       <label>Issue Type ID
@@ -102,7 +99,7 @@
           <select id="issueTypeId" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" required onchange="saveState()">
             <option value="">-- Select Issue Type ID --</option>
           </select>
-          <button type="button" onclick="openIssueTypeIdManager()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:10px 16px;cursor:pointer;white-space:nowrap;font-weight:500;">Manage</button>
+          <button type="button" onclick="openConfigurationManager()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:10px 16px;cursor:pointer;white-space:nowrap;font-weight:500;">Manage</button>
         </div>
       </label>
       <div class="fields" id="fields"></div>
@@ -132,27 +129,9 @@
         <div id="fieldsList" style="margin-bottom:16px;max-height:200px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:8px;"></div>
       </div>
       
-      <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;">
-        <div style="display:flex;gap:8px;">
-          <input type="text" id="fieldIdInput" placeholder="ID (e.g. customfield_10001)" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;">
-          <input type="text" id="fieldLabelInput" placeholder="Label (e.g. Custom Field)" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;">
-        </div>
-        <div style="display:flex;gap:8px;align-items:center;">
-          <label style="margin:0;font-weight:500;">Field Type:</label>
-          <select id="fieldTypeSelect" onchange="toggleFieldTypeOptions()" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;">
-            <option value="text">Text (Rich Editor)</option>
-            <option value="combobox">Combobox (Dropdown)</option>
-          </select>
-        </div>
-        <div id="comboboxOptionsSection" style="display:none;border:1px solid #ddd;border-radius:4px;padding:12px;background:#f9f9f9;">
-          <div style="font-weight:500;margin-bottom:8px;">Combobox Options:</div>
-          <div id="comboboxOptionsList" style="max-height:150px;overflow-y:auto;margin-bottom:8px;"></div>
-          <div style="display:flex;gap:8px;">
-            <input type="text" id="optionLabelInput" placeholder="Label (e.g. High)" style="flex:1;padding:6px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
-            <input type="text" id="optionValueInput" placeholder="Value (e.g. 1)" style="flex:1;padding:6px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
-            <button type="button" onclick="addComboboxOption()" style="background:#27ae60;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.9em;">Add Option</button>
-          </div>
-        </div>
+      <div style="margin-top:16px;display:flex;gap:8px;">
+        <input type="text" id="fieldIdInput" placeholder="ID (e.g. customfield_10001)" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;">
+        <input type="text" id="fieldLabelInput" placeholder="Label (e.g. Custom Field)" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;">
         <button type="button" onclick="addFieldDefinition()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;" id="addFieldBtn">Add</button>
       </div>
       <div style="margin-top:16px;text-align:right;gap:8px;display:flex;justify-content:flex-end;">
@@ -206,104 +185,44 @@
     </div>
   </div>
 
-  <!-- Base URL Manager Modal -->
-  <div id="baseUrlManagerModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+  <!-- Configuration Manager Modal -->
+  <div id="configManagerModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
     <div style="background:#fff;border-radius:8px;padding:24px;max-width:600px;width:90vw;max-height:80vh;overflow-y:auto;">
-      <h2>Manage Base URLs</h2>
+      <h2>Manage Saved Configurations</h2>
       
       <div style="margin-top:16px;">
-        <h3 style="font-size:1.1em;color:#2c3e50;margin-bottom:12px;">Add New Base URL</h3>
-        <div style="padding:16px;background:#f9f9f9;border-radius:4px;">
-          <div style="margin-bottom:12px;">
+        <h3 style="font-size:1.1em;color:#2c3e50;margin-bottom:12px;">Add New Configuration</h3>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:16px;background:#f9f9f9;border-radius:4px;">
+          <div style="grid-column:1/3;">
             <label style="display:block;margin-bottom:4px;font-weight:500;font-size:0.9em;">Alias / Label *</label>
-            <input type="text" id="baseUrlAliasInput" placeholder="e.g. Production, Dev, Staging" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+            <input type="text" id="configAliasInput" placeholder="e.g. Production, Dev, Staging" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
           </div>
-          <div style="margin-bottom:12px;">
+          <div>
             <label style="display:block;margin-bottom:4px;font-weight:500;font-size:0.9em;">Base URL *</label>
-            <input type="text" id="baseUrlValueInput" placeholder="https://jira.company.com" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+            <input type="text" id="configBaseUrlInput" placeholder="https://jira.company.com" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
           </div>
-          <div style="text-align:right;">
-            <button type="button" onclick="saveBaseUrl()" style="background:#27ae60;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-weight:500;" id="saveBaseUrlBtn">Save</button>
-            <button type="button" onclick="cancelBaseUrlEdit()" id="cancelBaseUrlBtn" style="display:none;background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;margin-left:8px;">Cancel</button>
-          </div>
-        </div>
-      </div>
-
-      <div style="margin-top:24px;">
-        <h3 style="font-size:1.1em;color:#2c3e50;margin-bottom:12px;">Saved Base URLs</h3>
-        <div id="baseUrlSavedList" style="max-height:300px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:8px;"></div>
-      </div>
-
-      <div style="margin-top:16px;text-align:right;gap:8px;display:flex;justify-content:flex-end;">
-        <button type="button" onclick="closeBaseUrlManager()" style="background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Project ID Manager Modal -->
-  <div id="projectIdManagerModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
-    <div style="background:#fff;border-radius:8px;padding:24px;max-width:600px;width:90vw;max-height:80vh;overflow-y:auto;">
-      <h2>Manage Project IDs</h2>
-      
-      <div style="margin-top:16px;">
-        <h3 style="font-size:1.1em;color:#2c3e50;margin-bottom:12px;">Add New Project ID</h3>
-        <div style="padding:16px;background:#f9f9f9;border-radius:4px;">
-          <div style="margin-bottom:12px;">
-            <label style="display:block;margin-bottom:4px;font-weight:500;font-size:0.9em;">Alias / Label *</label>
-            <input type="text" id="projectIdAliasInput" placeholder="e.g. Main Project, Team A" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
-          </div>
-          <div style="margin-bottom:12px;">
+          <div>
             <label style="display:block;margin-bottom:4px;font-weight:500;font-size:0.9em;">Project ID *</label>
-            <input type="text" id="projectIdValueInput" placeholder="PROJ" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+            <input type="text" id="configProjectIdInput" placeholder="PROJ" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
           </div>
-          <div style="text-align:right;">
-            <button type="button" onclick="saveProjectId()" style="background:#27ae60;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-weight:500;" id="saveProjectIdBtn">Save</button>
-            <button type="button" onclick="cancelProjectIdEdit()" id="cancelProjectIdBtn" style="display:none;background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;margin-left:8px;">Cancel</button>
-          </div>
-        </div>
-      </div>
-
-      <div style="margin-top:24px;">
-        <h3 style="font-size:1.1em;color:#2c3e50;margin-bottom:12px;">Saved Project IDs</h3>
-        <div id="projectIdSavedList" style="max-height:300px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:8px;"></div>
-      </div>
-
-      <div style="margin-top:16px;text-align:right;gap:8px;display:flex;justify-content:flex-end;">
-        <button type="button" onclick="closeProjectIdManager()" style="background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Issue Type ID Manager Modal -->
-  <div id="issueTypeIdManagerModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
-    <div style="background:#fff;border-radius:8px;padding:24px;max-width:600px;width:90vw;max-height:80vh;overflow-y:auto;">
-      <h2>Manage Issue Type IDs</h2>
-      
-      <div style="margin-top:16px;">
-        <h3 style="font-size:1.1em;color:#2c3e50;margin-bottom:12px;">Add New Issue Type ID</h3>
-        <div style="padding:16px;background:#f9f9f9;border-radius:4px;">
-          <div style="margin-bottom:12px;">
-            <label style="display:block;margin-bottom:4px;font-weight:500;font-size:0.9em;">Alias / Label *</label>
-            <input type="text" id="issueTypeIdAliasInput" placeholder="e.g. Bug, Story, Task" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
-          </div>
-          <div style="margin-bottom:12px;">
+          <div>
             <label style="display:block;margin-bottom:4px;font-weight:500;font-size:0.9em;">Issue Type ID *</label>
-            <input type="text" id="issueTypeIdValueInput" placeholder="10001" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+            <input type="text" id="configIssueTypeIdInput" placeholder="10001" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
           </div>
-          <div style="text-align:right;">
-            <button type="button" onclick="saveIssueTypeId()" style="background:#27ae60;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-weight:500;" id="saveIssueTypeIdBtn">Save</button>
-            <button type="button" onclick="cancelIssueTypeIdEdit()" id="cancelIssueTypeIdBtn" style="display:none;background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;margin-left:8px;">Cancel</button>
+          <div style="grid-column:1/3;text-align:right;margin-top:8px;">
+            <button type="button" onclick="saveNewConfiguration()" style="background:#27ae60;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-weight:500;" id="saveConfigBtn">Save Configuration</button>
+            <button type="button" onclick="cancelConfigEdit()" id="cancelConfigBtn" style="display:none;background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;margin-left:8px;">Cancel</button>
           </div>
         </div>
       </div>
 
       <div style="margin-top:24px;">
-        <h3 style="font-size:1.1em;color:#2c3e50;margin-bottom:12px;">Saved Issue Type IDs</h3>
-        <div id="issueTypeIdSavedList" style="max-height:300px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:8px;"></div>
+        <h3 style="font-size:1.1em;color:#2c3e50;margin-bottom:12px;">Saved Configurations</h3>
+        <div id="savedConfigsList" style="max-height:300px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:8px;"></div>
       </div>
 
       <div style="margin-top:16px;text-align:right;gap:8px;display:flex;justify-content:flex-end;">
-        <button type="button" onclick="closeIssueTypeIdManager()" style="background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Close</button>
+        <button type="button" onclick="closeConfigurationManager()" style="background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Close</button>
       </div>
     </div>
   </div>
@@ -321,13 +240,13 @@
     ];
 
     const DEFAULT_FIELDS = [
-      { id: "summary", label: "Summary", category: "standard", fieldType: "text" },
-      { id: "description", label: "Description", category: "standard", fieldType: "text" },
-      { id: "priority", label: "Priority", category: "standard", fieldType: "text" },
-      { id: "assignee", label: "Assignee", category: "standard", fieldType: "text" },
-      { id: "labels", label: "Labels", category: "standard", fieldType: "text" },
-      { id: "due date", label: "Due Date", category: "standard", fieldType: "text" },
-      { id: "component", label: "Component", category: "standard", fieldType: "text" }
+      { id: "summary", label: "Summary", category: "standard" },
+      { id: "description", label: "Description", category: "standard" },
+      { id: "priority", label: "Priority", category: "standard" },
+      { id: "assignee", label: "Assignee", category: "standard" },
+      { id: "labels", label: "Labels", category: "standard" },
+      { id: "due date", label: "Due Date", category: "standard" },
+      { id: "component", label: "Component", category: "standard" }
     ];
 
     // ========================================================================
@@ -401,16 +320,6 @@
     // RESTORE LAST STATE & MIGRATION
     // ========================================================================
     window.onload = function() {
-      // Check for config URL parameter (e.g., ?config=https://...)
-      const params = new URLSearchParams(window.location.search);
-      const configUrl = params.get('config');
-      
-      if (configUrl) {
-        // Load configuration from URL before initializing form
-        loadConfigurationFromUrl(configUrl);
-        return; // Don't continue until config is loaded
-      }
-
       const fieldDefinitions = loadFieldDefinitions();
       const saved = localStorage.getItem('jiraGenState');
       if (saved) {
@@ -463,7 +372,6 @@
       fieldSelect.appendChild(placeholder);
 
       const definitions = loadFieldDefinitions();
-      definitions.sort((a, b) => a.label.localeCompare(b.label));
       definitions.forEach(def => {
         const option = document.createElement('option');
         option.value = def.id;
@@ -474,6 +382,7 @@
       if (data.fieldId) {
         fieldSelect.value = data.fieldId;
       }
+      fieldSelect.onchange = saveState;
 
       // Manage Fields button
       const manageBtn = document.createElement('button');
@@ -485,113 +394,48 @@
         openFieldManager();
       };
 
-      // Value input container (will be populated based on field type)
-      const valueContainer = document.createElement('div');
-      valueContainer.className = 'editor-container';
-      valueContainer.style.flex = '1';
-      valueContainer.style.minWidth = '0';
+      // Editor container with toolbar
+      const editorContainer = document.createElement('div');
+      editorContainer.className = 'editor-container';
 
-      // Function to render the appropriate input based on field type
-      const renderFieldInput = (preserveValue = false) => {
-        const selectedFieldId = fieldSelect.value;
-        const currentDefinitions = loadFieldDefinitions(); // Get fresh definitions
-        const fieldDef = currentDefinitions.find(d => d.id === selectedFieldId);
-        
-        // Save current value if preserving
-        let currentValue = '';
-        if (preserveValue) {
-          const existingInput = valueContainer.querySelector('.rich-value');
-          if (existingInput) {
-            if (existingInput.tagName === 'SELECT') {
-              currentValue = existingInput.value;
-            } else if (existingInput.contentEditable === 'true') {
-              currentValue = existingInput.innerHTML;
-            }
-          }
-        } else {
-          currentValue = data.value || '';
-        }
-        
-        valueContainer.innerHTML = '';
-        
-        if (!fieldDef || fieldDef.fieldType === 'text' || !fieldDef.fieldType) {
-          // Render rich text editor with formatting toolbar
-          const toolbar = document.createElement('div');
-          toolbar.className = 'formatting-toolbar';
-          toolbar.style.width = '100%';
+      // Formatting toolbar
+      const toolbar = document.createElement('div');
+      toolbar.className = 'formatting-toolbar';
 
-          const formatButtons = [
-            { label: 'B', cmd: 'bold', title: 'Bold' },
-            { label: 'I', cmd: 'italic', title: 'Italic' },
-            { label: 'U', cmd: 'underline', title: 'Underline' },
-            { label: 'S', cmd: 'strikeThrough', title: 'Strikethrough' },
-            { label: '•', cmd: 'insertUnorderedList', title: 'Bullet List' },
-            { label: '1.', cmd: 'insertOrderedList', title: 'Numbered List' },
-            { label: '⌫', cmd: 'removeFormat', title: 'Clear Formatting' }
-          ];
+      const formatButtons = [
+        { label: 'B', cmd: 'bold', title: 'Bold' },
+        { label: 'I', cmd: 'italic', title: 'Italic' },
+        { label: 'U', cmd: 'underline', title: 'Underline' },
+        { label: 'S', cmd: 'strikeThrough', title: 'Strikethrough' },
+        { label: '•', cmd: 'insertUnorderedList', title: 'Bullet List' },
+        { label: '1.', cmd: 'insertOrderedList', title: 'Numbered List' },
+        { label: '⌫', cmd: 'removeFormat', title: 'Clear Formatting' }
+      ];
 
-          const richValue = document.createElement('div');
-          richValue.contentEditable = 'true';
-          richValue.className = 'rich-value';
-          richValue.style.minHeight = '80px';
-          richValue.style.width = '100%';
-          richValue.innerHTML = currentValue;
-          richValue.oninput = saveState;
+      const value = document.createElement('div');
+      value.contentEditable = 'true';
+      value.className = 'rich-value';
+      value.style.minHeight = '80px';
+      value.style.width = '100%';
+      value.innerHTML = data.value || '';
+      value.oninput = saveState;
 
-          formatButtons.forEach(({ label, cmd, title }) => {
-            const btn = document.createElement('button');
-            btn.type = 'button';
-            btn.textContent = label;
-            btn.title = title;
-            btn.onclick = (e) => {
-              e.preventDefault();
-              richValue.focus();
-              document.execCommand(cmd, false, null);
-              saveState();
-            };
-            toolbar.appendChild(btn);
-          });
+      formatButtons.forEach(({ label, cmd, title }) => {
+        const btn = document.createElement('button');
+        btn.type = 'button';
+        btn.textContent = label;
+        btn.title = title;
+        btn.onclick = (e) => {
+          e.preventDefault();
+          value.focus();
+          document.execCommand(cmd, false, null);
+          saveState();
+        };
+        toolbar.appendChild(btn);
+      });
 
-          valueContainer.appendChild(toolbar);
-          valueContainer.appendChild(richValue);
-        } else if (fieldDef.fieldType === 'combobox') {
-          // Render combobox dropdown
-          const comboSelect = document.createElement('select');
-          comboSelect.className = 'rich-value';
-          comboSelect.style.minHeight = 'auto';
-          comboSelect.style.padding = '8px';
-
-          const comboPlaceholder = document.createElement('option');
-          comboPlaceholder.value = '';
-          comboPlaceholder.textContent = '-- Select Option --';
-          comboSelect.appendChild(comboPlaceholder);
-
-          if (fieldDef.options && Array.isArray(fieldDef.options)) {
-            fieldDef.options.forEach(opt => {
-              const option = document.createElement('option');
-              option.value = opt.value;
-              option.textContent = opt.label;
-              comboSelect.appendChild(option);
-            });
-          }
-
-          if (currentValue) {
-            comboSelect.value = currentValue;
-          }
-          comboSelect.onchange = saveState;
-
-          valueContainer.appendChild(comboSelect);
-        }
-      };
-
-      // Initial render
-      renderFieldInput(false);
-
-      // Re-render when field selection changes
-      fieldSelect.onchange = () => {
-        renderFieldInput(false); // Don't preserve value when changing fields
-        saveState();
-      };
+      editorContainer.appendChild(toolbar);
+      editorContainer.appendChild(value);
 
       // Remove button
       const remove = document.createElement('button');
@@ -602,7 +446,7 @@
 
       row.appendChild(fieldSelect);
       row.appendChild(manageBtn);
-      row.appendChild(valueContainer);
+      row.appendChild(value);
       row.appendChild(remove);
       fieldsDiv.appendChild(row);
       saveState();
@@ -613,26 +457,12 @@
       const rows = document.querySelectorAll('.field-row');
       return Array.from(rows).map(row => {
         const fieldSelect = row.querySelector('.field-select');
-        const fieldId = fieldSelect ? fieldSelect.value : '';
-        
-        // Check if it's a rich text editor or a combobox
         const richValue = row.querySelector('.rich-value');
-        let value = '';
-        
-        if (richValue) {
-          if (richValue.tagName === 'SELECT') {
-            // It's a combobox - get the selected value (ID)
-            value = richValue.value;
-          } else if (richValue.contentEditable === 'true') {
-            // It's a rich text editor - get the HTML content
-            value = richValue.innerHTML;
-          }
-        }
-        
+        const fieldId = fieldSelect ? fieldSelect.value : '';
         return {
           fieldId: fieldId,
           name: fieldId, // Keep name for backward compatibility with URL generation
-          value: value
+          value: richValue ? richValue.innerHTML : ''
         };
       }).filter(f => f.fieldId);
     }
@@ -671,17 +501,17 @@
           case 'br':
             return '\n';
           case 'div':
-            return '\n' + content + '\n';
+            return '\n' + content;
           case 'p':
             return '\n' + content + '\n';
           case 'li':
              const parent = node.parentNode;
              const parentTag = parent ? parent.tagName.toLowerCase() : '';
              const prefix = parentTag === 'ol' ? '# ' : '* ';
-             return '\n' + prefix + content.trim() + '\n';
+             return prefix + content.trim() + '\n';
           case 'ul':
           case 'ol':
-            return '\n' + content + '\n';
+            return content;
           default:
             return content;
         }
@@ -757,9 +587,6 @@
       document.getElementById('fieldIdInput').value = def.id;
       document.getElementById('fieldIdInput').disabled = true;
       document.getElementById('fieldLabelInput').value = def.label;
-      document.getElementById('fieldTypeSelect').value = def.fieldType || 'text';
-      currentComboboxOptions = def.options || [];
-      toggleFieldTypeOptions();
       document.getElementById('fieldLabelInput').focus();
 
       const addBtn = document.getElementById('addFieldBtn');
@@ -772,81 +599,15 @@
 
     function cancelEditField() {
       currentEditingFieldIndex = null;
-      currentComboboxOptions = [];
       document.getElementById('fieldIdInput').value = '';
       document.getElementById('fieldIdInput').disabled = false;
       document.getElementById('fieldLabelInput').value = '';
-      document.getElementById('fieldTypeSelect').value = 'text';
-      toggleFieldTypeOptions();
       const addBtn = document.getElementById('addFieldBtn');
       const cancelBtn = document.getElementById('cancelEditFieldBtn');
       addBtn.textContent = 'Add';
       addBtn.style.background = '#3498db';
       addBtn.onclick = () => addFieldDefinition();
       cancelBtn.style.display = 'none';
-    }
-
-    // Field Type & Combobox Options Management
-    let currentComboboxOptions = [];
-
-    function toggleFieldTypeOptions() {
-      const fieldType = document.getElementById('fieldTypeSelect').value;
-      const optionsSection = document.getElementById('comboboxOptionsSection');
-      optionsSection.style.display = fieldType === 'combobox' ? 'block' : 'none';
-      if (fieldType === 'combobox') {
-        refreshComboboxOptionsList();
-      }
-    }
-
-    function addComboboxOption() {
-      const labelInput = document.getElementById('optionLabelInput');
-      const valueInput = document.getElementById('optionValueInput');
-      const label = labelInput.value.trim();
-      const value = valueInput.value.trim();
-
-      if (!label || !value) {
-        alert('Both label and value are required');
-        return;
-      }
-
-      currentComboboxOptions.push({ label, value });
-      labelInput.value = '';
-      valueInput.value = '';
-      refreshComboboxOptionsList();
-    }
-
-    function removeComboboxOption(index) {
-      currentComboboxOptions.splice(index, 1);
-      refreshComboboxOptionsList();
-    }
-
-    function refreshComboboxOptionsList() {
-      const list = document.getElementById('comboboxOptionsList');
-      list.innerHTML = '';
-
-      if (currentComboboxOptions.length === 0) {
-        list.innerHTML = '<div style="color:#999;font-size:0.85em;padding:4px;">No options added</div>';
-        return;
-      }
-
-      currentComboboxOptions.forEach((opt, index) => {
-        const row = document.createElement('div');
-        row.style.cssText = 'display:flex;gap:8px;align-items:center;padding:4px;border-bottom:1px solid #ddd;';
-        
-        const info = document.createElement('div');
-        info.style.cssText = 'flex:1;font-size:0.85em;';
-        info.innerHTML = `<strong>${escapeHtml(opt.label)}</strong> → ${escapeHtml(opt.value)}`;
-        
-        const deleteBtn = document.createElement('button');
-        deleteBtn.type = 'button';
-        deleteBtn.textContent = '×';
-        deleteBtn.style.cssText = 'background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:2px 8px;cursor:pointer;font-size:1.2em;line-height:1;';
-        deleteBtn.onclick = () => removeComboboxOption(index);
-        
-        row.appendChild(info);
-        row.appendChild(deleteBtn);
-        list.appendChild(row);
-      });
     }
 
     function refreshConfigItemsList() {
@@ -996,15 +757,9 @@
     function addFieldDefinition() {
       const fieldId = document.getElementById('fieldIdInput').value.trim();
       const fieldLabel = document.getElementById('fieldLabelInput').value.trim();
-      const fieldType = document.getElementById('fieldTypeSelect').value;
 
       if (!fieldId || !fieldLabel) {
         alert('Please enter both ID and Label');
-        return;
-      }
-
-      if (fieldType === 'combobox' && currentComboboxOptions.length === 0) {
-        alert('Please add at least one option for combobox fields');
         return;
       }
 
@@ -1028,25 +783,14 @@
           // Handle custom fields
           const definitions = loadFieldDefinitions();
 
-          const fieldData = { 
-            id: fieldId, 
-            label: fieldLabel, 
-            category: 'custom',
-            fieldType: fieldType
-          };
-
-          if (fieldType === 'combobox') {
-            fieldData.options = [...currentComboboxOptions];
-          }
-
           if (currentEditingFieldIndex !== null) {
-            definitions[currentEditingFieldIndex] = { ...definitions[currentEditingFieldIndex], ...fieldData };
+            definitions[currentEditingFieldIndex].label = fieldLabel;
           } else {
             const existingIndex = definitions.findIndex(d => d.id === fieldId);
             if (existingIndex >= 0) {
-              definitions[existingIndex] = { ...definitions[existingIndex], ...fieldData };
+              definitions[existingIndex].label = fieldLabel;
             } else {
-              definitions.push(fieldData);
+              definitions.push({ id: fieldId, label: fieldLabel, category: 'custom' });
             }
           }
 
@@ -1429,9 +1173,6 @@
       document.getElementById('fieldIdInput').value = def.id;
       document.getElementById('fieldIdInput').disabled = true;
       document.getElementById('fieldLabelInput').value = def.label;
-      document.getElementById('fieldTypeSelect').value = def.fieldType || 'text';
-      currentComboboxOptions = def.options || [];
-      toggleFieldTypeOptions();
       document.getElementById('fieldLabelInput').focus();
 
       const addBtn = document.getElementById('addFieldBtn');
@@ -1444,12 +1185,9 @@
 
     function cancelEditField() {
       currentEditingFieldIndex = null;
-      currentComboboxOptions = [];
       document.getElementById('fieldIdInput').value = '';
       document.getElementById('fieldIdInput').disabled = false;
       document.getElementById('fieldLabelInput').value = '';
-      document.getElementById('fieldTypeSelect').value = 'text';
-      toggleFieldTypeOptions();
       const addBtn = document.getElementById('addFieldBtn');
       const cancelBtn = document.getElementById('cancelEditFieldBtn');
       addBtn.textContent = 'Add';
@@ -1602,15 +1340,9 @@
     function addFieldDefinition() {
       const fieldId = document.getElementById('fieldIdInput').value.trim();
       const fieldLabel = document.getElementById('fieldLabelInput').value.trim();
-      const fieldType = document.getElementById('fieldTypeSelect').value;
 
       if (!fieldId || !fieldLabel) {
         alert('Please enter both ID and Label');
-        return;
-      }
-
-      if (fieldType === 'combobox' && currentComboboxOptions.length === 0) {
-        alert('Please add at least one option for combobox fields');
         return;
       }
 
@@ -1634,25 +1366,14 @@
           // Handle custom fields
           const definitions = loadFieldDefinitions();
 
-          const fieldData = { 
-            id: fieldId, 
-            label: fieldLabel, 
-            category: 'custom',
-            fieldType: fieldType
-          };
-
-          if (fieldType === 'combobox') {
-            fieldData.options = [...currentComboboxOptions];
-          }
-
           if (currentEditingFieldIndex !== null) {
-            definitions[currentEditingFieldIndex] = { ...definitions[currentEditingFieldIndex], ...fieldData };
+            definitions[currentEditingFieldIndex].label = fieldLabel;
           } else {
             const existingIndex = definitions.findIndex(d => d.id === fieldId);
             if (existingIndex >= 0) {
-              definitions[existingIndex] = { ...definitions[existingIndex], ...fieldData };
+              definitions[existingIndex].label = fieldLabel;
             } else {
-              definitions.push(fieldData);
+              definitions.push({ id: fieldId, label: fieldLabel, category: 'custom' });
             }
           }
 
@@ -1929,782 +1650,7 @@
     }
 
     // ========================================================================
-    // SEPARATE MODALS - Base URL, Project ID, Issue Type ID Manager
-    // ========================================================================
-
-    // Generic helper functions
-    function generateItemId(prefix) {
-      return prefix + '_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-    }
-
-    function loadItems(storageKey) {
-      try {
-        const stored = localStorage.getItem(storageKey);
-        if (!stored) return [];
-        const parsed = JSON.parse(stored);
-        return Array.isArray(parsed) ? parsed : [];
-      } catch (e) {
-        console.error(`Failed to load items from ${storageKey}:`, e);
-        return [];
-      }
-    }
-
-    function saveItems(storageKey, items) {
-      try {
-        if (!Array.isArray(items)) {
-          throw new Error('Items must be an array');
-        }
-        localStorage.setItem(storageKey, JSON.stringify(items));
-        return true;
-      } catch (e) {
-        console.error(`Failed to save items to ${storageKey}:`, e);
-        throw new Error('Could not save items (localStorage full?)');
-      }
-    }
-
-    // ========================================================================
-    // BASE URL MANAGER
-    // ========================================================================
-
-    let currentEditingBaseUrlId = null;
-
-    function openBaseUrlManager() {
-      const modal = document.getElementById('baseUrlManagerModal');
-      if (!modal) {
-        console.error('baseUrlManagerModal not found');
-        return;
-      }
-      modal.style.display = 'flex';
-      refreshBaseUrlList();
-    }
-
-    function closeBaseUrlManager() {
-      const modal = document.getElementById('baseUrlManagerModal');
-      if (!modal) return;
-      modal.style.display = 'none';
-      cancelBaseUrlEdit();
-    }
-
-    function saveBaseUrl() {
-      const alias = document.getElementById('baseUrlAliasInput').value.trim();
-      const value = document.getElementById('baseUrlValueInput').value.trim();
-
-      if (!alias || !value) {
-        alert('Please fill in all fields');
-        return;
-      }
-
-      // Validate URL format
-      if (!value.match(/^https?:\/\/.+/)) {
-        alert('Please enter a valid URL starting with http:// or https://');
-        return;
-      }
-
-      try {
-        const items = loadItems('jiraSavedBaseUrls');
-        
-        if (currentEditingBaseUrlId) {
-          // Update existing
-          const index = items.findIndex(item => item.id === currentEditingBaseUrlId);
-          if (index >= 0) {
-            items[index].alias = alias;
-            items[index].value = value;
-            items[index].updatedAt = Date.now();
-          }
-        } else {
-          // Add new
-          items.push({
-            id: generateItemId('base_url'),
-            alias: alias,
-            value: value,
-            createdAt: Date.now()
-          });
-        }
-
-        saveItems('jiraSavedBaseUrls', items);
-        populateBaseUrlDropdown();
-        refreshBaseUrlList();
-        cancelBaseUrlEdit();
-      } catch (e) {
-        alert('Error saving base URL: ' + e.message);
-      }
-    }
-
-    function editBaseUrl(itemId) {
-      const items = loadItems('jiraSavedBaseUrls');
-      const item = items.find(i => i.id === itemId);
-      if (!item) return;
-
-      currentEditingBaseUrlId = itemId;
-      document.getElementById('baseUrlAliasInput').value = item.alias;
-      document.getElementById('baseUrlValueInput').value = item.value;
-      
-      const saveBtn = document.getElementById('saveBaseUrlBtn');
-      const cancelBtn = document.getElementById('cancelBaseUrlBtn');
-      saveBtn.textContent = 'Update';
-      saveBtn.style.background = '#3498db';
-      cancelBtn.style.display = 'inline-block';
-    }
-
-    function deleteBaseUrl(itemId) {
-      if (!confirm('Delete this base URL?')) return;
-
-      try {
-        const items = loadItems('jiraSavedBaseUrls');
-        const filtered = items.filter(item => item.id !== itemId);
-        saveItems('jiraSavedBaseUrls', filtered);
-        populateBaseUrlDropdown();
-        refreshBaseUrlList();
-      } catch (e) {
-        alert('Error deleting base URL: ' + e.message);
-      }
-    }
-
-    function applyBaseUrl(itemId) {
-      const items = loadItems('jiraSavedBaseUrls');
-      const item = items.find(i => i.id === itemId);
-      if (!item) return;
-
-      document.getElementById('baseUrl').value = item.value;
-      closeBaseUrlManager();
-      saveState();
-    }
-
-    function cancelBaseUrlEdit() {
-      currentEditingBaseUrlId = null;
-      document.getElementById('baseUrlAliasInput').value = '';
-      document.getElementById('baseUrlValueInput').value = '';
-      
-      const saveBtn = document.getElementById('saveBaseUrlBtn');
-      const cancelBtn = document.getElementById('cancelBaseUrlBtn');
-      saveBtn.textContent = 'Save';
-      saveBtn.style.background = '#27ae60';
-      cancelBtn.style.display = 'none';
-    }
-
-    function refreshBaseUrlList() {
-      const list = document.getElementById('baseUrlSavedList');
-      if (!list) return;
-      
-      const items = loadItems('jiraSavedBaseUrls');
-      list.innerHTML = '';
-      
-      if (items.length === 0) {
-        list.innerHTML = '<div style="padding:16px;color:#999;text-align:center;">No saved base URLs yet.<br>Add one above to get started!</div>';
-        return;
-      }
-
-      items.forEach(item => {
-        const row = document.createElement('div');
-        row.style.cssText = 'padding:12px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:flex-start;';
-
-        const info = document.createElement('div');
-        info.style.cssText = 'flex:1;';
-        info.innerHTML = `
-          <div style="font-weight:600;margin-bottom:6px;font-size:1.05em;color:#2c3e50;">${escapeHtml(item.alias)}</div>
-          <div style="font-size:0.9em;color:#666;">${escapeHtml(item.value)}</div>
-        `;
-
-        const buttons = document.createElement('div');
-        buttons.style.cssText = 'display:flex;gap:8px;flex-direction:column;';
-
-        const useBtn = document.createElement('button');
-        useBtn.type = 'button';
-        useBtn.textContent = 'Use';
-        useBtn.style.cssText = 'background:#27ae60;color:#fff;border:none;border-radius:4px;padding:6px 16px;cursor:pointer;font-size:0.9em;white-space:nowrap;';
-        useBtn.onclick = () => applyBaseUrl(item.id);
-
-        const editBtn = document.createElement('button');
-        editBtn.type = 'button';
-        editBtn.textContent = 'Edit';
-        editBtn.style.cssText = 'background:#3498db;color:#fff;border:none;border-radius:4px;padding:6px 16px;cursor:pointer;font-size:0.9em;';
-        editBtn.onclick = () => editBaseUrl(item.id);
-
-        const deleteBtn = document.createElement('button');
-        deleteBtn.type = 'button';
-        deleteBtn.textContent = 'Delete';
-        deleteBtn.style.cssText = 'background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:6px 16px;cursor:pointer;font-size:0.9em;';
-        deleteBtn.onclick = () => deleteBaseUrl(item.id);
-
-        buttons.appendChild(useBtn);
-        buttons.appendChild(editBtn);
-        buttons.appendChild(deleteBtn);
-        row.appendChild(info);
-        row.appendChild(buttons);
-        list.appendChild(row);
-      });
-    }
-
-    function populateBaseUrlDropdown() {
-      const select = document.getElementById('baseUrl');
-      if (!select) return;
-      
-      const items = loadItems('jiraSavedBaseUrls');
-      items.sort((a, b) => (a.alias || '').localeCompare(b.alias || ''));
-      const currentValue = select.value;
-      
-      // Clear existing options except first
-      while (select.options.length > 1) {
-        select.remove(1);
-      }
-
-      // Add saved items
-      items.forEach(item => {
-        const option = document.createElement('option');
-        option.value = item.value;
-        option.textContent = `${item.alias}: ${item.value}`;
-        select.appendChild(option);
-      });
-
-      // Restore selection if it still exists
-      if (currentValue) {
-        select.value = currentValue;
-      }
-    }
-
-    // ========================================================================
-    // PROJECT ID MANAGER
-    // ========================================================================
-
-    let currentEditingProjectIdId = null;
-
-    function openProjectIdManager() {
-      const modal = document.getElementById('projectIdManagerModal');
-      if (!modal) {
-        console.error('projectIdManagerModal not found');
-        return;
-      }
-      modal.style.display = 'flex';
-      refreshProjectIdList();
-    }
-
-    function closeProjectIdManager() {
-      const modal = document.getElementById('projectIdManagerModal');
-      if (!modal) return;
-      modal.style.display = 'none';
-      cancelProjectIdEdit();
-    }
-
-    function saveProjectId() {
-      const alias = document.getElementById('projectIdAliasInput').value.trim();
-      const value = document.getElementById('projectIdValueInput').value.trim();
-
-      if (!alias || !value) {
-        alert('Please fill in all fields');
-        return;
-      }
-
-      // Validate Project ID format (alphanumeric, uppercase recommended)
-      if (!value.match(/^[A-Z0-9]+$/)) {
-        alert('Please enter a valid Project ID (uppercase letters and numbers only)');
-        return;
-      }
-
-      try {
-        const items = loadItems('jiraSavedProjectIds');
-        
-        if (currentEditingProjectIdId) {
-          // Update existing
-          const index = items.findIndex(item => item.id === currentEditingProjectIdId);
-          if (index >= 0) {
-            items[index].alias = alias;
-            items[index].value = value;
-            items[index].updatedAt = Date.now();
-          }
-        } else {
-          // Add new
-          items.push({
-            id: generateItemId('project'),
-            alias: alias,
-            value: value,
-            createdAt: Date.now()
-          });
-        }
-
-        saveItems('jiraSavedProjectIds', items);
-        populateProjectIdDropdown();
-        refreshProjectIdList();
-        cancelProjectIdEdit();
-      } catch (e) {
-        alert('Error saving project ID: ' + e.message);
-      }
-    }
-
-    function editProjectId(itemId) {
-      const items = loadItems('jiraSavedProjectIds');
-      const item = items.find(i => i.id === itemId);
-      if (!item) return;
-
-      currentEditingProjectIdId = itemId;
-      document.getElementById('projectIdAliasInput').value = item.alias;
-      document.getElementById('projectIdValueInput').value = item.value;
-      
-      const saveBtn = document.getElementById('saveProjectIdBtn');
-      const cancelBtn = document.getElementById('cancelProjectIdBtn');
-      saveBtn.textContent = 'Update';
-      saveBtn.style.background = '#3498db';
-      cancelBtn.style.display = 'inline-block';
-    }
-
-    function deleteProjectId(itemId) {
-      if (!confirm('Delete this project ID?')) return;
-
-      try {
-        const items = loadItems('jiraSavedProjectIds');
-        const filtered = items.filter(item => item.id !== itemId);
-        saveItems('jiraSavedProjectIds', filtered);
-        populateProjectIdDropdown();
-        refreshProjectIdList();
-      } catch (e) {
-        alert('Error deleting project ID: ' + e.message);
-      }
-    }
-
-    function applyProjectId(itemId) {
-      const items = loadItems('jiraSavedProjectIds');
-      const item = items.find(i => i.id === itemId);
-      if (!item) return;
-
-      document.getElementById('projectId').value = item.value;
-      closeProjectIdManager();
-      saveState();
-    }
-
-    function cancelProjectIdEdit() {
-      currentEditingProjectIdId = null;
-      document.getElementById('projectIdAliasInput').value = '';
-      document.getElementById('projectIdValueInput').value = '';
-      
-      const saveBtn = document.getElementById('saveProjectIdBtn');
-      const cancelBtn = document.getElementById('cancelProjectIdBtn');
-      saveBtn.textContent = 'Save';
-      saveBtn.style.background = '#27ae60';
-      cancelBtn.style.display = 'none';
-    }
-
-    function refreshProjectIdList() {
-      const list = document.getElementById('projectIdSavedList');
-      if (!list) return;
-      
-      const items = loadItems('jiraSavedProjectIds');
-      list.innerHTML = '';
-      
-      if (items.length === 0) {
-        list.innerHTML = '<div style="padding:16px;color:#999;text-align:center;">No saved project IDs yet.<br>Add one above to get started!</div>';
-        return;
-      }
-
-      items.forEach(item => {
-        const row = document.createElement('div');
-        row.style.cssText = 'padding:12px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:flex-start;';
-
-        const info = document.createElement('div');
-        info.style.cssText = 'flex:1;';
-        info.innerHTML = `
-          <div style="font-weight:600;margin-bottom:6px;font-size:1.05em;color:#2c3e50;">${escapeHtml(item.alias)}</div>
-          <div style="font-size:0.9em;color:#666;">${escapeHtml(item.value)}</div>
-        `;
-
-        const buttons = document.createElement('div');
-        buttons.style.cssText = 'display:flex;gap:8px;flex-direction:column;';
-
-        const useBtn = document.createElement('button');
-        useBtn.type = 'button';
-        useBtn.textContent = 'Use';
-        useBtn.style.cssText = 'background:#27ae60;color:#fff;border:none;border-radius:4px;padding:6px 16px;cursor:pointer;font-size:0.9em;white-space:nowrap;';
-        useBtn.onclick = () => applyProjectId(item.id);
-
-        const editBtn = document.createElement('button');
-        editBtn.type = 'button';
-        editBtn.textContent = 'Edit';
-        editBtn.style.cssText = 'background:#3498db;color:#fff;border:none;border-radius:4px;padding:6px 16px;cursor:pointer;font-size:0.9em;';
-        editBtn.onclick = () => editProjectId(item.id);
-
-        const deleteBtn = document.createElement('button');
-        deleteBtn.type = 'button';
-        deleteBtn.textContent = 'Delete';
-        deleteBtn.style.cssText = 'background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:6px 16px;cursor:pointer;font-size:0.9em;';
-        deleteBtn.onclick = () => deleteProjectId(item.id);
-
-        buttons.appendChild(useBtn);
-        buttons.appendChild(editBtn);
-        buttons.appendChild(deleteBtn);
-        row.appendChild(info);
-        row.appendChild(buttons);
-        list.appendChild(row);
-      });
-    }
-
-    function populateProjectIdDropdown() {
-      const select = document.getElementById('projectId');
-      if (!select) return;
-      
-      const items = loadItems('jiraSavedProjectIds');
-      items.sort((a, b) => (a.alias || '').localeCompare(b.alias || ''));
-      const currentValue = select.value;
-      
-      // Clear existing options except first
-      while (select.options.length > 1) {
-        select.remove(1);
-      }
-
-      // Add saved items
-      items.forEach(item => {
-        const option = document.createElement('option');
-        option.value = item.value;
-        option.textContent = `${item.alias}: ${item.value}`;
-        select.appendChild(option);
-      });
-
-      // Restore selection if it still exists
-      if (currentValue) {
-        select.value = currentValue;
-      }
-    }
-
-    // ========================================================================
-    // ISSUE TYPE ID MANAGER
-    // ========================================================================
-
-    let currentEditingIssueTypeIdId = null;
-
-    function openIssueTypeIdManager() {
-      const modal = document.getElementById('issueTypeIdManagerModal');
-      if (!modal) {
-        console.error('issueTypeIdManagerModal not found');
-        return;
-      }
-      modal.style.display = 'flex';
-      refreshIssueTypeIdList();
-    }
-
-    function closeIssueTypeIdManager() {
-      const modal = document.getElementById('issueTypeIdManagerModal');
-      if (!modal) return;
-      modal.style.display = 'none';
-      cancelIssueTypeIdEdit();
-    }
-
-    function saveIssueTypeId() {
-      const alias = document.getElementById('issueTypeIdAliasInput').value.trim();
-      const value = document.getElementById('issueTypeIdValueInput').value.trim();
-
-      if (!alias || !value) {
-        alert('Please fill in all fields');
-        return;
-      }
-
-      // Validate Issue Type ID format (numeric)
-      if (!value.match(/^\d+$/)) {
-        alert('Please enter a valid Issue Type ID (numbers only)');
-        return;
-      }
-
-      try {
-        const items = loadItems('jiraSavedIssueTypes');
-        
-        if (currentEditingIssueTypeIdId) {
-          // Update existing
-          const index = items.findIndex(item => item.id === currentEditingIssueTypeIdId);
-          if (index >= 0) {
-            items[index].alias = alias;
-            items[index].value = value;
-            items[index].updatedAt = Date.now();
-          }
-        } else {
-          // Add new
-          items.push({
-            id: generateItemId('issue_type'),
-            alias: alias,
-            value: value,
-            createdAt: Date.now()
-          });
-        }
-
-        saveItems('jiraSavedIssueTypes', items);
-        populateIssueTypeIdDropdown();
-        refreshIssueTypeIdList();
-        cancelIssueTypeIdEdit();
-      } catch (e) {
-        alert('Error saving issue type ID: ' + e.message);
-      }
-    }
-
-    function editIssueTypeId(itemId) {
-      const items = loadItems('jiraSavedIssueTypes');
-      const item = items.find(i => i.id === itemId);
-      if (!item) return;
-
-      currentEditingIssueTypeIdId = itemId;
-      document.getElementById('issueTypeIdAliasInput').value = item.alias;
-      document.getElementById('issueTypeIdValueInput').value = item.value;
-      
-      const saveBtn = document.getElementById('saveIssueTypeIdBtn');
-      const cancelBtn = document.getElementById('cancelIssueTypeIdBtn');
-      saveBtn.textContent = 'Update';
-      saveBtn.style.background = '#3498db';
-      cancelBtn.style.display = 'inline-block';
-    }
-
-    function deleteIssueTypeId(itemId) {
-      if (!confirm('Delete this issue type ID?')) return;
-
-      try {
-        const items = loadItems('jiraSavedIssueTypes');
-        const filtered = items.filter(item => item.id !== itemId);
-        saveItems('jiraSavedIssueTypes', filtered);
-        populateIssueTypeIdDropdown();
-        refreshIssueTypeIdList();
-      } catch (e) {
-        alert('Error deleting issue type ID: ' + e.message);
-      }
-    }
-
-    function applyIssueTypeId(itemId) {
-      const items = loadItems('jiraSavedIssueTypes');
-      const item = items.find(i => i.id === itemId);
-      if (!item) return;
-
-      document.getElementById('issueTypeId').value = item.value;
-      closeIssueTypeIdManager();
-      saveState();
-    }
-
-    function cancelIssueTypeIdEdit() {
-      currentEditingIssueTypeIdId = null;
-      document.getElementById('issueTypeIdAliasInput').value = '';
-      document.getElementById('issueTypeIdValueInput').value = '';
-      
-      const saveBtn = document.getElementById('saveIssueTypeIdBtn');
-      const cancelBtn = document.getElementById('cancelIssueTypeIdBtn');
-      saveBtn.textContent = 'Save';
-      saveBtn.style.background = '#27ae60';
-      cancelBtn.style.display = 'none';
-    }
-
-    function refreshIssueTypeIdList() {
-      const list = document.getElementById('issueTypeIdSavedList');
-      if (!list) return;
-      
-      const items = loadItems('jiraSavedIssueTypes');
-      list.innerHTML = '';
-      
-      if (items.length === 0) {
-        list.innerHTML = '<div style="padding:16px;color:#999;text-align:center;">No saved issue type IDs yet.<br>Add one above to get started!</div>';
-        return;
-      }
-
-      items.forEach(item => {
-        const row = document.createElement('div');
-        row.style.cssText = 'padding:12px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:flex-start;';
-
-        const info = document.createElement('div');
-        info.style.cssText = 'flex:1;';
-        info.innerHTML = `
-          <div style="font-weight:600;margin-bottom:6px;font-size:1.05em;color:#2c3e50;">${escapeHtml(item.alias)}</div>
-          <div style="font-size:0.9em;color:#666;">${escapeHtml(item.value)}</div>
-        `;
-
-        const buttons = document.createElement('div');
-        buttons.style.cssText = 'display:flex;gap:8px;flex-direction:column;';
-
-        const useBtn = document.createElement('button');
-        useBtn.type = 'button';
-        useBtn.textContent = 'Use';
-        useBtn.style.cssText = 'background:#27ae60;color:#fff;border:none;border-radius:4px;padding:6px 16px;cursor:pointer;font-size:0.9em;white-space:nowrap;';
-        useBtn.onclick = () => applyIssueTypeId(item.id);
-
-        const editBtn = document.createElement('button');
-        editBtn.type = 'button';
-        editBtn.textContent = 'Edit';
-        editBtn.style.cssText = 'background:#3498db;color:#fff;border:none;border-radius:4px;padding:6px 16px;cursor:pointer;font-size:0.9em;';
-        editBtn.onclick = () => editIssueTypeId(item.id);
-
-        const deleteBtn = document.createElement('button');
-        deleteBtn.type = 'button';
-        deleteBtn.textContent = 'Delete';
-        deleteBtn.style.cssText = 'background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:6px 16px;cursor:pointer;font-size:0.9em;';
-        deleteBtn.onclick = () => deleteIssueTypeId(item.id);
-
-        buttons.appendChild(useBtn);
-        buttons.appendChild(editBtn);
-        buttons.appendChild(deleteBtn);
-        row.appendChild(info);
-        row.appendChild(buttons);
-        list.appendChild(row);
-      });
-    }
-
-    function populateIssueTypeIdDropdown() {
-      const select = document.getElementById('issueTypeId');
-      if (!select) return;
-      
-      const items = loadItems('jiraSavedIssueTypes');
-      items.sort((a, b) => (a.alias || '').localeCompare(b.alias || ''));
-      const currentValue = select.value;
-      
-      // Clear existing options except first
-      while (select.options.length > 1) {
-        select.remove(1);
-      }
-
-      // Add saved items
-      items.forEach(item => {
-        const option = document.createElement('option');
-        option.value = item.value;
-        option.textContent = `${item.alias}: ${item.value}`;
-        select.appendChild(option);
-      });
-
-      // Restore selection if it still exists
-      if (currentValue) {
-        select.value = currentValue;
-      }
-    }
-
-    // ========================================================================
-    // CONFIGURATION EXPORT/IMPORT & URL LOADING
-    // ========================================================================
-
-    function exportConfiguration() {
-      try {
-        const config = {
-          version: '0.5.0',
-          exportedAt: new Date().toISOString(),
-          description: 'JIRA Issue Link Generator Configuration',
-          configItems: loadConfigurationItems(),
-          fieldDefinitions: loadFieldDefinitions(),
-          baseUrls: loadItems('jiraSavedBaseUrls'),
-          projectIds: loadItems('jiraSavedProjectIds'),
-          issueTypeIds: loadItems('jiraSavedIssueTypes')
-        };
-
-        const jsonString = JSON.stringify(config, null, 2);
-        const blob = new Blob([jsonString], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = `jira-config-${new Date().toISOString().split('T')[0]}.json`;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-
-        alert('Configuration exported successfully!');
-      } catch (e) {
-        alert('Error exporting configuration: ' + e.message);
-      }
-    }
-
-    function importConfiguration(file) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        try {
-          const config = JSON.parse(e.target.result);
-
-          // Validate config structure
-          if (!config.version) {
-            throw new Error('Invalid configuration file: missing version');
-          }
-
-          // Import all data
-          if (config.configItems && Array.isArray(config.configItems)) {
-            saveConfigurationItems(config.configItems);
-          }
-          if (config.fieldDefinitions && Array.isArray(config.fieldDefinitions)) {
-            saveFieldDefinitions(config.fieldDefinitions);
-          }
-          if (config.baseUrls && Array.isArray(config.baseUrls)) {
-            saveItems('jiraSavedBaseUrls', config.baseUrls);
-          }
-          if (config.projectIds && Array.isArray(config.projectIds)) {
-            saveItems('jiraSavedProjectIds', config.projectIds);
-          }
-          if (config.issueTypeIds && Array.isArray(config.issueTypeIds)) {
-            saveItems('jiraSavedIssueTypes', config.issueTypeIds);
-          }
-
-          alert('Configuration imported successfully! Reloading...');
-          window.location.reload();
-        } catch (e) {
-          alert('Error importing configuration: ' + e.message);
-        }
-      };
-      reader.onerror = function() {
-        alert('Error importing configuration: Failed to read file');
-      };
-      reader.readAsText(file);
-    }
-
-    function loadConfigurationFromUrl(configUrl) {
-      try {
-        console.log('Loading configuration from URL:', configUrl);
-        
-        // Use fetch to load the config from URL
-        fetch(configUrl)
-          .then(response => {
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            return response.json();
-          })
-          .then(config => {
-            // Validate config structure
-            if (!config.version) {
-              throw new Error('Invalid configuration: missing version');
-            }
-
-            // Only import if config is newer or first time
-            const lastImportTime = localStorage.getItem('jiraLastConfigImportTime');
-            const configTime = new Date(config.exportedAt).getTime();
-
-            // Import all data
-            if (config.configItems && Array.isArray(config.configItems)) {
-              saveConfigurationItems(config.configItems);
-            }
-            if (config.fieldDefinitions && Array.isArray(config.fieldDefinitions)) {
-              saveFieldDefinitions(config.fieldDefinitions);
-            }
-            if (config.baseUrls && Array.isArray(config.baseUrls)) {
-              saveItems('jiraSavedBaseUrls', config.baseUrls);
-            }
-            if (config.projectIds && Array.isArray(config.projectIds)) {
-              saveItems('jiraSavedProjectIds', config.projectIds);
-            }
-            if (config.issueTypeIds && Array.isArray(config.issueTypeIds)) {
-              saveItems('jiraSavedIssueTypes', config.issueTypeIds);
-            }
-
-            // Save import timestamp
-            localStorage.setItem('jiraLastConfigImportTime', configTime);
-            localStorage.setItem('jiraLastConfigUrl', configUrl);
-
-            console.log('Configuration loaded from URL successfully');
-            // Reload to refresh UI with new config
-            window.location.reload();
-          })
-          .catch(e => {
-            console.error('Failed to load configuration from URL:', e);
-            // Don't alert - might be offline, let app continue
-          });
-      } catch (e) {
-        console.error('Error loading configuration from URL:', e);
-      }
-    }
-
-    function openImportModal() {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = '.json';
-      input.onchange = function(e) {
-        const file = e.target.files[0];
-        if (file) {
-          importConfiguration(file);
-        }
-      };
-      input.click();
-    }
-
-    // ========================================================================
-    // OLD CONFIGURATION MANAGER - Keep for backward compatibility (deprecated)
+    // CONFIGURATION MANAGER - Saved Configurations with Aliases
     // ========================================================================
 
     function loadSavedConfigurations() {
@@ -2733,7 +1679,12 @@
       return 'config_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
     }
 
-    // Old openConfigurationManager removed - use separate modals now
+    function openConfigurationManager() {
+      const modal = document.getElementById('configManagerModal');
+      modal.style.display = 'flex';
+      refreshSavedConfigsList();
+      populateAllConfigDropdowns();
+    }
 
     function closeConfigurationManager() {
       const modal = document.getElementById('configManagerModal');
@@ -2908,11 +1859,136 @@
       saveState();
     }
 
-    // Initialize dropdowns on page load
-    window.addEventListener('DOMContentLoaded', () => {
+    function populateAllConfigDropdowns() {
       populateBaseUrlDropdown();
       populateProjectIdDropdown();
       populateIssueTypeIdDropdown();
+    }
+
+    function populateBaseUrlDropdown() {
+      const select = document.getElementById('baseUrl');
+      const configurations = loadSavedConfigurations();
+      const currentValue = select.value;
+      
+      // Clear existing options except first
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+
+      // Get unique base URLs with their aliases
+      const urlMap = new Map();
+      configurations.forEach(config => {
+        if (!urlMap.has(config.baseUrl)) {
+          urlMap.set(config.baseUrl, []);
+        }
+        urlMap.get(config.baseUrl).push(config.alias);
+      });
+
+      urlMap.forEach((aliases, url) => {
+        const option = document.createElement('option');
+        option.value = url;
+        option.textContent = aliases.join(', ') + ': ' + url;
+        select.appendChild(option);
+      });
+
+      // Restore selection if it still exists
+      if (currentValue) {
+        select.value = currentValue;
+      }
+    }
+
+    function populateProjectIdDropdown() {
+      const select = document.getElementById('projectId');
+      const configurations = loadSavedConfigurations();
+      const currentValue = select.value;
+      
+      // Clear existing options except first
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+
+      // Get unique project IDs with their aliases
+      const projectMap = new Map();
+      configurations.forEach(config => {
+        if (!projectMap.has(config.projectId)) {
+          projectMap.set(config.projectId, []);
+        }
+        projectMap.get(config.projectId).push(config.alias);
+      });
+
+      projectMap.forEach((aliases, projectId) => {
+        const option = document.createElement('option');
+        option.value = projectId;
+        option.textContent = aliases.join(', ') + ': ' + projectId;
+        select.appendChild(option);
+      });
+
+      // Restore selection if it still exists
+      if (currentValue) {
+        select.value = currentValue;
+      }
+    }
+
+    function populateIssueTypeIdDropdown() {
+      const select = document.getElementById('issueTypeId');
+      const configurations = loadSavedConfigurations();
+      const currentValue = select.value;
+      
+      // Clear existing options except first
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+
+      // Get unique issue type IDs with their aliases
+      const typeMap = new Map();
+      configurations.forEach(config => {
+        if (!typeMap.has(config.issueTypeId)) {
+          typeMap.set(config.issueTypeId, []);
+        }
+        typeMap.get(config.issueTypeId).push(config.alias);
+      });
+
+      typeMap.forEach((aliases, issueTypeId) => {
+        const option = document.createElement('option');
+        option.value = issueTypeId;
+        option.textContent = aliases.join(', ') + ': ' + issueTypeId;
+        select.appendChild(option);
+      });
+
+      // Restore selection if it still exists
+      if (currentValue) {
+        select.value = currentValue;
+      }
+    }
+
+    function applyBaseUrlFromDropdown() {
+      // No longer needed - dropdown IS the input
+      saveState();
+    }
+
+    function applyProjectIdFromDropdown() {
+      // No longer needed - dropdown IS the input
+      saveState();
+    }
+
+    function applyIssueTypeIdFromDropdown() {
+      // No longer needed - dropdown IS the input
+      saveState();
+    }
+
+    // Initialize dropdowns on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      populateAllConfigDropdowns();
+      
+      // Restore last used configuration if exists
+      const lastUsedId = localStorage.getItem('lastUsedConfigId');
+      if (lastUsedId) {
+        const config = loadSavedConfigurations().find(c => c.id === lastUsedId);
+        if (config && !document.getElementById('baseUrl').value) {
+          // Only apply if form is empty
+          applyConfiguration(lastUsedId);
+        }
+      }
     });
   </script>
 </body>
