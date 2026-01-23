@@ -48,7 +48,7 @@ test.describe('Export/Import Configuration', () => {
       
       localStorage.setItem('jiraConfigItems', JSON.stringify(testConfigItems));
       localStorage.setItem('jiraFieldDefinitions', JSON.stringify(testFields));
-      localStorage.setItem('jiraBaseUrls', JSON.stringify(['https://test.com']));
+      localStorage.setItem('jiraSavedBaseUrls', JSON.stringify(['https://test.com']));
     });
 
     // Listen for download
@@ -81,7 +81,7 @@ test.describe('Export/Import Configuration', () => {
 
   test('should import valid configuration successfully', async () => {
     const testConfig = {
-      version: '0.4.0',
+      version: '0.4.9',
       exportedAt: new Date().toISOString(),
       description: 'JIRA Issue Link Generator Configuration',
       configItems: [
@@ -135,7 +135,7 @@ test.describe('Export/Import Configuration', () => {
     });
 
     const savedBaseUrls = await page.evaluate(() => {
-      const stored = localStorage.getItem('jiraBaseUrls');
+      const stored = localStorage.getItem('jiraSavedBaseUrls');
       return stored ? JSON.parse(stored) : null;
     });
 
