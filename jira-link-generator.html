@@ -2628,24 +2628,37 @@
             throw new Error('Invalid configuration file: missing version');
           }
 
-          // Import all data
+          // Helper to merge items by ID
+          const mergeItems = (existing, incoming) => {
+              const map = new Map();
+              if (Array.isArray(existing)) existing.forEach(i => map.set(i.id, i));
+              if (Array.isArray(incoming)) incoming.forEach(i => map.set(i.id, i));
+              return Array.from(map.values());
+          };
+
+          // Import all data with merge
           if (config.configItems && Array.isArray(config.configItems)) {
-            saveConfigurationItems(config.configItems);
+            const existing = loadConfigurationItems();
+            saveConfigurationItems(mergeItems(existing, config.configItems));
           }
           if (config.fieldDefinitions && Array.isArray(config.fieldDefinitions)) {
-            saveFieldDefinitions(config.fieldDefinitions);
+            const existing = loadFieldDefinitions();
+            saveFieldDefinitions(mergeItems(existing, config.fieldDefinitions));
           }
           if (config.baseUrls && Array.isArray(config.baseUrls)) {
-            saveItems('jiraSavedBaseUrls', config.baseUrls);
+            const existing = loadItems('jiraSavedBaseUrls');
+            saveItems('jiraSavedBaseUrls', mergeItems(existing, config.baseUrls));
           }
           if (config.projectIds && Array.isArray(config.projectIds)) {
-            saveItems('jiraSavedProjectIds', config.projectIds);
+            const existing = loadItems('jiraSavedProjectIds');
+            saveItems('jiraSavedProjectIds', mergeItems(existing, config.projectIds));
           }
           if (config.issueTypeIds && Array.isArray(config.issueTypeIds)) {
-            saveItems('jiraSavedIssueTypes', config.issueTypeIds);
+            const existing = loadItems('jiraSavedIssueTypes');
+            saveItems('jiraSavedIssueTypes', mergeItems(existing, config.issueTypeIds));
           }
 
-          alert('Configuration imported successfully! Reloading...');
+          alert('Configuration imported successfully! Items have been appended/updated. Reloading...');
           window.location.reload();
         } catch (e) {
           alert('Error importing configuration: ' + e.message);

@@ -123,8 +123,8 @@ You can share your entire setup (Base URLs, Fields, Presets) with your team.
 ### Importing
 1.  Click the **"Import Config"** button (Orange button).
 2.  Select the `.json` file provided by your administrator or colleague.
-3.  **Warning**: Importing a configuration **overwrites** your existing settings (Fields, Base URLs, Presets). Ensure you have backed up your current config if you want to keep it.
-4.  The page will reload, and you will have all the shared Base URLs, Fields, and Presets.
+3.  **Note**: Importing a configuration **appends** to your existing settings. New items are added, and items with matching IDs are updated. Your existing unique settings will be preserved.
+4.  The page will reload, and you will have the merged list of Base URLs, Fields, and Presets.
 
 ---
 

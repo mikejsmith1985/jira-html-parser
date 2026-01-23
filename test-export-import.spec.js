@@ -141,11 +141,20 @@ test.describe('Export/Import Configuration', () => {
 
     // Verify imported data
     expect(savedConfigItems).not.toBeNull();
-    expect(savedConfigItems.length).toBe(3);
-    expect(savedConfigItems[0].label).toBe('Imported Base URL');
+    // merged (3 defaults updated)
+    const baseUrlItem = savedConfigItems.find(i => i.id === 'baseUrl');
+    expect(baseUrlItem).toBeDefined();
+    expect(baseUrlItem.label).toBe('Imported Base URL');
 
     expect(savedFields).not.toBeNull();
-    expect(savedFields[0].label).toBe('Imported Summary');
+    // merged (defaults + updates)
+    const summaryField = savedFields.find(f => f.id === 'summary');
+    expect(summaryField).toBeDefined();
+    expect(summaryField.label).toBe('Imported Summary');
+    
+    // Check preservation of other defaults
+    const assigneeField = savedFields.find(f => f.id === 'assignee');
+    expect(assigneeField).toBeDefined();
 
     expect(savedBaseUrls).not.toBeNull();
     expect(savedBaseUrls[0]).toBe('https://imported.jira.com');
