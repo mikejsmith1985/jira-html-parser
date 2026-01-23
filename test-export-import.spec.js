@@ -81,7 +81,7 @@ test.describe('Export/Import Configuration', () => {
 
   test('should import valid configuration successfully', async () => {
     const testConfig = {
-      version: '0.5.0',
+      version: '0.5.1',
       exportedAt: new Date().toISOString(),
       description: 'JIRA Issue Link Generator Configuration',
       configItems: [

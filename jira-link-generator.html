@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6fa; margin: 0; padding: 0; }
-    .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+    .container { max-width: 95%; margin: 20px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 24px; }
     h1 { font-size: 1.6em; margin-bottom: 0.5em; }
     label { display: block; margin-top: 1em; font-weight: 500; }
     input[type="text"], select, textarea, .rich-value {
@@ -2569,7 +2569,7 @@
     function exportConfiguration() {
       try {
         const config = {
-          version: '0.5.0',
+          version: '0.5.1',
           exportedAt: new Date().toISOString(),
           description: 'JIRA Issue Link Generator Configuration',
           configItems: loadConfigurationItems(),

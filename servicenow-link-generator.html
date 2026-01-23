@@ -6,7 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <style>
     body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6fa; margin: 0; padding: 0; }
-    .container { max-width: 600px; margin: 40px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 32px; }
+    .container { max-width: 95%; margin: 20px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 24px; }
     h1 { font-size: 1.6em; margin-bottom: 0.5em; }
     label { display: block; margin-top: 1em; font-weight: 500; }
     input[type="text"], select, textarea, .rich-value {
@@ -471,10 +471,6 @@
           toolbar.style.width = '100%';
 
           const formatButtons = [
-            { label: 'B', cmd: 'bold', title: 'Bold' },
-            { label: 'I', cmd: 'italic', title: 'Italic' },
-            { label: 'U', cmd: 'underline', title: 'Underline' },
-            { label: 'S', cmd: 'strikeThrough', title: 'Strikethrough' },
             { label: '•', cmd: 'insertUnorderedList', title: 'Bullet List' },
             { label: '1.', cmd: 'insertOrderedList', title: 'Numbered List' },
             { label: '⌫', cmd: 'removeFormat', title: 'Clear Formatting' }
@@ -599,19 +595,39 @@
           return val;
       }
 
-      // If it contains HTML tags, strip them to be safe and ensure "value passed is EXACTLY as entered"
-      // for text-based inputs that might have been wrapped in divs by contentEditable
+      // Pre-process HTML to convert lists and breaks to plain text structure
       let formatted = val;
+
+      // Handle lists - convert to explicit newlines and bullets/numbers
+      formatted = formatted.replace(/<ul>/gi, '\n');
+      formatted = formatted.replace(/<\/ul>/gi, '\n');
+      formatted = formatted.replace(/<ol>/gi, '\n');
+      formatted = formatted.replace(/<\/ol>/gi, '\n');
       
-      // Convert div line breaks to actual line breaks
+      // Convert list items
+      // We'll use a simple bullet for all list items for now, or number for ordered?
+      // Since we can't easily track ordered index in regex, let's use bullets for all or try to be smart.
+      // But user specifically asked for bullets.
+      formatted = formatted.replace(/<li>/gi, '\n• ');
+      formatted = formatted.replace(/<\/li>/gi, '');
+      
+      // Convert line breaks and divs
       formatted = formatted.replace(/<div><br><\/div>/gi, '\n');
       formatted = formatted.replace(/<div>/gi, '\n');
       formatted = formatted.replace(/<\/div>/gi, '');
       formatted = formatted.replace(/<br\s*\/?>/gi, '\n');
+      formatted = formatted.replace(/<p>/gi, '\n');
+      formatted = formatted.replace(/<\/p>/gi, '\n');
       
       const temp = document.createElement('div');
       temp.innerHTML = formatted;
-      return temp.textContent || temp.innerText || '';
+      let text = temp.textContent || temp.innerText || '';
+      
+      // Clean up excessive newlines
+      text = text.replace(/\n\s*\n\s*\n/g, '\n\n');
+      text = text.trim();
+      
+      return text;
     }
 
     // Generate the ServiceNow link
@@ -1755,7 +1771,7 @@
     function exportConfiguration() {
       try {
         const config = {
-          version: '1.0.0',
+          version: '0.5.1',
           exportedAt: new Date().toISOString(),
           description: 'ServiceNow Link Generator Configuration',
           configItems: loadConfigurationItems(),
