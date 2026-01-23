@@ -585,44 +585,51 @@
 
     // Format value for ServiceNow - pass HTML directly (ServiceNow accepts HTML)
     function smartFormatValue(val) {
-      // For simple text fields like IDs, we want the exact text content
-      // For rich text fields, we might want to preserve HTML, but for URL parameters, 
-      // passing raw HTML can be problematic and ServiceNow often prefers plain text 
-      // or specific encoded HTML.
+      if (!val) return '';
       
       // Check if the value looks like HTML (starts with tags)
-      if (!val || !val.match(/<[^>]+>/)) {
+      if (!val.match(/<[^>]+>/)) {
           return val;
       }
 
-      // Pre-process HTML to convert lists and breaks to plain text structure
-      let formatted = val;
-
-      // Handle lists - convert to explicit newlines and bullets/numbers
-      formatted = formatted.replace(/<ul>/gi, '\n');
-      formatted = formatted.replace(/<\/ul>/gi, '\n');
-      formatted = formatted.replace(/<ol>/gi, '\n');
-      formatted = formatted.replace(/<\/ol>/gi, '\n');
-      
-      // Convert list items
-      // We'll use a simple bullet for all list items for now, or number for ordered?
-      // Since we can't easily track ordered index in regex, let's use bullets for all or try to be smart.
-      // But user specifically asked for bullets.
-      formatted = formatted.replace(/<li>/gi, '\n• ');
-      formatted = formatted.replace(/<\/li>/gi, '');
-      
-      // Convert line breaks and divs
-      formatted = formatted.replace(/<div><br><\/div>/gi, '\n');
-      formatted = formatted.replace(/<div>/gi, '\n');
-      formatted = formatted.replace(/<\/div>/gi, '');
-      formatted = formatted.replace(/<br\s*\/?>/gi, '\n');
-      formatted = formatted.replace(/<p>/gi, '\n');
-      formatted = formatted.replace(/<\/p>/gi, '\n');
-      
+      // Use DOM traversal to extract text with proper newlines
       const temp = document.createElement('div');
-      temp.innerHTML = formatted;
-      let text = temp.textContent || temp.innerText || '';
-      
+      temp.innerHTML = val;
+
+      function traverse(node) {
+        if (node.nodeType === 3) { // Text node
+          return node.textContent;
+        }
+        if (node.nodeType !== 1) return ''; // Not an element
+
+        const tagName = node.tagName.toLowerCase();
+        let content = '';
+        
+        for (const child of node.childNodes) {
+          content += traverse(child);
+        }
+
+        // Block elements that should force newlines
+        const blockTags = ['div', 'p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'blockquote', 'section', 'article', 'header', 'footer', 'tr'];
+        
+        if (tagName === 'br') {
+          return '\n';
+        }
+        
+        if (tagName === 'li') {
+          // Add bullet for list items
+          return '\n• ' + content.trim() + '\n';
+        }
+
+        if (blockTags.includes(tagName)) {
+           return '\n' + content + '\n';
+        }
+
+        return content;
+      }
+
+      let text = traverse(temp);
+
       // Clean up excessive newlines
       text = text.replace(/\n\s*\n\s*\n/g, '\n\n');
       text = text.trim();
@@ -1771,7 +1778,7 @@
     function exportConfiguration() {
       try {
         const config = {
-          version: '0.5.7',
+          version: '0.5.8',
           exportedAt: new Date().toISOString(),
           description: 'ServiceNow Link Generator Configuration',
           configItems: loadConfigurationItems(),
