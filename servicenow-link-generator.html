@@ -674,6 +674,27 @@
       }
 
       document.getElementById('link').textContent = url;
+      
+      // Check for URL length issues (414 Request-URI Too Large)
+      const MAX_SAFE_LENGTH = 2048;
+      const outputDiv = document.getElementById('output');
+      const warningId = 'url-length-warning';
+      let warningEl = document.getElementById(warningId);
+
+      if (url.length > MAX_SAFE_LENGTH) {
+        if (!warningEl) {
+          warningEl = document.createElement('div');
+          warningEl.id = warningId;
+          warningEl.style.cssText = 'margin-top:16px;padding:12px;background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;border-radius:4px;';
+          outputDiv.appendChild(warningEl);
+        }
+        warningEl.innerHTML = `<strong>Warning: URL Too Long (${url.length} chars)</strong><br>
+        The generated link exceeds ${MAX_SAFE_LENGTH} characters. You may encounter a "414 Request-URI Too Large" error.<br>
+        Try reducing the content in rich text fields.`;
+      } else if (warningEl) {
+        warningEl.remove();
+      }
+
       document.getElementById('output').style.display = 'block';
       saveState();
     };
