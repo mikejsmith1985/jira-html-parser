@@ -1,4 +1,4 @@
-# Release v0.5.2
+# Release v0.5.4
 
 ## 🐛 Bug Fixes
 
