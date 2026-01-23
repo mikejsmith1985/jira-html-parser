@@ -83,7 +83,7 @@
     <form id="snowForm" autocomplete="off">
       <label>Base URL
         <div style="display:flex;gap:8px;align-items:center;">
-          <select id="baseUrl" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" required onchange="saveState()">
+          <select id="baseUrl" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" required onchange="saveState(); updateAllFieldSelects();">
             <option value="">-- Select Base URL --</option>
           </select>
           <button type="button" onclick="openBaseUrlManager()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:10px 16px;cursor:pointer;white-space:nowrap;font-weight:500;">Manage</button>
@@ -125,6 +125,9 @@
       </div>
       
       <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;">
+        <select id="fieldBaseUrlSelect" style="padding:8px;border:1px solid #ccc;border-radius:4px;width:100%;margin-bottom:4px;">
+          <option value="">All Instances (Global)</option>
+        </select>
         <div style="display:flex;gap:8px;">
           <input type="text" id="fieldIdInput" placeholder="ID (e.g. u_custom_field)" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;">
           <input type="text" id="fieldLabelInput" placeholder="Label (e.g. Custom Field)" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;">
@@ -414,11 +417,16 @@
       fieldSelect.appendChild(placeholder);
 
       const definitions = loadFieldDefinitions();
-      definitions.forEach(def => {
-        const option = document.createElement('option');
-        option.value = def.id;
-        option.textContent = def.label;
-        fieldSelect.appendChild(option);
+      const currentBaseUrlId = document.getElementById('baseUrl').value;
+
+      definitions.sort((a, b) => a.label.localeCompare(b.label)).forEach(def => {
+        // Filter: Show if Global (no baseUrlId) OR matches current Base URL OR matches the current field (so it doesn't disappear if already selected)
+        if (!def.baseUrlId || def.baseUrlId === currentBaseUrlId || def.id === data.fieldId) {
+          const option = document.createElement('option');
+          option.value = def.id;
+          option.textContent = def.label;
+          fieldSelect.appendChild(option);
+        }
       });
 
       if (data.fieldId) {
@@ -640,7 +648,17 @@
     // Generate the ServiceNow link
     document.getElementById('snowForm').onsubmit = function(e) {
       e.preventDefault();
-      const baseUrl = document.getElementById('baseUrl').value.trim().replace(/\/+$/, '');
+      
+      const baseUrlId = document.getElementById('baseUrl').value;
+      const baseUrls = loadItems('snowSavedBaseUrls');
+      const baseUrlItem = baseUrls.find(i => i.id === baseUrlId);
+      const baseUrl = baseUrlItem ? baseUrlItem.value.trim().replace(/\/+$/, '') : '';
+
+      if (!baseUrl) {
+        alert('Please select a valid Base URL');
+        return;
+      }
+
       const tableName = document.getElementById('tableName').value.trim();
       const fields = getFields();
 
@@ -699,6 +717,37 @@
       saveState();
     };
 
+    function updateAllFieldSelects() {
+      const rows = document.querySelectorAll('.field-row');
+      const currentBaseUrlId = document.getElementById('baseUrl').value;
+      const definitions = loadFieldDefinitions();
+      
+      rows.forEach(row => {
+        const select = row.querySelector('.field-select');
+        if (!select) return;
+        
+        const currentValue = select.value;
+        
+        // Clear options except placeholder
+        while (select.options.length > 1) {
+          select.remove(1);
+        }
+        
+        // Re-populate with filtered options
+        definitions.sort((a, b) => a.label.localeCompare(b.label)).forEach(def => {
+          if (!def.baseUrlId || def.baseUrlId === currentBaseUrlId || def.id === currentValue) {
+            const option = document.createElement('option');
+            option.value = def.id;
+            option.textContent = def.label;
+            select.appendChild(option);
+          }
+        });
+        
+        // Restore value if possible
+        select.value = currentValue;
+      });
+    }
+
     // ========================================================================
     // FIELD MANAGER - Modal UI Functions
     // ========================================================================
@@ -706,6 +755,18 @@
     function openFieldManager() {
       const modal = document.getElementById('fieldManagerModal');
       modal.style.display = 'flex';
+      
+      // Populate Base URL select
+      const select = document.getElementById('fieldBaseUrlSelect');
+      select.innerHTML = '<option value="">All Instances (Global)</option>';
+      const items = loadItems('snowSavedBaseUrls');
+      items.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.id;
+        option.textContent = `${item.alias} (${item.value})`;
+        select.appendChild(option);
+      });
+
       refreshConfigItemsList();
       refreshFieldsList();
     }
@@ -726,6 +787,7 @@
       document.getElementById('fieldIdInput').disabled = true;
       document.getElementById('fieldLabelInput').value = def.label;
       document.getElementById('fieldTypeSelect').value = def.fieldType || 'text';
+      document.getElementById('fieldBaseUrlSelect').value = def.baseUrlId || '';
       currentComboboxOptions = def.options || [];
       toggleFieldTypeOptions();
       document.getElementById('fieldLabelInput').focus();
@@ -745,6 +807,7 @@
       document.getElementById('fieldIdInput').disabled = false;
       document.getElementById('fieldLabelInput').value = '';
       document.getElementById('fieldTypeSelect').value = 'text';
+      document.getElementById('fieldBaseUrlSelect').value = '';
       toggleFieldTypeOptions();
       const addBtn = document.getElementById('addFieldBtn');
       const cancelBtn = document.getElementById('cancelEditFieldBtn');
@@ -920,6 +983,7 @@
     function refreshFieldsList() {
       const fieldsList = document.getElementById('fieldsList');
       const definitions = loadFieldDefinitions();
+      const baseUrls = loadItems('snowSavedBaseUrls');
 
       fieldsList.innerHTML = '';
       if (definitions.length === 0) {
@@ -933,7 +997,18 @@
 
         const info = document.createElement('div');
         info.style.cssText = 'flex:1;';
-        info.innerHTML = `<div style="font-weight:500;">${escapeHtml(def.label)}</div><div style="font-size:0.9em;color:#666;">${escapeHtml(def.id)}</div>`;
+        
+        let restrictedBadge = '';
+        if (def.baseUrlId) {
+          const baseUrl = baseUrls.find(b => b.id === def.baseUrlId);
+          if (baseUrl) {
+             restrictedBadge = `<span style="font-size:0.8em;background:#e8f4fd;color:#2980b9;padding:2px 6px;border-radius:4px;margin-left:8px;">${escapeHtml(baseUrl.alias)}</span>`;
+          } else {
+             restrictedBadge = `<span style="font-size:0.8em;background:#fde8e8;color:#c0392b;padding:2px 6px;border-radius:4px;margin-left:8px;">Unknown Instance</span>`;
+          }
+        }
+
+        info.innerHTML = `<div style="font-weight:500;">${escapeHtml(def.label)}${restrictedBadge}</div><div style="font-size:0.9em;color:#666;">${escapeHtml(def.id)}</div>`;
 
         const deleteBtn = document.createElement('button');
         deleteBtn.type = 'button';
@@ -964,6 +1039,7 @@
       const fieldId = document.getElementById('fieldIdInput').value.trim();
       const fieldLabel = document.getElementById('fieldLabelInput').value.trim();
       const fieldType = document.getElementById('fieldTypeSelect').value;
+      const baseUrlId = document.getElementById('fieldBaseUrlSelect').value;
 
       if (!fieldId || !fieldLabel) {
         alert('Please enter both ID and Label');
@@ -999,7 +1075,8 @@
             id: fieldId, 
             label: fieldLabel, 
             category: 'custom',
-            fieldType: fieldType
+            fieldType: fieldType,
+            baseUrlId: baseUrlId // Save association
           };
 
           if (fieldType === 'combobox') {
@@ -1582,7 +1659,7 @@
       // Add saved items
       items.forEach(item => {
         const option = document.createElement('option');
-        option.value = item.value;
+        option.value = item.id; // Use ID
         option.textContent = `${item.alias}: ${item.value}`;
         select.appendChild(option);
       });
