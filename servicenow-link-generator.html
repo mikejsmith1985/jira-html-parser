@@ -676,7 +676,7 @@
       document.getElementById('link').textContent = url;
       
       // Check for URL length issues (414 Request-URI Too Large)
-      const MAX_SAFE_LENGTH = 2048;
+      const MAX_SAFE_LENGTH = 8200;
       const outputDiv = document.getElementById('output');
       const warningId = 'url-length-warning';
       let warningEl = document.getElementById(warningId);
