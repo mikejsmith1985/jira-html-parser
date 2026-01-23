@@ -1,4 +1,4 @@
-# Release v0.5.20
+# Release v0.5.21
 
 ## Improvements
 - **Append on Import**: Importing a configuration file now **appends** to your existing settings instead of overwriting them.
