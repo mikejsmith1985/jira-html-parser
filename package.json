@@ -1,6 +1,6 @@
 {
   "name": "jira-html-parser",
-  "version": "0.5.9",
+  "version": "0.5.10",
   "description": "Jira Issue Link Generator - Create pre-filled Jira issue creation links with customizable fields",
   "main": "jira-link-generator.html",
   "scripts": {
