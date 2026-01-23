@@ -91,7 +91,7 @@
       </label>
       <label>Table Name
         <div style="display:flex;gap:8px;align-items:center;">
-          <select id="tableName" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" required onchange="saveState()">
+          <select id="tableName" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" required onchange="saveState(); updateAllFieldSelects();">
             <option value="">-- Select Table Name --</option>
           </select>
           <button type="button" onclick="openTableNameManager()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:10px 16px;cursor:pointer;white-space:nowrap;font-weight:500;">Manage</button>
@@ -127,6 +127,9 @@
       <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;">
         <select id="fieldBaseUrlSelect" style="padding:8px;border:1px solid #ccc;border-radius:4px;width:100%;margin-bottom:4px;">
           <option value="">All Instances (Global)</option>
+        </select>
+        <select id="fieldTableNameSelect" style="padding:8px;border:1px solid #ccc;border-radius:4px;width:100%;margin-bottom:4px;">
+          <option value="">All Tables (Global)</option>
         </select>
         <div style="display:flex;gap:8px;">
           <input type="text" id="fieldIdInput" placeholder="ID (e.g. u_custom_field)" style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;">
@@ -418,10 +421,15 @@
 
       const definitions = loadFieldDefinitions();
       const currentBaseUrlId = document.getElementById('baseUrl').value;
+      const currentTableNameId = document.getElementById('tableName').value;
 
       definitions.sort((a, b) => a.label.localeCompare(b.label)).forEach(def => {
         // Filter: Show if Global (no baseUrlId) OR matches current Base URL OR matches the current field (so it doesn't disappear if already selected)
-        if (!def.baseUrlId || def.baseUrlId === currentBaseUrlId || def.id === data.fieldId) {
+        // AND (no tableNameId OR matches current Table Name)
+        const matchesBaseUrl = !def.baseUrlId || def.baseUrlId === currentBaseUrlId;
+        const matchesTableName = !def.tableNameId || def.tableNameId === currentTableNameId;
+        
+        if ((matchesBaseUrl && matchesTableName) || def.id === data.fieldId) {
           const option = document.createElement('option');
           option.value = def.id;
           option.textContent = def.label;
@@ -720,6 +728,7 @@
     function updateAllFieldSelects() {
       const rows = document.querySelectorAll('.field-row');
       const currentBaseUrlId = document.getElementById('baseUrl').value;
+      const currentTableNameId = document.getElementById('tableName').value;
       const definitions = loadFieldDefinitions();
       
       rows.forEach(row => {
@@ -735,7 +744,10 @@
         
         // Re-populate with filtered options
         definitions.sort((a, b) => a.label.localeCompare(b.label)).forEach(def => {
-          if (!def.baseUrlId || def.baseUrlId === currentBaseUrlId || def.id === currentValue) {
+          const matchesBaseUrl = !def.baseUrlId || def.baseUrlId === currentBaseUrlId;
+          const matchesTableName = !def.tableNameId || def.tableNameId === currentTableNameId;
+          
+          if ((matchesBaseUrl && matchesTableName) || def.id === currentValue) {
             const option = document.createElement('option');
             option.value = def.id;
             option.textContent = def.label;
@@ -767,6 +779,24 @@
         select.appendChild(option);
       });
 
+      // Populate Table Name select
+      const tableSelect = document.getElementById('fieldTableNameSelect');
+      tableSelect.innerHTML = '<option value="">All Tables (Global)</option>';
+      const tableItems = loadItems('snowSavedTableNames');
+      tableItems.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.value; // Note: Table Names use 'value' (e.g. 'incident') as the key often, but let's check if we used ID for dropdown?
+        // In populateTableNameDropdown we used item.value as value. 
+        // But for association, using the specific saved item ID is better if we want to rename the alias later?
+        // However, 'table name' is the functional key. 
+        // Let's stick to consistent ID usage if possible, OR value if that's what the main dropdown uses.
+        // The main dropdown uses item.value: `option.value = item.value;`
+        // So we must use `item.value` here to match the currentTableNameId retrieved from document.getElementById('tableName').value
+        option.value = item.value;
+        option.textContent = `${item.alias} (${item.value})`;
+        tableSelect.appendChild(option);
+      });
+
       refreshConfigItemsList();
       refreshFieldsList();
     }
@@ -788,6 +818,7 @@
       document.getElementById('fieldLabelInput').value = def.label;
       document.getElementById('fieldTypeSelect').value = def.fieldType || 'text';
       document.getElementById('fieldBaseUrlSelect').value = def.baseUrlId || '';
+      document.getElementById('fieldTableNameSelect').value = def.tableNameId || '';
       currentComboboxOptions = def.options || [];
       toggleFieldTypeOptions();
       document.getElementById('fieldLabelInput').focus();
@@ -808,6 +839,7 @@
       document.getElementById('fieldLabelInput').value = '';
       document.getElementById('fieldTypeSelect').value = 'text';
       document.getElementById('fieldBaseUrlSelect').value = '';
+      document.getElementById('fieldTableNameSelect').value = '';
       toggleFieldTypeOptions();
       const addBtn = document.getElementById('addFieldBtn');
       const cancelBtn = document.getElementById('cancelEditFieldBtn');
@@ -984,6 +1016,7 @@
       const fieldsList = document.getElementById('fieldsList');
       const definitions = loadFieldDefinitions();
       const baseUrls = loadItems('snowSavedBaseUrls');
+      const tableNames = loadItems('snowSavedTableNames');
 
       fieldsList.innerHTML = '';
       if (definitions.length === 0) {
@@ -1002,9 +1035,23 @@
         if (def.baseUrlId) {
           const baseUrl = baseUrls.find(b => b.id === def.baseUrlId);
           if (baseUrl) {
-             restrictedBadge = `<span style="font-size:0.8em;background:#e8f4fd;color:#2980b9;padding:2px 6px;border-radius:4px;margin-left:8px;">${escapeHtml(baseUrl.alias)}</span>`;
+             restrictedBadge += `<span style="font-size:0.8em;background:#e8f4fd;color:#2980b9;padding:2px 6px;border-radius:4px;margin-left:8px;">${escapeHtml(baseUrl.alias)}</span>`;
           } else {
-             restrictedBadge = `<span style="font-size:0.8em;background:#fde8e8;color:#c0392b;padding:2px 6px;border-radius:4px;margin-left:8px;">Unknown Instance</span>`;
+             restrictedBadge += `<span style="font-size:0.8em;background:#fde8e8;color:#c0392b;padding:2px 6px;border-radius:4px;margin-left:8px;">Unknown Instance</span>`;
+          }
+        }
+        
+        if (def.tableNameId) {
+          // Note: tableNameId stores the actual value (e.g. 'incident'), not the ID, because we decided to use value in the dropdown.
+          // Let's verify if we should look up the alias.
+          // Yes, we loaded snowSavedTableNames which has {id, alias, value}.
+          // We stored `item.value` in the select. So def.tableNameId === item.value.
+          const tableName = tableNames.find(t => t.value === def.tableNameId);
+          if (tableName) {
+             restrictedBadge += `<span style="font-size:0.8em;background:#f0f4c3;color:#827717;padding:2px 6px;border-radius:4px;margin-left:8px;">${escapeHtml(tableName.alias)}</span>`;
+          } else {
+             // Or just display the value if alias not found (maybe it was deleted but value remains valid?)
+             restrictedBadge += `<span style="font-size:0.8em;background:#f0f4c3;color:#827717;padding:2px 6px;border-radius:4px;margin-left:8px;">${escapeHtml(def.tableNameId)}</span>`;
           }
         }
 
@@ -1040,6 +1087,7 @@
       const fieldLabel = document.getElementById('fieldLabelInput').value.trim();
       const fieldType = document.getElementById('fieldTypeSelect').value;
       const baseUrlId = document.getElementById('fieldBaseUrlSelect').value;
+      const tableNameId = document.getElementById('fieldTableNameSelect').value;
 
       if (!fieldId || !fieldLabel) {
         alert('Please enter both ID and Label');
@@ -1076,7 +1124,8 @@
             label: fieldLabel, 
             category: 'custom',
             fieldType: fieldType,
-            baseUrlId: baseUrlId // Save association
+            baseUrlId: baseUrlId, // Save association
+            tableNameId: tableNameId
           };
 
           if (fieldType === 'combobox') {

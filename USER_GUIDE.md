@@ -82,6 +82,20 @@ Click **"Manage Fields"** inside the tool to customize available fields.
     *   When adding/editing a field, you can select an **"Associated Instance"**.
     *   **Global**: If no instance is selected, the field appears for all instances.
     *   **Specific**: If an instance is selected, the field *only* appears in the dropdown when that specific Base URL is active.
+    *   **Table Association (ServiceNow Only)**:
+    *   Similarly, you can associate a field with a specific **Table Name** (e.g., `incident`).
+    *   The field will only appear when that Table is selected.
+
+### Finding Field IDs (Developer Tools)
+To configure custom fields, you need their internal system IDs. You can find these using your browser's Developer Tools.
+
+1.  **Open ServiceNow/Jira**: Navigate to the form where the field exists.
+2.  **Right-click the Field**: Right-click on the input box or label of the field you want to add.
+3.  **Inspect**: Select **"Inspect"** or **"Inspect Element"** from the context menu.
+4.  **Find the ID**:
+    *   **ServiceNow**: Look for the `name` or `id` attribute. It often starts with `u_` (e.g., `name="u_root_cause"`).
+    *   **Jira**: Look for `id="customfield_10000"` or similar.
+5.  **Copy**: Copy this ID and paste it into the **ID** field in the Link Generator's "Manage Fields" modal.
 
 ### Presets
 Presets allow you to save a snapshot of your current form (fields and values) for quick reuse.
