@@ -208,37 +208,37 @@
   </div>
 
   <!-- Field Extractor Modal -->
-  <div id="fieldExtractorModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
-    <div style="background:#fff;border-radius:8px;padding:24px;max-width:700px;width:90vw;max-height:80vh;overflow-y:auto;">
-      <h2 style="margin-bottom:16px;">🔍 Field Extractor</h2>
-      <p style="color:#666;margin-bottom:20px;">Automatically extract field definitions from Jira forms.</p>
+  <div id="fieldExtractorModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;">
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:8px;padding:24px;max-width:700px;width:90vw;max-height:80vh;overflow-y:auto;box-shadow:0 4px 20px rgba(0,0,0,0.15);">
+      <h2 style="margin:0 0 16px 0;color:#2c3e50;">🔍 Field Extractor</h2>
+      <p style="color:#666;margin:0 0 20px 0;line-height:1.5;">Automatically extract field definitions from Jira forms using the bookmarklet below.</p>
       
-      <div style="background:#e8f4fd;padding:16px;border-radius:6px;border-left:3px solid #3498db;margin-bottom:20px;">
-        <h3 style="font-size:1em;margin-bottom:10px;color:#2980b9;">📌 Bookmarklet</h3>
-        <p style="font-size:0.9em;color:#555;margin-bottom:12px;">Drag this button to your bookmarks bar:</p>
-        <div style="text-align:center;padding:15px;background:white;border:2px dashed #3498db;border-radius:6px;">
-          <a href="javascript:(function(){const e=document.querySelectorAll('input[id], input[name], select[id], select[name], textarea[id], textarea[name]'),t=[];e.forEach(e=>{if(!e.id&&!e.name)return;const a=e.id||e.name;if(t.some(e=>e.id===a))return;let n=a;const l=e.closest('label');if(l&&l.textContent)n=l.textContent.trim();else{const t=document.querySelector(`label[for='${e.id}']`);t&&t.textContent&&(n=t.textContent.trim())}const c=e.closest('[class*=\'field\']');c&&c.querySelector('label')&&(n=c.querySelector('label').textContent.trim()),n=n.replace(/[*:]/g,'').trim(),t.push({id:a,label:n||a,category:'custom',fieldType:'text'})});const a={version:'1.0.0',extractedAt:(new Date).toISOString(),description:'Extracted Field Definitions',tool:'Field Extractor Bookmarklet',fieldDefinitions:t},n=JSON.stringify(a,null,2),l=document.createElement('div');l.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:999999;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif;',l.innerHTML=`<div style='background:white;border-radius:12px;padding:30px;max-width:600px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.3);'><h2 style='color:#2c3e50;margin:0 0 20px 0;'>Field Extractor Results</h2><p style='color:#555;margin-bottom:20px;'>Found <strong>${t.length}</strong> fields on this page.</p><textarea readonly style='width:100%;height:200px;padding:12px;border:1px solid #ccc;border-radius:6px;font-family:monospace;font-size:12px;resize:vertical;margin-bottom:15px;'>${n}</textarea><div style='display:flex;gap:10px;justify-content:flex-end;'><button onclick='navigator.clipboard.writeText(${JSON.stringify(n)});this.textContent=\"✓ Copied!\";setTimeout(()=>this.textContent=\"Copy to Clipboard\",2000);' style='background:#3498db;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;'>Copy to Clipboard</button><button onclick='const b=new Blob([${JSON.stringify(n)}],{type:\"application/json\"}),u=URL.createObjectURL(b),a=document.createElement(\"a\");a.href=u;a.download=\"extracted-fields-\"+new Date().toISOString().split(\"T\")[0]+\".json\";a.click();URL.revokeObjectURL(u);' style='background:#27ae60;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;'>Download JSON</button><button onclick='this.closest(\"div\").parentElement.remove();' style='background:#95a5a6;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;'>Close</button></div></div>`,document.body.appendChild(l);})();" style="display:inline-block;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:white;text-decoration:none;padding:12px 24px;border-radius:6px;font-weight:600;cursor:move;">🔍 Extract Fields</a>
-          <p style="margin-top:10px;font-size:0.85em;color:#999;">← Drag to bookmarks bar</p>
+      <div style="background:#e8f4fd;padding:20px;border-radius:8px;border:2px solid #3498db;margin-bottom:20px;">
+        <h3 style="font-size:1em;margin:0 0 12px 0;color:#2980b9;font-weight:600;">📌 Step 1: Add Bookmarklet</h3>
+        <p style="font-size:0.9em;color:#555;margin:0 0 12px 0;">Drag the button below to your browser's bookmarks bar:</p>
+        <div style="text-align:center;padding:20px;background:white;border-radius:6px;">
+          <a id="fieldExtractorBookmarklet" href="" style="display:inline-block;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:white;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:600;font-size:14px;cursor:move;box-shadow:0 2px 8px rgba(102,126,234,0.4);transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">🔍 Jira Field Extractor</a>
+          <p style="margin:12px 0 0 0;font-size:0.85em;color:#999;font-style:italic;">← Drag this to your bookmarks bar</p>
         </div>
       </div>
 
-      <div style="background:#f8f9fa;padding:16px;border-radius:6px;margin-bottom:20px;">
-        <h3 style="font-size:1em;margin-bottom:10px;color:#2c3e50;">📖 How to Use</h3>
-        <ol style="margin:0;padding-left:20px;line-height:1.8;color:#555;font-size:0.9em;">
-          <li>Drag the "🔍 Extract Fields" button above to your bookmarks bar</li>
-          <li>Navigate to a Jira form (e.g., Create Issue)</li>
-          <li>Click the bookmarklet from your bookmarks</li>
-          <li>Download or copy the extracted field definitions</li>
-          <li>Import the JSON file using the "Import Config" button</li>
+      <div style="background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px;border:1px solid #dee2e6;">
+        <h3 style="font-size:1em;margin:0 0 12px 0;color:#2c3e50;font-weight:600;">📖 Step 2: Use the Bookmarklet</h3>
+        <ol style="margin:0;padding-left:24px;line-height:2;color:#555;font-size:0.9em;">
+          <li>Navigate to a Jira issue creation form (e.g., Create Issue page)</li>
+          <li>Make sure the form is fully loaded with all custom fields visible</li>
+          <li>Click the <strong>"🔍 Jira Field Extractor"</strong> bookmark you just added</li>
+          <li>A popup will show all discovered fields - download or copy the JSON</li>
+          <li>Return to this tool and click <strong>"Import Config"</strong> to load the fields</li>
         </ol>
       </div>
 
-      <div style="background:#fff3cd;padding:12px;border-radius:6px;border-left:3px solid #ffc107;font-size:0.9em;color:#856404;">
-        <strong>💡 Tip:</strong> Make sure the Jira form is fully loaded before running the extractor for best results.
+      <div style="background:#fff3cd;padding:16px;border-radius:8px;border-left:4px solid #ffc107;font-size:0.9em;color:#856404;line-height:1.6;">
+        <strong>💡 Pro Tip:</strong> Run the bookmarklet on different Jira project forms to extract project-specific custom fields.
       </div>
 
-      <div style="margin-top:20px;text-align:right;">
-        <button type="button" onclick="closeFieldExtractorModal()" style="background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:10px 20px;cursor:pointer;">Close</button>
+      <div style="margin-top:24px;text-align:right;">
+        <button type="button" onclick="closeFieldExtractorModal()" style="background:#6c757d;color:#fff;border:none;border-radius:6px;padding:10px 24px;cursor:pointer;font-size:14px;font-weight:500;transition:background 0.2s;" onmouseover="this.style.background='#5a6268'" onmouseout="this.style.background='#6c757d'">Close</button>
       </div>
     </div>
   </div>
@@ -2784,7 +2784,108 @@
         console.error('fieldExtractorModal not found');
         return;
       }
-      modal.style.display = 'flex';
+      
+      // Set the bookmarklet href dynamically to avoid HTML encoding issues
+      const bookmarkletLink = document.getElementById('fieldExtractorBookmarklet');
+      if (bookmarkletLink) {
+        const bookmarkletCode = `(function(){
+          const fields = document.querySelectorAll('input[id], input[name], select[id], select[name], textarea[id], textarea[name]');
+          const extracted = [];
+          
+          fields.forEach(field => {
+            if (!field.id && !field.name) return;
+            const fieldId = field.id || field.name;
+            if (extracted.some(f => f.id === fieldId)) return;
+            
+            let label = fieldId;
+            const closestLabel = field.closest('label');
+            if (closestLabel && closestLabel.textContent) {
+              label = closestLabel.textContent.trim();
+            } else {
+              const labelFor = document.querySelector("label[for='" + field.id + "']");
+              if (labelFor && labelFor.textContent) {
+                label = labelFor.textContent.trim();
+              }
+            }
+            
+            const fieldContainer = field.closest("[class*='field']");
+            if (fieldContainer && fieldContainer.querySelector('label')) {
+              label = fieldContainer.querySelector('label').textContent.trim();
+            }
+            
+            label = label.replace(/[*:]/g, '').trim();
+            extracted.push({
+              id: fieldId,
+              label: label || fieldId,
+              category: 'custom',
+              fieldType: 'text'
+            });
+          });
+          
+          const result = {
+            version: '1.0.0',
+            extractedAt: new Date().toISOString(),
+            description: 'Extracted Field Definitions',
+            tool: 'Field Extractor Bookmarklet',
+            fieldDefinitions: extracted
+          };
+          
+          const jsonStr = JSON.stringify(result, null, 2);
+          const modal = document.createElement('div');
+          modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:999999;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif;';
+          
+          const copyBtn = document.createElement('button');
+          copyBtn.textContent = 'Copy to Clipboard';
+          copyBtn.style.cssText = 'background:#3498db;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;margin-right:10px;';
+          copyBtn.onclick = function() {
+            navigator.clipboard.writeText(jsonStr);
+            this.textContent = '✓ Copied!';
+            setTimeout(() => { this.textContent = 'Copy to Clipboard'; }, 2000);
+          };
+          
+          const downloadBtn = document.createElement('button');
+          downloadBtn.textContent = 'Download JSON';
+          downloadBtn.style.cssText = 'background:#27ae60;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;margin-right:10px;';
+          downloadBtn.onclick = function() {
+            const blob = new Blob([jsonStr], {type: 'application/json'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'extracted-fields-' + new Date().toISOString().split('T')[0] + '.json';
+            a.click();
+            URL.revokeObjectURL(url);
+          };
+          
+          const closeBtn = document.createElement('button');
+          closeBtn.textContent = 'Close';
+          closeBtn.style.cssText = 'background:#95a5a6;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;';
+          closeBtn.onclick = function() { modal.remove(); };
+          
+          const textarea = document.createElement('textarea');
+          textarea.value = jsonStr;
+          textarea.readOnly = true;
+          textarea.style.cssText = 'width:100%;height:200px;padding:12px;border:1px solid #ccc;border-radius:6px;font-family:monospace;font-size:12px;resize:vertical;margin-bottom:15px;box-sizing:border-box;';
+          
+          const btnContainer = document.createElement('div');
+          btnContainer.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;';
+          btnContainer.appendChild(copyBtn);
+          btnContainer.appendChild(downloadBtn);
+          btnContainer.appendChild(closeBtn);
+          
+          const content = document.createElement('div');
+          content.style.cssText = 'background:white;border-radius:12px;padding:30px;max-width:600px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.3);';
+          content.innerHTML = '<h2 style="color:#2c3e50;margin:0 0 20px 0;">Field Extractor Results</h2><p style="color:#555;margin:0 0 20px 0;">Found <strong>' + extracted.length + '</strong> fields on this page.</p>';
+          content.appendChild(textarea);
+          content.appendChild(btnContainer);
+          
+          modal.appendChild(content);
+          document.body.appendChild(modal);
+        })();`;
+        
+        bookmarkletLink.href = 'javascript:' + encodeURIComponent(bookmarkletCode);
+      }
+      
+      modal.style.display = 'block';
     }
 
     function closeFieldExtractorModal() {
