@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Field Extractor Utility - Jira & ServiceNow Link Generators</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      padding: 40px;
+    }
+    
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 10px;
+      font-size: 2em;
+    }
+    
+    .subtitle {
+      color: #7f8c8d;
+      margin-bottom: 30px;
+      font-size: 1.1em;
+    }
+    
+    .section {
+      margin-bottom: 40px;
+      padding: 25px;
+      background: #f8f9fa;
+      border-radius: 8px;
+      border-left: 4px solid #3498db;
+    }
+    
+    .section h2 {
+      color: #2c3e50;
+      margin-bottom: 15px;
+      font-size: 1.4em;
+    }
+    
+    .bookmarklet-box {
+      background: white;
+      border: 2px dashed #3498db;
+      border-radius: 8px;
+      padding: 20px;
+      text-align: center;
+      margin: 20px 0;
+    }
+    
+    .bookmarklet-link {
+      display: inline-block;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      text-decoration: none;
+      padding: 15px 30px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 1.1em;
+      transition: transform 0.2s;
+      cursor: move;
+    }
+    
+    .bookmarklet-link:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    .instruction {
+      background: #e8f4fd;
+      padding: 15px;
+      border-radius: 6px;
+      margin: 15px 0;
+      border-left: 3px solid #3498db;
+    }
+    
+    .instruction strong {
+      color: #2980b9;
+    }
+    
+    .step-list {
+      list-style: none;
+      counter-reset: step-counter;
+      margin: 20px 0;
+    }
+    
+    .step-list li {
+      counter-increment: step-counter;
+      margin-bottom: 20px;
+      padding-left: 50px;
+      position: relative;
+      line-height: 1.6;
+    }
+    
+    .step-list li::before {
+      content: counter(step-counter);
+      position: absolute;
+      left: 0;
+      top: 0;
+      background: #3498db;
+      color: white;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+    }
+    
+    .warning {
+      background: #fff3cd;
+      border-left: 3px solid #ffc107;
+      padding: 15px;
+      border-radius: 6px;
+      margin: 15px 0;
+    }
+    
+    .success {
+      background: #d4edda;
+      border-left: 3px solid #28a745;
+      padding: 15px;
+      border-radius: 6px;
+      margin: 15px 0;
+    }
+    
+    code {
+      background: #f1f3f5;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      color: #e83e8c;
+    }
+    
+    .platform-tag {
+      display: inline-block;
+      background: #667eea;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 0.85em;
+      margin-right: 8px;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔍 Field Extractor Utility</h1>
+    <p class="subtitle">Automatically extract field definitions from Jira & ServiceNow forms</p>
+    
+    <div class="section">
+      <h2>📌 Bookmarklet</h2>
+      <p>Drag this button to your bookmarks bar, then click it while on a Jira or ServiceNow form page:</p>
+      
+      <div class="bookmarklet-box">
+        <a href="javascript:(function(){const e=document.querySelectorAll('input[id], input[name], select[id], select[name], textarea[id], textarea[name]'),t=[];e.forEach(e=>{if(!e.id&&!e.name)return;const a=e.id||e.name;if(t.some(e=>e.id===a))return;let n=a;const l=e.closest('label');if(l&&l.textContent)n=l.textContent.trim();else{const t=document.querySelector(`label[for='${e.id}']`);t&&t.textContent&&(n=t.textContent.trim())}const c=e.closest('[class*='field']');c&&c.querySelector('label')&&(n=c.querySelector('label').textContent.trim()),n=n.replace(/[*:]/g,'').trim(),t.push({id:a,label:n||a,category:'custom',fieldType:'text'})});const a={version:'1.0.0',extractedAt:(new Date).toISOString(),description:'Extracted Field Definitions',tool:'Field Extractor Bookmarklet',fieldDefinitions:t},n=JSON.stringify(a,null,2),l=document.createElement('div');l.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:999999;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif;',l.innerHTML=`<div style='background:white;border-radius:12px;padding:30px;max-width:600px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.3);'><h2 style='color:#2c3e50;margin:0 0 20px 0;'>Field Extractor Results</h2><p style='color:#555;margin-bottom:20px;'>Found <strong>${t.length}</strong> fields on this page.</p><textarea readonly style='width:100%;height:200px;padding:12px;border:1px solid #ccc;border-radius:6px;font-family:monospace;font-size:12px;resize:vertical;margin-bottom:15px;'>${n}</textarea><div style='display:flex;gap:10px;justify-content:flex-end;'><button onclick='navigator.clipboard.writeText(${JSON.stringify(n)});this.textContent=\"✓ Copied!\";setTimeout(()=>this.textContent=\"Copy to Clipboard\",2000);' style='background:#3498db;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;'>Copy to Clipboard</button><button onclick='const b=new Blob([${JSON.stringify(n)}],{type:\"application/json\"}),u=URL.createObjectURL(b),a=document.createElement(\"a\");a.href=u;a.download=\"extracted-fields-\"+new Date().toISOString().split(\"T\")[0]+\".json\";a.click();URL.revokeObjectURL(u);' style='background:#27ae60;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;'>Download JSON</button><button onclick='this.closest(\"div\").parentElement.remove();' style='background:#95a5a6;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;'>Close</button></div></div>`,document.body.appendChild(l);})();" class="bookmarklet-link">
+          🔍 Extract Fields
+        </a>
+        <p style="margin-top: 15px; color: #7f8c8d; font-size: 0.9em;">
+          ← Drag this to your bookmarks bar
+        </p>
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2>📖 How to Use</h2>
+      <ol class="step-list">
+        <li>
+          <strong>Add the Bookmarklet</strong><br>
+          Drag the "🔍 Extract Fields" button above to your browser's bookmarks bar. If you don't see the bookmarks bar, press <code>Ctrl+Shift+B</code> (Windows/Linux) or <code>Cmd+Shift+B</code> (Mac).
+        </li>
+        <li>
+          <strong>Navigate to a Form</strong><br>
+          Open your Jira issue creation page or ServiceNow record form in your browser. Make sure the form is fully loaded and visible.
+        </li>
+        <li>
+          <strong>Click the Bookmarklet</strong><br>
+          Click the "🔍 Extract Fields" bookmark you just added. A modal will appear showing all detected fields.
+        </li>
+        <li>
+          <strong>Download or Copy</strong><br>
+          Click "Download JSON" to save the extracted fields as a file, or "Copy to Clipboard" to copy the JSON.
+        </li>
+        <li>
+          <strong>Import into Link Generator</strong><br>
+          Open your <code>jira-link-generator.html</code> or <code>servicenow-link-generator.html</code> file. Click "Import Config" and select the downloaded JSON file. The fields will be appended to your existing configuration.
+        </li>
+      </ol>
+    </div>
+    
+    <div class="section">
+      <h2>✨ What Gets Extracted</h2>
+      <div class="instruction">
+        The bookmarklet scans the current page and extracts:
+        <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
+          <li><strong>Field IDs</strong>: The <code>id</code> or <code>name</code> attribute of input fields</li>
+          <li><strong>Field Labels</strong>: The visible label text associated with each field</li>
+          <li><strong>Field Type</strong>: Currently defaults to "text" (you can change this in the Link Generator after import)</li>
+        </ul>
+      </div>
+      
+      <div class="warning">
+        <strong>⚠️ Note:</strong> The extractor looks for standard HTML form fields (<code>input</code>, <code>select</code>, <code>textarea</code>). Some custom fields or dynamically loaded fields may not be detected. You may need to manually add these in the Link Generator.
+      </div>
+    </div>
+    
+    <div class="section">
+      <h2>🎯 Supported Platforms</h2>
+      <div style="margin: 15px 0;">
+        <span class="platform-tag">Jira Cloud</span>
+        <span class="platform-tag">Jira Server</span>
+        <span class="platform-tag">ServiceNow</span>
+        <span class="platform-tag">Any HTML Form</span>
+      </div>
+      <p style="color: #555; margin-top: 15px;">
+        This bookmarklet works on any web page with standard HTML forms. However, it's optimized for Jira and ServiceNow.
+      </p>
+    </div>
+    
+    <div class="section">
+      <h2>🔧 Troubleshooting</h2>
+      
+      <div class="instruction">
+        <strong>No fields found?</strong>
+        <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
+          <li>Make sure you're on a form page (e.g., "Create Issue" in Jira)</li>
+          <li>Wait for the page to fully load before running the bookmarklet</li>
+          <li>Some fields may be in hidden sections - expand all sections first</li>
+        </ul>
+      </div>
+      
+      <div class="instruction">
+        <strong>Field labels are wrong or missing?</strong>
+        <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
+          <li>After importing, you can edit field labels in the "Manage Fields" section of the Link Generator</li>
+          <li>The extractor tries its best to find labels, but complex layouts may require manual cleanup</li>
+        </ul>
+      </div>
+      
+      <div class="instruction">
+        <strong>Bookmarklet not working?</strong>
+        <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
+          <li>Some sites block JavaScript bookmarklets. Try using the browser console method instead</li>
+          <li>Clear your browser cache and try again</li>
+          <li>Make sure JavaScript is enabled in your browser settings</li>
+        </ul>
+      </div>
+    </div>
+    
+    <div class="success">
+      <strong>✅ Pro Tip:</strong> After importing fields, use the "Manage Fields" modal in your Link Generator to:
+      <ul style="margin: 10px 0 0 20px; line-height: 1.8;">
+        <li>Clean up field labels</li>
+        <li>Change field types (text → combobox, etc.)</li>
+        <li>Associate fields with specific Base URLs or Tables</li>
+        <li>Delete any fields you don't need</li>
+      </ul>
+    </div>
+  </div>
+</body>
+</html>

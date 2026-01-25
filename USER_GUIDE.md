@@ -87,7 +87,18 @@ Click **"Manage Fields"** inside the tool to customize available fields.
     *   The field will only appear when that Table is selected.
 
 ### Finding Field IDs (Developer Tools)
-To configure custom fields, you need their internal system IDs. You can find these using your browser's Developer Tools.
+To configure custom fields, you need their internal system IDs. You have two options:
+
+#### Option 1: Automatic Extraction (Recommended)
+Use the **Field Extractor Bookmarklet** to automatically discover all fields on a page:
+1.  Open `field-extractor.html` in your browser (included in the release).
+2.  Drag the "🔍 Extract Fields" bookmarklet to your browser's bookmarks bar.
+3.  Navigate to a Jira or ServiceNow form page.
+4.  Click the bookmarklet from your bookmarks bar.
+5.  Download the JSON file and import it into the Link Generator using "Import Config".
+
+#### Option 2: Manual Inspection
+Use your browser's Developer Tools:
 
 1.  **Open ServiceNow/Jira**: Navigate to the form where the field exists.
 2.  **Right-click the Field**: Right-click on the input box or label of the field you want to add.
