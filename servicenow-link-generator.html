@@ -76,6 +76,7 @@
         <option value="">-- Load Preset --</option>
       </select>
       <button type="button" onclick="openManagePresetsModal()" style="background: #3498db; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer;">Manage Presets</button>
+      <button type="button" onclick="openFieldExtractorModal()" style="background: #9b59b6; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Extract fields from ServiceNow forms">🔍 Field Extractor</button>
       <button type="button" onclick="exportConfiguration()" style="background: #27ae60; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Export all configurations, fields, and dropdowns to a JSON file">Export Config</button>
       <button type="button" onclick="openImportModal()" style="background: #e67e22; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Import configurations from a JSON file">Import Config</button>
     </div>
@@ -264,6 +265,42 @@
 
       <div style="margin-top:16px;text-align:right;gap:8px;display:flex;justify-content:flex-end;">
         <button type="button" onclick="closeTableNameManager()" style="background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Field Extractor Modal -->
+  <div id="fieldExtractorModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:8px;padding:24px;max-width:700px;width:90vw;max-height:80vh;overflow-y:auto;">
+      <h2 style="margin-bottom:16px;">🔍 Field Extractor</h2>
+      <p style="color:#666;margin-bottom:20px;">Automatically extract field definitions from ServiceNow forms.</p>
+      
+      <div style="background:#e8f4fd;padding:16px;border-radius:6px;border-left:3px solid #3498db;margin-bottom:20px;">
+        <h3 style="font-size:1em;margin-bottom:10px;color:#2980b9;">📌 Bookmarklet</h3>
+        <p style="font-size:0.9em;color:#555;margin-bottom:12px;">Drag this button to your bookmarks bar:</p>
+        <div style="text-align:center;padding:15px;background:white;border:2px dashed #3498db;border-radius:6px;">
+          <a href="javascript:(function(){const e=document.querySelectorAll('input[id], input[name], select[id], select[name], textarea[id], textarea[name]'),t=[];e.forEach(e=>{if(!e.id&&!e.name)return;const a=e.id||e.name;if(t.some(e=>e.id===a))return;let n=a;const l=e.closest('label');if(l&&l.textContent)n=l.textContent.trim();else{const t=document.querySelector(`label[for='${e.id}']`);t&&t.textContent&&(n=t.textContent.trim())}const c=e.closest('[class*=\'field\']');c&&c.querySelector('label')&&(n=c.querySelector('label').textContent.trim()),n=n.replace(/[*:]/g,'').trim(),t.push({id:a,label:n||a,category:'custom',fieldType:'text'})});const a={version:'1.0.0',extractedAt:(new Date).toISOString(),description:'Extracted Field Definitions',tool:'Field Extractor Bookmarklet',fieldDefinitions:t},n=JSON.stringify(a,null,2),l=document.createElement('div');l.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:999999;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif;',l.innerHTML=`<div style='background:white;border-radius:12px;padding:30px;max-width:600px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.3);'><h2 style='color:#2c3e50;margin:0 0 20px 0;'>Field Extractor Results</h2><p style='color:#555;margin-bottom:20px;'>Found <strong>${t.length}</strong> fields on this page.</p><textarea readonly style='width:100%;height:200px;padding:12px;border:1px solid #ccc;border-radius:6px;font-family:monospace;font-size:12px;resize:vertical;margin-bottom:15px;'>${n}</textarea><div style='display:flex;gap:10px;justify-content:flex-end;'><button onclick='navigator.clipboard.writeText(${JSON.stringify(n)});this.textContent=\"✓ Copied!\";setTimeout(()=>this.textContent=\"Copy to Clipboard\",2000);' style='background:#3498db;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;'>Copy to Clipboard</button><button onclick='const b=new Blob([${JSON.stringify(n)}],{type:\"application/json\"}),u=URL.createObjectURL(b),a=document.createElement(\"a\");a.href=u;a.download=\"extracted-fields-\"+new Date().toISOString().split(\"T\")[0]+\".json\";a.click();URL.revokeObjectURL(u);' style='background:#27ae60;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;'>Download JSON</button><button onclick='this.closest(\"div\").parentElement.remove();' style='background:#95a5a6;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;'>Close</button></div></div>`,document.body.appendChild(l);})();" style="display:inline-block;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:white;text-decoration:none;padding:12px 24px;border-radius:6px;font-weight:600;cursor:move;">🔍 Extract Fields</a>
+          <p style="margin-top:10px;font-size:0.85em;color:#999;">← Drag to bookmarks bar</p>
+        </div>
+      </div>
+
+      <div style="background:#f8f9fa;padding:16px;border-radius:6px;margin-bottom:20px;">
+        <h3 style="font-size:1em;margin-bottom:10px;color:#2c3e50;">📖 How to Use</h3>
+        <ol style="margin:0;padding-left:20px;line-height:1.8;color:#555;font-size:0.9em;">
+          <li>Drag the "🔍 Extract Fields" button above to your bookmarks bar</li>
+          <li>Navigate to a ServiceNow form (e.g., Create Incident)</li>
+          <li>Click the bookmarklet from your bookmarks</li>
+          <li>Download or copy the extracted field definitions</li>
+          <li>Import the JSON file using the "Import Config" button</li>
+        </ol>
+      </div>
+
+      <div style="background:#fff3cd;padding:12px;border-radius:6px;border-left:3px solid #ffc107;font-size:0.9em;color:#856404;">
+        <strong>💡 Tip:</strong> Make sure the ServiceNow form is fully loaded and all sections are expanded before running the extractor for best results.
+      </div>
+
+      <div style="margin-top:20px;text-align:right;">
+        <button type="button" onclick="closeFieldExtractorModal()" style="background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:10px 20px;cursor:pointer;">Close</button>
       </div>
     </div>
   </div>
@@ -2057,6 +2094,25 @@
         }
       };
       input.click();
+    }
+
+    // ========================================================================
+    // FIELD EXTRACTOR MODAL
+    // ========================================================================
+
+    function openFieldExtractorModal() {
+      const modal = document.getElementById('fieldExtractorModal');
+      if (!modal) {
+        console.error('fieldExtractorModal not found');
+        return;
+      }
+      modal.style.display = 'flex';
+    }
+
+    function closeFieldExtractorModal() {
+      const modal = document.getElementById('fieldExtractorModal');
+      if (!modal) return;
+      modal.style.display = 'none';
     }
 
     // Initialize dropdowns on page load

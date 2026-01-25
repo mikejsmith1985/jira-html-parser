@@ -90,12 +90,13 @@ Click **"Manage Fields"** inside the tool to customize available fields.
 To configure custom fields, you need their internal system IDs. You have two options:
 
 #### Option 1: Automatic Extraction (Recommended)
-Use the **Field Extractor Bookmarklet** to automatically discover all fields on a page:
-1.  Open `field-extractor.html` in your browser (included in the release).
-2.  Drag the "🔍 Extract Fields" bookmarklet to your browser's bookmarks bar.
-3.  Navigate to a Jira or ServiceNow form page.
+Use the built-in **Field Extractor** to automatically discover all fields on a page:
+1.  Click the **"🔍 Field Extractor"** button in the toolbar of your Link Generator.
+2.  Drag the bookmarklet button to your browser's bookmarks bar.
+3.  Navigate to a Jira or ServiceNow form page (e.g., Create Issue, New Incident).
 4.  Click the bookmarklet from your bookmarks bar.
-5.  Download the JSON file and import it into the Link Generator using "Import Config".
+5.  The extractor will scan the page and show all detected fields.
+6.  Download the JSON file and import it using "Import Config".
 
 #### Option 2: Manual Inspection
 Use your browser's Developer Tools:
