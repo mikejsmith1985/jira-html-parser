@@ -343,7 +343,7 @@
         <h3 style="font-size:1em;margin:0 0 12px 0;color:#2980b9;font-weight:600;">📌 Step 1: Add Bookmarklet</h3>
         <p style="font-size:0.9em;color:#555;margin:0 0 12px 0;">Drag the button below to your browser's bookmarks bar:</p>
         <div style="text-align:center;padding:20px;background:white;border-radius:6px;">
-          <a id="fieldExtractorBookmarklet" href="" style="display:inline-block;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:white;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:600;font-size:14px;cursor:move;box-shadow:0 2px 8px rgba(102,126,234,0.4);transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">🔍 ServiceNow Field Extractor</a>
+          <a id="fieldExtractorBookmarklet" href="" style="display:inline-block;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:white;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:600;font-size:14px;cursor:move;box-shadow:0 2px 8px rgba(102,126,234,0.4);transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">🔍 Field Extractor</a>
           <p style="margin:12px 0 0 0;font-size:0.85em;color:#999;font-style:italic;">← Drag this to your bookmarks bar</p>
         </div>
       </div>
@@ -353,7 +353,7 @@
         <ol style="margin:0;padding-left:24px;line-height:2;color:#555;font-size:0.9em;">
           <li>Navigate to a ServiceNow form page (e.g., Create Incident, Create Change Request)</li>
           <li>Make sure all form sections are expanded to capture all fields</li>
-          <li>Click the <strong>"🔍 ServiceNow Field Extractor"</strong> bookmark you just added</li>
+          <li>Click the <strong>"🔍 Field Extractor"</strong> bookmark you just added</li>
           <li>A popup will show all discovered fields - download or copy the JSON</li>
           <li>Return to this tool and click <strong>"Import Config"</strong> to load the fields</li>
         </ol>
@@ -3303,13 +3303,13 @@
         
         bookmarkletLink.href = 'javascript:' + encodeURIComponent(bookmarkletCode);
         
-        // Update bookmarklet link text
-        bookmarkletLink.textContent = currentAppType === 'jira' ? '🔍 Jira Field Extractor' : '🔍 ServiceNow Field Extractor';
+        // Update bookmarklet link text (same for both app types)
+        bookmarkletLink.textContent = '🔍 Field Extractor';
         
-        // Update the modal title to reflect current app type
+        // Modal title stays consistent
         const modalTitle = modal.querySelector('h2');
         if (modalTitle) {
-          modalTitle.textContent = currentAppType === 'jira' ? '🔍 Jira Field Extractor' : '🔍 ServiceNow Field Extractor';
+          modalTitle.textContent = '🔍 Field Extractor';
         }
       }
       
