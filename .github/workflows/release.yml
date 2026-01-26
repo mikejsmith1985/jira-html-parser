@@ -81,6 +81,7 @@ jobs:
           tag_name: v${{ steps.version.outputs.new }}
           name: Release v${{ steps.version.outputs.new }}
           files: |
+            link-generator.html
             jira-link-generator.html
             servicenow-link-generator.html
             package.json
@@ -100,28 +101,40 @@ jobs:
             ```
             
             ## Quick Start
-            Download the HTML file for your platform and open it in your web browser:
-            - `jira-link-generator.html` - Generate pre-filled Jira issue links
-            - `servicenow-link-generator.html` - Generate pre-filled ServiceNow record links
+            
+            ### 🆕 Recommended: Unified Tool (v0.6.0+)
+            Download `link-generator.html` - Single tool for both Jira and ServiceNow with:
+            - App type selector (Jira/ServiceNow)
+            - Enhanced Field Extractor with dropdown option extraction
+            - Auto-detection of base URL and issue type
+            - Unified configuration management
+            
+            ### Legacy Tools (Deprecated)
+            - `jira-link-generator.html` - Jira-only (deprecated, use link-generator.html)
+            - `servicenow-link-generator.html` - ServiceNow-only (deprecated, use link-generator.html)
             
             ## Installation
-            1. Download your preferred HTML file from the release assets
+            1. Download `link-generator.html` from the release assets
             2. Open it in any modern web browser (Chrome, Firefox, Safari, Edge)
-            3. No installation or server required - works 100% offline
+            3. Select your app type (Jira or ServiceNow) using the buttons at the top
+            4. No installation or server required - works 100% offline
             
             ## Testing
             Run tests with: `npm test`
             
-            ## Features
-            - **Jira Issue Link Generator** - Create pre-filled Jira issue URLs
-            - **ServiceNow Link Generator** - Create pre-filled ServiceNow record URLs
-            - Configuration Items Management
-            - Field Definitions & Presets
-            - Rich Text Editing
-            - localStorage Persistence
+            ## Features (v0.6.0+)
+            - **Unified Tool** - Single application for both Jira and ServiceNow
+            - **Enhanced Field Extractor v1.2.0** - Extracts dropdown options with labels/values
+            - **Auto-Detection** - Detects app type from base URL
+            - **Project ID Manager** - Manage multiple Jira projects
+            - **Issue Type Management** - Renamed from "Table Name" for consistency
+            - **Configuration Export/Import** - Share configurations with your team
+            - **Rich Text Editing** - Full formatting support
+            - **localStorage Persistence** - All settings saved locally
             
             ## Documentation
             - [README.md](https://github.com/mikejsmith1985/jira-html-parser/blob/master/README.md)
+            - [RELEASE-v0.6.0.md](https://github.com/mikejsmith1985/jira-html-parser/blob/master/RELEASE-v0.6.0.md) - Full v0.6.0 release notes
             - [CONFIG_ITEMS_USAGE_GUIDE.md](https://github.com/mikejsmith1985/jira-html-parser/blob/master/CONFIG_ITEMS_USAGE_GUIDE.md)
             - [GITHUB_AUTOMATION.md](https://github.com/mikejsmith1985/jira-html-parser/blob/master/GITHUB_AUTOMATION.md)
           draft: false
