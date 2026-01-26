@@ -128,6 +128,13 @@
           <button type="button" onclick="openIssueTypeManager()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:10px 16px;cursor:pointer;white-space:nowrap;font-weight:500;">Manage</button>
         </div>
       </label>
+      
+      <!-- Filter Fields by Issue Type Toggle -->
+      <label style="display:flex;align-items:center;gap:8px;margin-top:-8px;margin-bottom:8px;font-size:0.95em;color:#555;">
+        <input type="checkbox" id="filterFieldsByIssueType" onchange="updateAllFieldSelects(); saveState();" style="width:auto;margin:0;">
+        <span>Only show fields for selected issue type</span>
+      </label>
+      
       <div class="fields" id="fields"></div>
       <button type="button" class="add-btn" onclick="addField()">+ Add Field</button>
       <div style="display: flex; gap: 8px; margin-top: 20px;">
@@ -951,6 +958,7 @@
       const rows = document.querySelectorAll('.field-row');
       const currentBaseUrlId = document.getElementById('baseUrl').value;
       const currentIssueTypeId = document.getElementById('issueType').value;
+      const filterByIssueType = document.getElementById('filterFieldsByIssueType').checked;
       const definitions = loadFieldDefinitions();
       
       rows.forEach(row => {
@@ -967,7 +975,7 @@
         // Re-populate with filtered options
         definitions.sort((a, b) => a.label.localeCompare(b.label)).forEach(def => {
           const matchesBaseUrl = !def.baseUrlId || def.baseUrlId === currentBaseUrlId;
-          const matchesIssueType = !def.issueTypeId && !def.tableNameId || def.issueTypeId === currentIssueTypeId || def.tableNameId === currentIssueTypeId;
+          const matchesIssueType = !filterByIssueType || !def.issueTypeId && !def.tableNameId || def.issueTypeId === currentIssueTypeId || def.tableNameId === currentIssueTypeId;
           
           if ((matchesBaseUrl && matchesIssueType) || def.id === currentValue) {
             const option = document.createElement('option');
@@ -3341,7 +3349,8 @@
       const state = {
         baseUrl: document.getElementById('baseUrl')?.value || '',
         issueType: document.getElementById('issueType')?.value || '',
-        projectId: document.getElementById('projectId')?.value || ''
+        projectId: document.getElementById('projectId')?.value || '',
+        filterFieldsByIssueType: document.getElementById('filterFieldsByIssueType')?.checked || false
       };
       localStorage.setItem('linkGenFormState', JSON.stringify(state));
     }
@@ -3362,6 +3371,10 @@
           if (state.projectId) {
             const projectIdSelect = document.getElementById('projectId');
             if (projectIdSelect) projectIdSelect.value = state.projectId;
+          }
+          if (state.filterFieldsByIssueType !== undefined) {
+            const filterCheckbox = document.getElementById('filterFieldsByIssueType');
+            if (filterCheckbox) filterCheckbox.checked = state.filterFieldsByIssueType;
           }
         }
       } catch (e) {
