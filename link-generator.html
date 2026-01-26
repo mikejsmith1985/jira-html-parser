@@ -23,6 +23,10 @@
       padding: 8px; border: 1px solid #ccc; border-radius: 4px;
       font-size: 1em; box-sizing: border-box;
     }
+    .field-select.required-field {
+      border-left: 3px solid #e74c3c;
+      background: #fff5f5;
+    }
     .manage-fields-btn {
       background: #3498db; color: #fff; border: none; border-radius: 4px;
       padding: 8px 12px; cursor: pointer; font-size: 0.95em; white-space: nowrap; flex-shrink: 0;
@@ -58,6 +62,14 @@
     .output { margin-top: 2em; background: #f9f9f9; border-radius: 6px; padding: 16px; word-break: break-all; }
     .copy-btn { background: #f1c40f; color: #333; border: none; border-radius: 4px; padding: 6px 12px; margin-left: 8px; cursor: pointer; }
     .copy-btn:hover { background: #d4ac0d; }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(100%); opacity: 0; }
+    }
     .app-selector { display: flex; gap: 0; margin-bottom: 20px; }
     .app-selector button { flex: 1; padding: 12px 20px; border: 2px solid #3498db; background: #fff; color: #3498db; font-size: 1em; font-weight: 600; cursor: pointer; transition: all 0.2s; }
     .app-selector button:first-child { border-radius: 6px 0 0 6px; }
@@ -122,7 +134,7 @@
       
       <label>Issue Type
         <div style="display:flex;gap:8px;align-items:center;">
-          <select id="issueType" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" required onchange="saveState(); updateAllFieldSelects();">
+          <select id="issueType" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" required onchange="saveState(); updateAllFieldSelects(); autoPopulateRequiredFields();">
             <option value="">-- Select Issue Type --</option>
           </select>
           <button type="button" onclick="openIssueTypeManager()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:10px 16px;cursor:pointer;white-space:nowrap;font-weight:500;">Manage</button>
@@ -656,7 +668,25 @@
 
       if (data.fieldId) {
         fieldSelect.value = data.fieldId;
+        // Check if this is a required field
+        const fieldDef = definitions.find(d => d.id === data.fieldId);
+        if (fieldDef && fieldDef.required) {
+          fieldSelect.classList.add('required-field');
+          fieldSelect.title = 'Required field for this issue type';
+        }
       }
+      
+      // Update required styling when field changes
+      fieldSelect.addEventListener('change', () => {
+        const selectedDef = definitions.find(d => d.id === fieldSelect.value);
+        if (selectedDef && selectedDef.required) {
+          fieldSelect.classList.add('required-field');
+          fieldSelect.title = 'Required field for this issue type';
+        } else {
+          fieldSelect.classList.remove('required-field');
+          fieldSelect.title = '';
+        }
+      });
 
       // Manage Fields button
       const manageBtn = document.createElement('button');
@@ -988,6 +1018,84 @@
         // Restore value if possible
         select.value = currentValue;
       });
+    }
+    
+    function autoPopulateRequiredFields() {
+      const currentIssueTypeId = document.getElementById('issueType').value;
+      if (!currentIssueTypeId) return;
+      
+      const definitions = loadFieldDefinitions();
+      const fieldsDiv = document.getElementById('fields');
+      
+      // Find all required fields for this issue type
+      const requiredFields = definitions.filter(def => 
+        def.required && 
+        (def.issueTypeId === currentIssueTypeId || def.tableNameId === currentIssueTypeId)
+      );
+      
+      // Get currently added field IDs
+      const existingFieldIds = new Set();
+      document.querySelectorAll('.field-row').forEach(row => {
+        const select = row.querySelector('.field-select');
+        if (select && select.value) {
+          existingFieldIds.add(select.value);
+        }
+      });
+      
+      // Add missing required fields
+      requiredFields.forEach(reqField => {
+        if (!existingFieldIds.has(reqField.id)) {
+          // Add the field automatically
+          const data = {
+            fieldId: reqField.id,
+            fieldValue: ''
+          };
+          addField(data);
+          
+          // Set the field select to the required field
+          const rows = document.querySelectorAll('.field-row');
+          const lastRow = rows[rows.length - 1];
+          if (lastRow) {
+            const select = lastRow.querySelector('.field-select');
+            if (select) {
+              select.value = reqField.id;
+              // Trigger change to update field type
+              select.dispatchEvent(new Event('change'));
+            }
+          }
+        }
+      });
+      
+      // Show notification if fields were added
+      if (requiredFields.length > existingFieldIds.size) {
+        const addedCount = requiredFields.filter(f => !existingFieldIds.has(f.id)).length;
+        if (addedCount > 0) {
+          showNotification(\`✓ Auto-added \${addedCount} required field(s)\`, 'success');
+        }
+      }
+    }
+    
+    function showNotification(message, type = 'info') {
+      const notification = document.createElement('div');
+      notification.style.cssText = \`
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 12px 20px;
+        background: \${type === 'success' ? '#27ae60' : '#3498db'};
+        color: white;
+        border-radius: 4px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        z-index: 10000;
+        animation: slideIn 0.3s ease-out;
+      \`;
+      notification.textContent = message;
+      document.body.appendChild(notification);
+      
+      setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => notification.remove(), 300);
+      }, 3000);
     }
 
     // ========================================================================
@@ -3049,6 +3157,23 @@
             
             const fields = document.querySelectorAll('input[id], input[name], select[id], select[name], textarea[id], textarea[name]');
             const extracted = [];
+            const requiredFieldIds = new Set();
+            
+            // First pass: identify required fields by finding validation fields
+            fields.forEach(field => {
+              if (!field.id && !field.name) return;
+              const fieldId = field.id || field.name;
+              
+              // Check if this is a validation/required field
+              if (fieldId.match(/(Required|_required|_mandatory)$/i)) {
+                // Extract base field name (e.g., "reporterRequired" -> "reporter")
+                const baseFieldId = fieldId.replace(/(Required|_required|_mandatory)$/i, '');
+                if (baseFieldId) {
+                  requiredFieldIds.add(baseFieldId);
+                  requiredFieldIds.add(baseFieldId.toLowerCase());
+                }
+              }
+            });
             
             // Helper function to check if a field should be skipped
             const shouldSkipField = (field, fieldId, label) => {
@@ -3072,6 +3197,7 @@
               return false;
             };
             
+            // Second pass: extract actual fields and mark required ones
             fields.forEach(field => {
               if (!field.id && !field.name) return;
               const fieldId = field.id || field.name;
@@ -3092,6 +3218,9 @@
               
               // Skip if this is a technical/validation field
               if (shouldSkipField(field, fieldId, label)) return;
+              
+              // Check if this field is required
+              const isRequired = requiredFieldIds.has(fieldId) || requiredFieldIds.has(fieldId.toLowerCase());
               
               // Determine field type and extract options for dropdowns
               let fieldType = 'text';
@@ -3115,7 +3244,8 @@
                 label: label || fieldId,
                 category: 'custom',
                 fieldType: fieldType,
-                issueType: issueType
+                issueType: issueType,
+                required: isRequired
               };
               
               if (options.length > 0) {
@@ -3211,6 +3341,23 @@
             
             const fields = document.querySelectorAll('input[id], input[name], select[id], select[name], textarea[id], textarea[name]');
             const extracted = [];
+            const requiredFieldIds = new Set();
+            
+            // First pass: identify required fields by finding validation fields
+            fields.forEach(field => {
+              if (!field.id && !field.name) return;
+              const fieldId = field.id || field.name;
+              
+              // Check if this is a validation/required field
+              if (fieldId.match(/(Required|_required|_mandatory)$/i)) {
+                // Extract base field name (e.g., "reporterRequired" -> "reporter")
+                const baseFieldId = fieldId.replace(/(Required|_required|_mandatory)$/i, '');
+                if (baseFieldId) {
+                  requiredFieldIds.add(baseFieldId);
+                  requiredFieldIds.add(baseFieldId.toLowerCase());
+                }
+              }
+            });
             
             // Helper function to check if a field should be skipped
             const shouldSkipField = (field, fieldId, label) => {
@@ -3234,6 +3381,7 @@
               return false;
             };
             
+            // Second pass: extract actual fields and mark required ones
             fields.forEach(field => {
               if (!field.id && !field.name) return;
               const fieldId = field.id || field.name;
@@ -3260,6 +3408,9 @@
               // Skip if this is a technical/validation field
               if (shouldSkipField(field, fieldId, label)) return;
               
+              // Check if this field is required
+              const isRequired = requiredFieldIds.has(fieldId) || requiredFieldIds.has(fieldId.toLowerCase());
+              
               // Determine field type and extract options for dropdowns
               let fieldType = 'text';
               let options = [];
@@ -3282,7 +3433,8 @@
                 label: label || fieldId,
                 category: 'custom',
                 fieldType: fieldType,
-                issueType: issueType
+                issueType: issueType,
+                required: isRequired
               };
               
               if (options.length > 0) {
