@@ -3230,6 +3230,19 @@
               }
               label = label.replace(/[*:]/g, '').trim();
               
+              // Check if THIS field itself is required (by attributes or asterisk in label)
+              const isFieldRequired = field.required || 
+                                     field.getAttribute('aria-required') === 'true' ||
+                                     field.hasAttribute('required') ||
+                                     label.includes('*') ||
+                                     label.match(/Required|Mandatory/i);
+              
+              // If this field is required, add it to the set
+              if (isFieldRequired) {
+                requiredFieldIds.add(fieldId);
+                console.log('[Jira] Found required field (direct):', fieldId, 'label:', label);
+              }
+              
               // Check if label indicates this is a required validation field
               if (label.match(/Required|Mandatory/i)) {
                 // Pattern 1: "reporter-field" with label "Reporter Required" -> base: "reporter"
@@ -3297,6 +3310,9 @@
               }
               
               label = label.replace(/[*:]/g, '').trim();
+              
+              // Clean up "Required" and "Mandatory" from labels
+              label = label.replace(/\s*(Required|Mandatory)\s*$/i, '').trim();
               
               // Skip if this is a technical/validation field
               if (shouldSkipField(field, fieldId, label)) return;
@@ -3449,6 +3465,19 @@
               
               label = label.replace(/[*:]/g, '').trim();
               
+              // Check if THIS field itself is required (by attributes or asterisk in label)
+              const isFieldRequired = field.required || 
+                                     field.getAttribute('aria-required') === 'true' ||
+                                     field.hasAttribute('required') ||
+                                     label.includes('*') ||
+                                     label.match(/Required|Mandatory/i);
+              
+              // If this field is required, add it to the set
+              if (isFieldRequired) {
+                requiredFieldIds.add(fieldId);
+                console.log('[SNOW] Found required field (direct):', fieldId, 'label:', label);
+              }
+              
               // Check if label indicates this is a required validation field
               if (label.match(/Required|Mandatory/i)) {
                 // Pattern 1: "reporter-field" with label "Reporter Required" -> base: "reporter"
@@ -3521,6 +3550,9 @@
               }
               
               label = label.replace(/[*:]/g, '').trim();
+              
+              // Clean up "Required" and "Mandatory" from labels
+              label = label.replace(/\s*(Required|Mandatory)\s*$/i, '').trim();
               
               // Skip if this is a technical/validation field
               if (shouldSkipField(field, fieldId, label)) return;
