@@ -171,7 +171,26 @@
         <h3 style="font-size:1em;color:#2c3e50;margin-bottom:8px;">Configuration Items</h3>
         <div id="configItemsList" style="margin-bottom:16px;max-height:150px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:8px;background:#f9f9f9;"></div>
         
-        <h3 style="font-size:1em;color:#2c3e50;margin-top:16px;margin-bottom:8px;">Custom Fields</h3>
+        <h3 style="font-size:1em;color:#2c3e50;margin-top:16px;margin-bottom:8px;">
+          Custom Fields
+          <span id="selectedFieldCount" style="display:none;font-size:0.85em;color:#3498db;font-weight:normal;margin-left:8px;"></span>
+        </h3>
+        
+        <!-- Bulk Operations Toolbar -->
+        <div id="bulkOperationsToolbar" style="display:none;background:#e8f4fd;border:1px solid #3498db;border-radius:4px;padding:8px;margin-bottom:8px;">
+          <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+            <button type="button" onclick="bulkDeleteFields()" style="background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.85em;">Delete Selected</button>
+            <button type="button" onclick="bulkSetAppType('jira')" style="background:#5dade2;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.85em;">Set Jira</button>
+            <button type="button" onclick="bulkSetAppType('servicenow')" style="background:#45b7d1;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.85em;">Set ServiceNow</button>
+            <button type="button" onclick="bulkSetRequired(true)" style="background:#27ae60;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.85em;">Mark Required</button>
+            <button type="button" onclick="bulkSetRequired(false)" style="background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.85em;">Mark Optional</button>
+            <button type="button" onclick="deselectAllFields()" style="background:#7f8c8d;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.85em;">Deselect All</button>
+          </div>
+        </div>
+        
+        <!-- Search/Filter -->
+        <input type="text" id="fieldSearchInput" placeholder="🔍 Search fields..." oninput="filterFieldsList()" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;margin-bottom:8px;box-sizing:border-box;">
+        
         <div id="fieldsList" style="margin-bottom:16px;max-height:200px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:8px;"></div>
       </div>
       
@@ -1392,6 +1411,7 @@
       const definitions = loadFieldDefinitions();
       const baseUrls = loadItems(getStorageKey('baseUrls')) || [];
       const issueTypes = loadItems(getStorageKey('issueTypes')) || [];
+      const searchTerm = document.getElementById('fieldSearchInput')?.value.toLowerCase() || '';
 
       fieldsList.innerHTML = '';
       if (definitions.length === 0) {
@@ -1399,35 +1419,72 @@
         return;
       }
 
+      // Add "Select All" checkbox
+      const selectAllRow = document.createElement('div');
+      selectAllRow.style.cssText = 'display:flex;gap:8px;align-items:center;padding:8px;border-bottom:2px solid #3498db;background:#f8f9fa;';
+      selectAllRow.innerHTML = `
+        <input type="checkbox" id="selectAllFieldsCheckbox" onchange="toggleSelectAllFields(this.checked)" style="cursor:pointer;">
+        <label for="selectAllFieldsCheckbox" style="cursor:pointer;font-weight:600;color:#2c3e50;">Select All</label>
+      `;
+      fieldsList.appendChild(selectAllRow);
+
       definitions.forEach((def, index) => {
+        // Apply search filter
+        if (searchTerm && !def.label.toLowerCase().includes(searchTerm) && !def.id.toLowerCase().includes(searchTerm)) {
+          return;
+        }
+
         const row = document.createElement('div');
+        row.className = 'field-list-row';
+        row.setAttribute('data-field-index', index);
         row.style.cssText = 'display:flex;gap:8px;align-items:center;padding:8px;border-bottom:1px solid #eee;justify-content:space-between;';
+
+        // Checkbox
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'field-checkbox';
+        checkbox.setAttribute('data-field-index', index);
+        checkbox.style.cssText = 'cursor:pointer;';
+        checkbox.onchange = updateFieldSelectionUI;
 
         const info = document.createElement('div');
         info.style.cssText = 'flex:1;';
         
-        let restrictedBadge = '';
+        let badges = '';
+        
+        // App Type badge
+        if (def.appType) {
+          const appColor = def.appType === 'jira' ? '#5dade2' : '#45b7d1';
+          badges += `<span style="font-size:0.75em;background:${appColor};color:#fff;padding:2px 6px;border-radius:4px;margin-left:4px;">${def.appType.toUpperCase()}</span>`;
+        }
+        
+        // Required badge
+        if (def.required) {
+          badges += `<span style="font-size:0.75em;background:#e74c3c;color:#fff;padding:2px 6px;border-radius:4px;margin-left:4px;">REQUIRED</span>`;
+        }
+        
+        // Base URL badge
         if (def.baseUrlId) {
           const baseUrl = baseUrls.find(b => b.id === def.baseUrlId);
           if (baseUrl) {
-             restrictedBadge += `<span style="font-size:0.8em;background:#e8f4fd;color:#2980b9;padding:2px 6px;border-radius:4px;margin-left:8px;">${escapeHtml(baseUrl.alias)}</span>`;
+             badges += `<span style="font-size:0.75em;background:#e8f4fd;color:#2980b9;padding:2px 6px;border-radius:4px;margin-left:4px;">${escapeHtml(baseUrl.alias)}</span>`;
           } else {
-             restrictedBadge += `<span style="font-size:0.8em;background:#fde8e8;color:#c0392b;padding:2px 6px;border-radius:4px;margin-left:8px;">Unknown Instance</span>`;
+             badges += `<span style="font-size:0.75em;background:#fde8e8;color:#c0392b;padding:2px 6px;border-radius:4px;margin-left:4px;">Unknown Instance</span>`;
           }
         }
         
-        // Support both issueTypeId (new) and tableNameId (legacy)
+        // Issue Type badge
         const defIssueTypeId = def.issueTypeId || def.tableNameId;
         if (defIssueTypeId) {
           const issueType = issueTypes.find(t => t.value === defIssueTypeId);
           if (issueType) {
-             restrictedBadge += `<span style="font-size:0.8em;background:#f0f4c3;color:#827717;padding:2px 6px;border-radius:4px;margin-left:8px;">${escapeHtml(issueType.alias)}</span>`;
+             badges += `<span style="font-size:0.75em;background:#f0f4c3;color:#827717;padding:2px 6px;border-radius:4px;margin-left:4px;">${escapeHtml(issueType.alias)}</span>`;
           } else {
-             restrictedBadge += `<span style="font-size:0.8em;background:#f0f4c3;color:#827717;padding:2px 6px;border-radius:4px;margin-left:8px;">${escapeHtml(defIssueTypeId)}</span>`;
+             badges += `<span style="font-size:0.75em;background:#f0f4c3;color:#827717;padding:2px 6px;border-radius:4px;margin-left:4px;">${escapeHtml(defIssueTypeId)}</span>`;
           }
         }
 
-        info.innerHTML = `<div style="font-weight:500;">${escapeHtml(def.label)}${restrictedBadge}</div><div style="font-size:0.9em;color:#666;">${escapeHtml(def.id)}</div>`;
+        info.innerHTML = `<div style="font-weight:500;">${escapeHtml(def.label)}${badges}</div><div style="font-size:0.85em;color:#666;">${escapeHtml(def.id)}</div>`;
 
         const deleteBtn = document.createElement('button');
         deleteBtn.type = 'button';
@@ -1448,10 +1505,123 @@
 
         buttons.appendChild(editBtn);
         buttons.appendChild(deleteBtn);
+        
+        row.appendChild(checkbox);
         row.appendChild(info);
         row.appendChild(buttons);
         fieldsList.appendChild(row);
       });
+      
+      updateFieldSelectionUI();
+    }
+
+    function filterFieldsList() {
+      refreshFieldsList();
+    }
+
+    function updateFieldSelectionUI() {
+      const checkboxes = document.querySelectorAll('.field-checkbox');
+      const checked = Array.from(checkboxes).filter(cb => cb.checked);
+      const count = checked.length;
+      
+      const toolbar = document.getElementById('bulkOperationsToolbar');
+      const countDisplay = document.getElementById('selectedFieldCount');
+      
+      if (count > 0) {
+        toolbar.style.display = 'block';
+        countDisplay.style.display = 'inline';
+        countDisplay.textContent = `(${count} selected)`;
+      } else {
+        toolbar.style.display = 'none';
+        countDisplay.style.display = 'none';
+      }
+    }
+
+    function toggleSelectAllFields(checked) {
+      const checkboxes = document.querySelectorAll('.field-checkbox');
+      checkboxes.forEach(cb => cb.checked = checked);
+      updateFieldSelectionUI();
+    }
+
+    function deselectAllFields() {
+      document.getElementById('selectAllFieldsCheckbox').checked = false;
+      toggleSelectAllFields(false);
+    }
+
+    function getSelectedFieldIndices() {
+      const checkboxes = document.querySelectorAll('.field-checkbox:checked');
+      return Array.from(checkboxes).map(cb => parseInt(cb.getAttribute('data-field-index')));
+    }
+
+    function bulkDeleteFields() {
+      const indices = getSelectedFieldIndices();
+      if (indices.length === 0) {
+        alert('No fields selected');
+        return;
+      }
+      
+      if (!confirm(`Delete ${indices.length} selected field(s)?`)) return;
+      
+      try {
+        const definitions = loadFieldDefinitions();
+        // Sort indices in descending order to delete from end to start
+        indices.sort((a, b) => b - a);
+        indices.forEach(index => {
+          definitions.splice(index, 1);
+        });
+        saveFieldDefinitions(definitions);
+        refreshFieldsList();
+        updateAllFieldSelects();
+        saveState();
+        alert(`✓ Deleted ${indices.length} field(s)`);
+      } catch (e) {
+        alert('Error deleting fields: ' + e.message);
+      }
+    }
+
+    function bulkSetAppType(appType) {
+      const indices = getSelectedFieldIndices();
+      if (indices.length === 0) {
+        alert('No fields selected');
+        return;
+      }
+      
+      try {
+        const definitions = loadFieldDefinitions();
+        indices.forEach(index => {
+          definitions[index].appType = appType;
+        });
+        saveFieldDefinitions(definitions);
+        refreshFieldsList();
+        updateAllFieldSelects();
+        saveState();
+        alert(`✓ Set ${indices.length} field(s) to ${appType.toUpperCase()}`);
+      } catch (e) {
+        alert('Error setting app type: ' + e.message);
+      }
+    }
+
+    function bulkSetRequired(required) {
+      const indices = getSelectedFieldIndices();
+      if (indices.length === 0) {
+        alert('No fields selected');
+        return;
+      }
+      
+      try {
+        const definitions = loadFieldDefinitions();
+        indices.forEach(index => {
+          definitions[index].required = required;
+        });
+        saveFieldDefinitions(definitions);
+        refreshFieldsList();
+        updateAllFieldSelects();
+        saveState();
+        const status = required ? 'required' : 'optional';
+        alert(`✓ Marked ${indices.length} field(s) as ${status}`);
+      } catch (e) {
+        alert('Error setting required status: ' + e.message);
+      }
     }
 
     function addFieldDefinition() {
