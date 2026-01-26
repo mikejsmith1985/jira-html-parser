@@ -96,6 +96,7 @@
       <button type="button" onclick="openFieldExtractorModal()" style="background: #9b59b6; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Extract fields from forms">🔍 Field Extractor</button>
       <button type="button" onclick="exportConfiguration()" style="background: #27ae60; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Export all configurations, fields, and dropdowns to a JSON file">Export Config</button>
       <button type="button" onclick="openImportModal()" style="background: #e67e22; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Import configurations from a JSON file">Import Config</button>
+      <button type="button" onclick="undoLastImport()" style="background: #e74c3c; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Undo the last import operation">↶ Undo Import</button>
     </div>
 
     <form id="linkForm" autocomplete="off">
@@ -2332,6 +2333,9 @@
       }
     }
 
+    // Storage for undo functionality
+    let lastImportBackup = null;
+
     function importConfiguration(file) {
       const reader = new FileReader();
       reader.onload = function(e) {
@@ -2343,48 +2347,8 @@
             throw new Error('Invalid configuration file: missing version');
           }
 
-          // Helper to merge items by ID
-          const mergeItems = (existing, incoming) => {
-              const map = new Map();
-              if (Array.isArray(existing)) existing.forEach(i => map.set(i.id, i));
-              if (Array.isArray(incoming)) incoming.forEach(i => map.set(i.id, i));
-              return Array.from(map.values());
-          };
-
-          // Import all data with merge (Append/Update)
-          if (config.configItems && Array.isArray(config.configItems)) {
-            const existing = loadConfigurationItems();
-            saveConfigurationItems(mergeItems(existing, config.configItems));
-          }
-          if (config.fieldDefinitions && Array.isArray(config.fieldDefinitions)) {
-            const existing = loadFieldDefinitions();
-            saveFieldDefinitions(mergeItems(existing, config.fieldDefinitions));
-          }
-          if (config.baseUrls && Array.isArray(config.baseUrls)) {
-            const existing = loadItems(getStorageKey('baseUrls')) || [];
-            saveItems(getStorageKey('baseUrls'), mergeItems(existing, config.baseUrls));
-          }
-          // Support both new issueTypes and legacy tableNames
-          if (config.issueTypes && Array.isArray(config.issueTypes)) {
-            const existing = loadItems(getStorageKey('issueTypes')) || [];
-            saveItems(getStorageKey('issueTypes'), mergeItems(existing, config.issueTypes));
-          }
-          if (config.tableNames && Array.isArray(config.tableNames)) {
-            const existing = loadItems(getStorageKey('issueTypes')) || [];
-            saveItems(getStorageKey('issueTypes'), mergeItems(existing, config.tableNames));
-          }
-          if (config.projectIds && Array.isArray(config.projectIds)) {
-            const existing = loadItems(getStorageKey('projectIds')) || [];
-            saveItems(getStorageKey('projectIds'), mergeItems(existing, config.projectIds));
-          }
-          
-          // Detect app type from config if available
-          if (config.appType) {
-            switchAppType(config.appType);
-          }
-
-          alert('Configuration imported successfully! Items have been appended/updated. Reloading...');
-          window.location.reload();
+          // Show preview modal
+          showImportPreview(config);
         } catch (e) {
           alert('Error importing configuration: ' + e.message);
         }
@@ -2393,6 +2357,250 @@
         alert('Error importing configuration: Failed to read file');
       };
       reader.readAsText(file);
+    }
+
+    function showImportPreview(config) {
+      // Process and enhance the config before showing preview
+      const processed = processImportedConfig(config);
+      
+      // Count what will be imported
+      const counts = {
+        fields: (processed.fieldDefinitions || []).length,
+        baseUrls: (processed.baseUrls || []).length,
+        issueTypes: (processed.issueTypes || []).length,
+        projectIds: (processed.projectIds || []).length,
+        skipped: processed.skippedFields || 0
+      };
+
+      // Create preview modal
+      const modal = document.createElement('div');
+      modal.id = 'importPreviewModal';
+      modal.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);z-index:2000;display:flex;align-items:center;justify-content:center;';
+      
+      const content = document.createElement('div');
+      content.style.cssText = 'background:#fff;border-radius:12px;padding:32px;max-width:700px;width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.3);';
+      
+      let issueTypeInfo = '';
+      if (processed.issueTypeLabel) {
+        issueTypeInfo = `<div style="background:#d4edda;border:1px solid #c3e6cb;color:#155724;padding:12px;border-radius:6px;margin-bottom:16px;">
+          ✓ Issue Type Mapped: <strong>${processed.issueType}</strong> → <strong>"${processed.issueTypeLabel}"</strong>
+        </div>`;
+      }
+
+      let skippedInfo = '';
+      if (counts.skipped > 0) {
+        skippedInfo = `<div style="background:#fff3cd;border:1px solid #ffc107;color:#856404;padding:12px;border-radius:6px;margin-bottom:16px;">
+          ⚠ Skipped ${counts.skipped} field(s) with auto-generated/meaningless IDs
+        </div>`;
+      }
+
+      content.innerHTML = `
+        <h2 style="margin:0 0 16px 0;color:#2c3e50;">📥 Import Preview</h2>
+        <p style="color:#666;margin:0 0 20px 0;">Review what will be imported before confirming.</p>
+        
+        ${issueTypeInfo}
+        ${skippedInfo}
+        
+        <div style="background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px;">
+          <h3 style="margin:0 0 12px 0;font-size:1.1em;color:#2c3e50;">Import Summary</h3>
+          <ul style="margin:0;padding-left:24px;color:#555;line-height:1.8;">
+            <li><strong>${counts.fields}</strong> field definition(s)</li>
+            ${counts.baseUrls > 0 ? `<li><strong>${counts.baseUrls}</strong> base URL(s)</li>` : ''}
+            ${counts.issueTypes > 0 ? `<li><strong>${counts.issueTypes}</strong> issue type(s)</li>` : ''}
+            ${counts.projectIds > 0 ? `<li><strong>${counts.projectIds}</strong> project ID(s)</li>` : ''}
+          </ul>
+          <p style="color:#666;margin:12px 0 0 0;font-size:0.9em;">
+            <strong>Merge Strategy:</strong> Existing items will be kept, new items added, dropdown options merged.
+          </p>
+        </div>
+
+        <div style="background:#e7f3ff;padding:16px;border-radius:8px;border-left:4px solid #2196F3;margin-bottom:20px;">
+          <strong>💡 Note:</strong> You can undo this import using the "Undo Last Import" button after confirming.
+        </div>
+
+        <div style="display:flex;gap:12px;justify-content:flex-end;">
+          <button id="cancelImportBtn" style="background:#6c757d;color:#fff;border:none;border-radius:6px;padding:12px 24px;cursor:pointer;font-size:14px;font-weight:500;">Cancel</button>
+          <button id="confirmImportBtn" style="background:#27ae60;color:#fff;border:none;border-radius:6px;padding:12px 24px;cursor:pointer;font-size:14px;font-weight:600;">Confirm Import</button>
+        </div>
+      `;
+
+      modal.appendChild(content);
+      document.body.appendChild(modal);
+
+      // Button handlers
+      document.getElementById('cancelImportBtn').onclick = function() {
+        document.body.removeChild(modal);
+      };
+
+      document.getElementById('confirmImportBtn').onclick = function() {
+        document.body.removeChild(modal);
+        executeImport(processed);
+      };
+    }
+
+    function processImportedConfig(config) {
+      const processed = { ...config };
+      
+      // Filter out meaningless field IDs
+      if (processed.fieldDefinitions && Array.isArray(processed.fieldDefinitions)) {
+        const original = processed.fieldDefinitions.length;
+        processed.fieldDefinitions = processed.fieldDefinitions.filter(field => {
+          // Skip if label === id and contains random hash pattern
+          if (field.label === field.id && /_[A-Za-z0-9]{16}/.test(field.id)) {
+            return false;
+          }
+          // Skip form tokens, CSRF, etc.
+          if (/formToken|csrf|__token|_token/.test(field.id)) {
+            return false;
+          }
+          // Skip if label is just the field ID with "customfield_" prefix and no meaningful name
+          if (field.id.startsWith('customfield_') && field.label === field.id) {
+            return false;
+          }
+          return true;
+        });
+        processed.skippedFields = original - processed.fieldDefinitions.length;
+      }
+
+      // Map issue type ID to label
+      if (processed.issueType) {
+        const savedIssueTypes = loadItems(getStorageKey('issueTypes')) || [];
+        const match = savedIssueTypes.find(it => it.value === processed.issueType || it.id === processed.issueType);
+        if (match) {
+          processed.issueTypeLabel = match.alias;
+          // Update all field definitions to use the label
+          if (processed.fieldDefinitions) {
+            processed.fieldDefinitions.forEach(field => {
+              if (field.issueType === processed.issueType) {
+                field.issueTypeLabel = match.alias;
+              }
+            });
+          }
+        }
+      }
+
+      return processed;
+    }
+
+    function executeImport(config) {
+      try {
+        // Create backup before import
+        lastImportBackup = {
+          timestamp: new Date().toISOString(),
+          configItems: loadConfigurationItems(),
+          fieldDefinitions: loadFieldDefinitions(),
+          baseUrls: loadItems(getStorageKey('baseUrls')) || [],
+          issueTypes: loadItems(getStorageKey('issueTypes')) || [],
+          projectIds: loadItems(getStorageKey('projectIds')) || []
+        };
+
+        // Save backup to localStorage for persistence
+        localStorage.setItem('lastImportBackup', JSON.stringify(lastImportBackup));
+
+        // Helper to merge items with smart dropdown option merging
+        const mergeItems = (existing, incoming) => {
+          const map = new Map();
+          if (Array.isArray(existing)) {
+            existing.forEach(i => map.set(i.id, i));
+          }
+          if (Array.isArray(incoming)) {
+            incoming.forEach(item => {
+              const existingItem = map.get(item.id);
+              if (existingItem && existingItem.fieldType === 'combobox' && item.fieldType === 'combobox') {
+                // Merge dropdown options
+                const optionsMap = new Map();
+                if (existingItem.options) existingItem.options.forEach(opt => optionsMap.set(opt.value, opt));
+                if (item.options) item.options.forEach(opt => optionsMap.set(opt.value, opt));
+                item.options = Array.from(optionsMap.values());
+              }
+              map.set(item.id, item);
+            });
+          }
+          return Array.from(map.values());
+        };
+
+        // Import all data with merge
+        if (config.configItems && Array.isArray(config.configItems)) {
+          const existing = loadConfigurationItems();
+          saveConfigurationItems(mergeItems(existing, config.configItems));
+        }
+        if (config.fieldDefinitions && Array.isArray(config.fieldDefinitions)) {
+          const existing = loadFieldDefinitions();
+          saveFieldDefinitions(mergeItems(existing, config.fieldDefinitions));
+        }
+        if (config.baseUrls && Array.isArray(config.baseUrls)) {
+          const existing = loadItems(getStorageKey('baseUrls')) || [];
+          saveItems(getStorageKey('baseUrls'), mergeItems(existing, config.baseUrls));
+        }
+        if (config.issueTypes && Array.isArray(config.issueTypes)) {
+          const existing = loadItems(getStorageKey('issueTypes')) || [];
+          saveItems(getStorageKey('issueTypes'), mergeItems(existing, config.issueTypes));
+        }
+        if (config.tableNames && Array.isArray(config.tableNames)) {
+          const existing = loadItems(getStorageKey('issueTypes')) || [];
+          saveItems(getStorageKey('issueTypes'), mergeItems(existing, config.tableNames));
+        }
+        if (config.projectIds && Array.isArray(config.projectIds)) {
+          const existing = loadItems(getStorageKey('projectIds')) || [];
+          saveItems(getStorageKey('projectIds'), mergeItems(existing, config.projectIds));
+        }
+        
+        // Detect app type from config if available
+        if (config.appType) {
+          switchAppType(config.appType);
+        }
+
+        alert('Configuration imported successfully! Items have been merged. Use "Undo Last Import" if needed. Reloading...');
+        window.location.reload();
+      } catch (e) {
+        alert('Error during import: ' + e.message);
+      }
+    }
+
+    function undoLastImport() {
+      try {
+        // Try to load backup from memory or localStorage
+        let backup = lastImportBackup;
+        if (!backup) {
+          const stored = localStorage.getItem('lastImportBackup');
+          if (stored) {
+            backup = JSON.parse(stored);
+          }
+        }
+
+        if (!backup) {
+          alert('No import to undo. Backup not found.');
+          return;
+        }
+
+        const confirmed = confirm(
+          `Undo import from ${new Date(backup.timestamp).toLocaleString()}?\n\n` +
+          `This will restore:\n` +
+          `• ${backup.fieldDefinitions.length} field definitions\n` +
+          `• ${backup.baseUrls.length} base URLs\n` +
+          `• ${backup.issueTypes.length} issue types\n` +
+          `• ${backup.projectIds.length} project IDs\n\n` +
+          `Continue?`
+        );
+
+        if (!confirmed) return;
+
+        // Restore from backup
+        saveConfigurationItems(backup.configItems);
+        saveFieldDefinitions(backup.fieldDefinitions);
+        saveItems(getStorageKey('baseUrls'), backup.baseUrls);
+        saveItems(getStorageKey('issueTypes'), backup.issueTypes);
+        saveItems(getStorageKey('projectIds'), backup.projectIds);
+
+        // Clear backup after use
+        lastImportBackup = null;
+        localStorage.removeItem('lastImportBackup');
+
+        alert('Import undone successfully! Reloading...');
+        window.location.reload();
+      } catch (e) {
+        alert('Error undoing import: ' + e.message);
+      }
     }
 
     function loadConfigurationFromUrl(configUrl) {
