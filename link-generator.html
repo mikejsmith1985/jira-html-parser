@@ -3050,6 +3050,28 @@
             const fields = document.querySelectorAll('input[id], input[name], select[id], select[name], textarea[id], textarea[name]');
             const extracted = [];
             
+            // Helper function to check if a field should be skipped
+            const shouldSkipField = (field, fieldId, label) => {
+              // Skip hidden fields
+              if (field.type === 'hidden') return true;
+              
+              // Skip fields with validation/technical suffixes
+              const skipSuffixes = ['Required', '_required', '_mandatory', '_validation', 
+                                   '_readonly', '_hidden', '_token', '_secret', 
+                                   '_timestamp', '_hash', '_checksum'];
+              if (skipSuffixes.some(suffix => fieldId.endsWith(suffix))) return true;
+              
+              // Skip if ID ends with technical suffix and label contains "Required" or similar
+              if (label && (label.includes('Required') || label.includes('Mandatory')) && 
+                  fieldId.match(/(Required|_required|_mandatory)$/i)) return true;
+              
+              // Skip system fields
+              const systemPrefixes = ['__', 'sys_', 'csrf', 'token_', '_token'];
+              if (systemPrefixes.some(prefix => fieldId.startsWith(prefix))) return true;
+              
+              return false;
+            };
+            
             fields.forEach(field => {
               if (!field.id && !field.name) return;
               const fieldId = field.id || field.name;
@@ -3067,6 +3089,9 @@
               }
               
               label = label.replace(/[*:]/g, '').trim();
+              
+              // Skip if this is a technical/validation field
+              if (shouldSkipField(field, fieldId, label)) return;
               
               // Determine field type and extract options for dropdowns
               let fieldType = 'text';
@@ -3187,6 +3212,28 @@
             const fields = document.querySelectorAll('input[id], input[name], select[id], select[name], textarea[id], textarea[name]');
             const extracted = [];
             
+            // Helper function to check if a field should be skipped
+            const shouldSkipField = (field, fieldId, label) => {
+              // Skip hidden fields
+              if (field.type === 'hidden') return true;
+              
+              // Skip fields with validation/technical suffixes
+              const skipSuffixes = ['Required', '_required', '_mandatory', '_validation', 
+                                   '_readonly', '_hidden', '_token', '_secret', 
+                                   '_timestamp', '_hash', '_checksum'];
+              if (skipSuffixes.some(suffix => fieldId.endsWith(suffix))) return true;
+              
+              // Skip if ID ends with technical suffix and label contains "Required" or similar
+              if (label && (label.includes('Required') || label.includes('Mandatory')) && 
+                  fieldId.match(/(Required|_required|_mandatory)$/i)) return true;
+              
+              // Skip system fields
+              const systemPrefixes = ['__', 'sys_', 'csrf', 'token_', '_token'];
+              if (systemPrefixes.some(prefix => fieldId.startsWith(prefix))) return true;
+              
+              return false;
+            };
+            
             fields.forEach(field => {
               if (!field.id && !field.name) return;
               const fieldId = field.id || field.name;
@@ -3209,6 +3256,9 @@
               }
               
               label = label.replace(/[*:]/g, '').trim();
+              
+              // Skip if this is a technical/validation field
+              if (shouldSkipField(field, fieldId, label)) return;
               
               // Determine field type and extract options for dropdowns
               let fieldType = 'text';
