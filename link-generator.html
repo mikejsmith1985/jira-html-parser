@@ -2,15 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>ServiceNow Link Generator (Legacy)</title>
+  <title>Link Generator - Jira & ServiceNow</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <!-- 
-    =====================================================
-    DEPRECATED: This file is maintained for backward compatibility.
-    Please use link-generator.html instead, which provides a unified
-    experience for both Jira and ServiceNow.
-    =====================================================
-  -->
   <style>
     body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6fa; margin: 0; padding: 0; }
     .container { max-width: 1200px; width: 90%; margin: 20px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 24px; }
@@ -65,6 +58,17 @@
     .output { margin-top: 2em; background: #f9f9f9; border-radius: 6px; padding: 16px; word-break: break-all; }
     .copy-btn { background: #f1c40f; color: #333; border: none; border-radius: 4px; padding: 6px 12px; margin-left: 8px; cursor: pointer; }
     .copy-btn:hover { background: #d4ac0d; }
+    .app-selector { display: flex; gap: 0; margin-bottom: 20px; }
+    .app-selector button { flex: 1; padding: 12px 20px; border: 2px solid #3498db; background: #fff; color: #3498db; font-size: 1em; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .app-selector button:first-child { border-radius: 6px 0 0 6px; }
+    .app-selector button:last-child { border-radius: 0 6px 6px 0; }
+    .app-selector button.active { background: #3498db; color: #fff; }
+    .app-selector button:hover:not(.active) { background: #ecf0f1; }
+    .jira-only, .snow-only { display: none; }
+    body.app-jira .jira-only { display: block; }
+    body.app-jira .snow-only { display: none !important; }
+    body.app-servicenow .snow-only { display: block; }
+    body.app-servicenow .jira-only { display: none !important; }
     @media (max-width: 600px) {
       .container { padding: 12px; }
       .field-row { flex-direction: column; gap: 4px; flex-wrap: wrap; align-items: stretch; }
@@ -73,9 +77,15 @@
     }
   </style>
 </head>
-<body>
+<body class="app-servicenow">
   <div class="container">
-    <h1>ServiceNow Link Generator</h1>
+    <h1 id="appTitle">Link Generator</h1>
+    
+    <!-- App Type Selector -->
+    <div class="app-selector">
+      <button type="button" id="btnJira" onclick="switchAppType('jira')">Jira</button>
+      <button type="button" id="btnServiceNow" class="active" onclick="switchAppType('servicenow')">ServiceNow</button>
+    </div>
 
     <!-- Load Preset Dropdown -->
     <div style="margin-bottom: 20px; display: flex; gap: 8px; align-items: center;">
@@ -83,20 +93,31 @@
         <option value="">-- Load Preset --</option>
       </select>
       <button type="button" onclick="openManagePresetsModal()" style="background: #3498db; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer;">Manage Presets</button>
-      <button type="button" onclick="openFieldExtractorModal()" style="background: #9b59b6; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Extract fields from ServiceNow forms">🔍 Field Extractor</button>
+      <button type="button" onclick="openFieldExtractorModal()" style="background: #9b59b6; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Extract fields from forms">🔍 Field Extractor</button>
       <button type="button" onclick="exportConfiguration()" style="background: #27ae60; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Export all configurations, fields, and dropdowns to a JSON file">Export Config</button>
       <button type="button" onclick="openImportModal()" style="background: #e67e22; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Import configurations from a JSON file">Import Config</button>
     </div>
 
-    <form id="snowForm" autocomplete="off">
+    <form id="linkForm" autocomplete="off">
       <label>Base URL
         <div style="display:flex;gap:8px;align-items:center;">
-          <select id="baseUrl" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" required onchange="saveState(); updateAllFieldSelects();">
+          <select id="baseUrl" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" required onchange="saveState(); updateAllFieldSelects(); detectAppType();">
             <option value="">-- Select Base URL --</option>
           </select>
           <button type="button" onclick="openBaseUrlManager()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:10px 16px;cursor:pointer;white-space:nowrap;font-weight:500;">Manage</button>
         </div>
       </label>
+      
+      <!-- Jira-specific: Project ID -->
+      <label id="projectIdRow" class="jira-only">Project ID (pid)
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="projectId" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" onchange="saveState()">
+            <option value="">-- Select Project ID --</option>
+          </select>
+          <button type="button" onclick="openProjectIdManager()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:10px 16px;cursor:pointer;white-space:nowrap;font-weight:500;">Manage</button>
+        </div>
+      </label>
+      
       <label>Issue Type
         <div style="display:flex;gap:8px;align-items:center;">
           <select id="issueType" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" required onchange="saveState(); updateAllFieldSelects();">
@@ -276,11 +297,45 @@
     </div>
   </div>
 
+  <!-- Project ID Manager Modal (Jira only) -->
+  <div id="projectIdManagerModal" class="jira-only" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:8px;padding:24px;max-width:600px;width:90vw;max-height:80vh;overflow-y:auto;">
+      <h2>Manage Project IDs</h2>
+      
+      <div style="margin-top:16px;">
+        <h3 style="font-size:1.1em;color:#2c3e50;margin-bottom:12px;">Add New Project ID</h3>
+        <div style="padding:16px;background:#f9f9f9;border-radius:4px;">
+          <div style="margin-bottom:12px;">
+            <label style="display:block;margin-bottom:4px;font-weight:500;font-size:0.9em;">Alias / Label *</label>
+            <input type="text" id="projectIdAliasInput" placeholder="e.g. My Project, Team A" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+          </div>
+          <div style="margin-bottom:12px;">
+            <label style="display:block;margin-bottom:4px;font-weight:500;font-size:0.9em;">Project ID *</label>
+            <input type="text" id="projectIdValueInput" placeholder="e.g. 10001, PROJ" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;box-sizing:border-box;">
+          </div>
+          <div style="text-align:right;">
+            <button type="button" onclick="saveProjectId()" style="background:#27ae60;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-weight:500;" id="saveProjectIdBtn">Save</button>
+            <button type="button" onclick="cancelProjectIdEdit()" id="cancelProjectIdBtn" style="display:none;background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;margin-left:8px;">Cancel</button>
+          </div>
+        </div>
+      </div>
+
+      <div style="margin-top:24px;">
+        <h3 style="font-size:1.1em;color:#2c3e50;margin-bottom:12px;">Saved Project IDs</h3>
+        <div id="projectIdSavedList" style="max-height:300px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:8px;"></div>
+      </div>
+
+      <div style="margin-top:16px;text-align:right;gap:8px;display:flex;justify-content:flex-end;">
+        <button type="button" onclick="closeProjectIdManager()" style="background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Close</button>
+      </div>
+    </div>
+  </div>
+
   <!-- Field Extractor Modal -->
   <div id="fieldExtractorModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;">
     <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:8px;padding:24px;max-width:700px;width:90vw;max-height:80vh;overflow-y:auto;box-shadow:0 4px 20px rgba(0,0,0,0.15);">
       <h2 style="margin:0 0 16px 0;color:#2c3e50;">🔍 Field Extractor</h2>
-      <p style="color:#666;margin:0 0 20px 0;line-height:1.5;">Automatically extract field definitions from ServiceNow forms using the bookmarklet below.</p>
+      <p style="color:#666;margin:0 0 20px 0;line-height:1.5;">Automatically extract field definitions from Jira or ServiceNow forms using the bookmarklet below.</p>
       
       <div style="background:#e8f4fd;padding:20px;border-radius:8px;border:2px solid #3498db;margin-bottom:20px;">
         <h3 style="font-size:1em;margin:0 0 12px 0;color:#2980b9;font-weight:600;">📌 Step 1: Add Bookmarklet</h3>
@@ -313,7 +368,57 @@
   </div>
 
   <script>
+    // ========================================================================
+    // APP TYPE MANAGEMENT - Jira vs ServiceNow
+    // ========================================================================
+    
+    let currentAppType = localStorage.getItem('linkGenAppType') || 'servicenow';
     let currentEditingFieldIndex = null;
+    
+    function switchAppType(appType) {
+      currentAppType = appType;
+      localStorage.setItem('linkGenAppType', appType);
+      
+      // Update body class
+      document.body.classList.remove('app-jira', 'app-servicenow');
+      document.body.classList.add('app-' + appType);
+      
+      // Update button states
+      document.getElementById('btnJira').classList.toggle('active', appType === 'jira');
+      document.getElementById('btnServiceNow').classList.toggle('active', appType === 'servicenow');
+      
+      // Update title
+      const titles = { jira: 'Jira Link Generator', servicenow: 'ServiceNow Link Generator' };
+      document.getElementById('appTitle').textContent = titles[appType] || 'Link Generator';
+      
+      // Refresh dropdowns for the new app type
+      populateBaseUrlDropdown();
+      populateIssueTypeDropdown();
+      if (appType === 'jira') {
+        populateProjectIdDropdown();
+      }
+    }
+    
+    function detectAppType() {
+      const baseUrlId = document.getElementById('baseUrl').value;
+      const baseUrls = loadItems(getStorageKey('baseUrls'));
+      const baseUrlItem = baseUrls.find(i => i.id === baseUrlId);
+      if (baseUrlItem && baseUrlItem.value) {
+        const url = baseUrlItem.value.toLowerCase();
+        if (url.includes('service-now.com') || url.includes('servicenow.com')) {
+          if (currentAppType !== 'servicenow') switchAppType('servicenow');
+        } else {
+          if (currentAppType !== 'jira') switchAppType('jira');
+        }
+      }
+    }
+    
+    function getStorageKey(key) {
+      // Use unified storage keys that work for both apps
+      const prefix = 'linkGen';
+      return prefix + key.charAt(0).toUpperCase() + key.slice(1);
+    }
+    
     // ========================================================================
     // CONFIGURATION ITEMS - Persistence Layer
     // ========================================================================
@@ -697,12 +802,12 @@
       return text;
     }
 
-    // Generate the ServiceNow link
-    document.getElementById('snowForm').onsubmit = function(e) {
+    // Generate link based on app type
+    document.getElementById('linkForm').onsubmit = function(e) {
       e.preventDefault();
       
       const baseUrlId = document.getElementById('baseUrl').value;
-      const baseUrls = loadItems('snowSavedBaseUrls');
+      const baseUrls = loadItems(getStorageKey('baseUrls')) || loadItems('snowSavedBaseUrls') || [];
       const baseUrlItem = baseUrls.find(i => i.id === baseUrlId);
       const baseUrl = baseUrlItem ? baseUrlItem.value.trim().replace(/\/+$/, '') : '';
 
@@ -713,40 +818,52 @@
 
       const issueType = document.getElementById('issueType').value.trim();
       const fields = getFields();
+      let url;
 
-      // Build the sysparm_query string using ^ separator
-      const queryParts = [];
-      fields.forEach(f => {
-        let val = smartFormatValue(f.value);
+      if (currentAppType === 'jira') {
+        // Jira link generation
+        const projectId = document.getElementById('projectId').value.trim();
         
-        // CLEANING FIX for Issue #8:
-        // If a value matches the pattern of a 32-char hex string prefixed with "3D",
-        // strip the "3D" prefix. "3D" is the hex code for '=', and users sometimes
-        // paste values that include this encoded artifact.
-        // Pattern: Starts with 3D, followed by exactly 32 hex characters.
-        if (val && val.length === 34 && val.match(/^3D[0-9a-fA-F]{32}$/)) {
-            val = val.substring(2);
-        }
+        url = `${baseUrl}/secure/CreateIssueDetails!init.jspa?pid=${encodeURIComponent(projectId)}&issuetype=${encodeURIComponent(issueType)}`;
+        fields.forEach(f => {
+          let val = smartFormatValue(f.value);
+          if (val) {
+            url += `&${encodeURIComponent(f.name)}=${encodeURIComponent(val)}`;
+          }
+        });
+      } else {
+        // ServiceNow link generation
+        // Build the sysparm_query string using ^ separator
+        const queryParts = [];
+        fields.forEach(f => {
+          let val = smartFormatValue(f.value);
+          
+          // CLEANING FIX for Issue #8:
+          // If a value matches the pattern of a 32-char hex string prefixed with "3D",
+          // strip the "3D" prefix. "3D" is the hex code for '=', and users sometimes
+          // paste values that include this encoded artifact.
+          if (val && val.length === 34 && val.match(/^3D[0-9a-fA-F]{32}$/)) {
+              val = val.substring(2);
+          }
 
-        if (val) {
-          queryParts.push(`${f.name}=${val}`);
-        }
-      });
+          if (val) {
+            queryParts.push(`${f.name}=${val}`);
+          }
+        });
 
-      const queryString = queryParts.join('^');
-      
-      // Build the ServiceNow URL: https://<BASE_URL>/<ISSUE_TYPE>.do?sys_id=-1&sysparm_query=<ENCODED_QUERY>
-      let url = `${baseUrl}/${issueType}.do?sys_id=-1`;
-      if (queryString) {
-        // Encode the ENTIRE query string using standard encodeURIComponent
-        // This ensures compatibility with ServiceNow's URL decoder.
-        url += `&sysparm_query=${encodeURIComponent(queryString)}`;
+        const queryString = queryParts.join('^');
+        
+        // Build the ServiceNow URL: https://<BASE_URL>/<ISSUE_TYPE>.do?sys_id=-1&sysparm_query=<ENCODED_QUERY>
+        url = `${baseUrl}/${issueType}.do?sys_id=-1`;
+        if (queryString) {
+          url += `&sysparm_query=${encodeURIComponent(queryString)}`;
+        }
       }
 
       document.getElementById('link').textContent = url;
       
       // Check for URL length issues (414 Request-URI Too Large)
-      const MAX_SAFE_LENGTH = 8200;
+      const MAX_SAFE_LENGTH = currentAppType === 'jira' ? 2048 : 8200;
       const outputDiv = document.getElementById('output');
       const warningId = 'url-length-warning';
       let warningEl = document.getElementById(warningId);
@@ -815,7 +932,7 @@
       // Populate Base URL select
       const select = document.getElementById('fieldBaseUrlSelect');
       select.innerHTML = '<option value="">All Instances (Global)</option>';
-      const items = loadItems('snowSavedBaseUrls');
+      const items = loadItems(getStorageKey('baseUrls')) || [];
       items.forEach(item => {
         const option = document.createElement('option');
         option.value = item.id;
@@ -826,7 +943,7 @@
       // Populate Issue Type select
       const issueTypeSelect = document.getElementById('fieldIssueTypeSelect');
       issueTypeSelect.innerHTML = '<option value="">All Issue Types (Global)</option>';
-      const issueTypeItems = loadItems('snowSavedIssueTypes') || loadItems('snowSavedTableNames') || [];
+      const issueTypeItems = loadItems(getStorageKey('issueTypes')) || [];
       issueTypeItems.forEach(item => {
         const option = document.createElement('option');
         // Use item.value to match the currentIssueTypeId retrieved from document.getElementById('issueType').value
@@ -1053,8 +1170,8 @@
     function refreshFieldsList() {
       const fieldsList = document.getElementById('fieldsList');
       const definitions = loadFieldDefinitions();
-      const baseUrls = loadItems('snowSavedBaseUrls');
-      const issueTypes = loadItems('snowSavedIssueTypes') || loadItems('snowSavedTableNames') || [];
+      const baseUrls = loadItems(getStorageKey('baseUrls')) || [];
+      const issueTypes = loadItems(getStorageKey('issueTypes')) || [];
 
       fieldsList.innerHTML = '';
       if (definitions.length === 0) {
@@ -1595,7 +1712,7 @@
       }
 
       try {
-        const items = loadItems('snowSavedBaseUrls');
+        const items = loadItems(getStorageKey('baseUrls')) || [];
         
         if (currentEditingBaseUrlId) {
           // Update existing
@@ -1615,7 +1732,7 @@
           });
         }
 
-        saveItems('snowSavedBaseUrls', items);
+        saveItems(getStorageKey('baseUrls'), items);
         populateBaseUrlDropdown();
         refreshBaseUrlList();
         cancelBaseUrlEdit();
@@ -1625,7 +1742,7 @@
     }
 
     function editBaseUrl(itemId) {
-      const items = loadItems('snowSavedBaseUrls');
+      const items = loadItems(getStorageKey('baseUrls')) || [];
       const item = items.find(i => i.id === itemId);
       if (!item) return;
 
@@ -1644,9 +1761,9 @@
       if (!confirm('Delete this base URL?')) return;
 
       try {
-        const items = loadItems('snowSavedBaseUrls');
+        const items = loadItems(getStorageKey('baseUrls')) || [];
         const filtered = items.filter(item => item.id !== itemId);
-        saveItems('snowSavedBaseUrls', filtered);
+        saveItems(getStorageKey('baseUrls'), filtered);
         populateBaseUrlDropdown();
         refreshBaseUrlList();
       } catch (e) {
@@ -1655,13 +1772,14 @@
     }
 
     function applyBaseUrl(itemId) {
-      const items = loadItems('snowSavedBaseUrls');
+      const items = loadItems(getStorageKey('baseUrls')) || [];
       const item = items.find(i => i.id === itemId);
       if (!item) return;
 
-      document.getElementById('baseUrl').value = item.value;
+      document.getElementById('baseUrl').value = item.id;
       closeBaseUrlManager();
       saveState();
+      detectAppType();
     }
 
     function cancelBaseUrlEdit() {
@@ -1680,7 +1798,7 @@
       const list = document.getElementById('baseUrlSavedList');
       if (!list) return;
       
-      const items = loadItems('snowSavedBaseUrls');
+      const items = loadItems(getStorageKey('baseUrls')) || [];
       list.innerHTML = '';
       
       if (items.length === 0) {
@@ -1733,7 +1851,14 @@
       const select = document.getElementById('baseUrl');
       if (!select) return;
       
-      const items = loadItems('snowSavedBaseUrls');
+      // Load from unified key, fallback to legacy keys for migration
+      let items = loadItems(getStorageKey('baseUrls'));
+      if (!items || items.length === 0) {
+        items = loadItems('snowSavedBaseUrls') || loadItems('jiraSavedBaseUrls') || [];
+        if (items.length > 0) {
+          saveItems(getStorageKey('baseUrls'), items);
+        }
+      }
       const currentValue = select.value;
       
       // Clear existing options except first
@@ -1756,7 +1881,7 @@
     }
 
     // ========================================================================
-    // TABLE NAME MANAGER
+    // ISSUE TYPE MANAGER
     // ========================================================================
 
     let currentEditingIssueTypeId = null;
@@ -1787,14 +1912,8 @@
         return;
       }
 
-      // Validate issue type format (lowercase letters, numbers, underscores)
-      if (!value.match(/^[a-z][a-z0-9_]*$/)) {
-        alert('Please enter a valid issue type (lowercase letters, numbers, and underscores, starting with a letter)');
-        return;
-      }
-
       try {
-        const items = loadItems('snowSavedIssueTypes') || [];
+        const items = loadItems(getStorageKey('issueTypes')) || [];
         
         if (currentEditingIssueTypeId) {
           // Update existing
@@ -1814,7 +1933,7 @@
           });
         }
 
-        saveItems('snowSavedIssueTypes', items);
+        saveItems(getStorageKey('issueTypes'), items);
         populateIssueTypeDropdown();
         refreshIssueTypeList();
         cancelIssueTypeEdit();
@@ -1824,7 +1943,7 @@
     }
 
     function editIssueType(itemId) {
-      const items = loadItems('snowSavedIssueTypes') || [];
+      const items = loadItems(getStorageKey('issueTypes')) || [];
       const item = items.find(i => i.id === itemId);
       if (!item) return;
 
@@ -1843,9 +1962,9 @@
       if (!confirm('Delete this issue type?')) return;
 
       try {
-        const items = loadItems('snowSavedIssueTypes') || [];
+        const items = loadItems(getStorageKey('issueTypes')) || [];
         const filtered = items.filter(item => item.id !== itemId);
-        saveItems('snowSavedIssueTypes', filtered);
+        saveItems(getStorageKey('issueTypes'), filtered);
         populateIssueTypeDropdown();
         refreshIssueTypeList();
       } catch (e) {
@@ -1854,7 +1973,7 @@
     }
 
     function applyIssueType(itemId) {
-      const items = loadItems('snowSavedIssueTypes') || [];
+      const items = loadItems(getStorageKey('issueTypes')) || [];
       const item = items.find(i => i.id === itemId);
       if (!item) return;
 
@@ -1879,12 +1998,12 @@
       const list = document.getElementById('issueTypeSavedList');
       if (!list) return;
       
-      // Load from new key, fallback to legacy key for migration
-      let items = loadItems('snowSavedIssueTypes');
+      // Load from unified key, fallback to legacy keys for migration
+      let items = loadItems(getStorageKey('issueTypes'));
       if (!items || items.length === 0) {
-        items = loadItems('snowSavedTableNames') || [];
+        items = loadItems('snowSavedIssueTypes') || loadItems('snowSavedTableNames') || loadItems('jiraSavedIssueTypes') || [];
         if (items.length > 0) {
-          saveItems('snowSavedIssueTypes', items);
+          saveItems(getStorageKey('issueTypes'), items);
         }
       }
       list.innerHTML = '';
@@ -1939,14 +2058,209 @@
       const select = document.getElementById('issueType');
       if (!select) return;
       
-      // Load from new key, fallback to legacy key for migration
-      let items = loadItems('snowSavedIssueTypes');
+      // Load from unified key, fallback to legacy keys for migration
+      let items = loadItems(getStorageKey('issueTypes'));
       if (!items || items.length === 0) {
-        items = loadItems('snowSavedTableNames') || [];
+        items = loadItems('snowSavedIssueTypes') || loadItems('snowSavedTableNames') || loadItems('jiraSavedIssueTypes') || [];
         if (items.length > 0) {
-          saveItems('snowSavedIssueTypes', items);
+          saveItems(getStorageKey('issueTypes'), items);
         }
       }
+      const currentValue = select.value;
+      
+      // Clear existing options except first
+      while (select.options.length > 1) {
+        select.remove(1);
+      }
+
+      // Add saved items
+      items.forEach(item => {
+        const option = document.createElement('option');
+        option.value = item.value;
+        option.textContent = `${item.alias}: ${item.value}`;
+        select.appendChild(option);
+      });
+
+      // Restore selection if it still exists
+      if (currentValue) {
+        select.value = currentValue;
+      }
+    }
+
+    // ========================================================================
+    // PROJECT ID MANAGER (Jira only)
+    // ========================================================================
+    
+    let currentEditingProjectIdId = null;
+
+    function openProjectIdManager() {
+      const modal = document.getElementById('projectIdManagerModal');
+      if (!modal) {
+        console.error('projectIdManagerModal not found');
+        return;
+      }
+      modal.style.display = 'flex';
+      refreshProjectIdList();
+    }
+
+    function closeProjectIdManager() {
+      const modal = document.getElementById('projectIdManagerModal');
+      if (!modal) return;
+      modal.style.display = 'none';
+      cancelProjectIdEdit();
+    }
+
+    function saveProjectId() {
+      const alias = document.getElementById('projectIdAliasInput').value.trim();
+      const value = document.getElementById('projectIdValueInput').value.trim();
+
+      if (!alias || !value) {
+        alert('Please fill in all fields');
+        return;
+      }
+
+      try {
+        const items = loadItems(getStorageKey('projectIds')) || [];
+        
+        if (currentEditingProjectIdId) {
+          const index = items.findIndex(item => item.id === currentEditingProjectIdId);
+          if (index >= 0) {
+            items[index].alias = alias;
+            items[index].value = value;
+            items[index].updatedAt = Date.now();
+          }
+        } else {
+          items.push({
+            id: generateItemId('projectid'),
+            alias: alias,
+            value: value,
+            createdAt: Date.now()
+          });
+        }
+
+        saveItems(getStorageKey('projectIds'), items);
+        populateProjectIdDropdown();
+        refreshProjectIdList();
+        cancelProjectIdEdit();
+      } catch (e) {
+        alert('Error saving project ID: ' + e.message);
+      }
+    }
+
+    function editProjectId(itemId) {
+      const items = loadItems(getStorageKey('projectIds')) || [];
+      const item = items.find(i => i.id === itemId);
+      if (!item) return;
+
+      currentEditingProjectIdId = itemId;
+      document.getElementById('projectIdAliasInput').value = item.alias;
+      document.getElementById('projectIdValueInput').value = item.value;
+      
+      const saveBtn = document.getElementById('saveProjectIdBtn');
+      const cancelBtn = document.getElementById('cancelProjectIdBtn');
+      saveBtn.textContent = 'Update';
+      saveBtn.style.background = '#3498db';
+      cancelBtn.style.display = 'inline-block';
+    }
+
+    function deleteProjectId(itemId) {
+      if (!confirm('Delete this project ID?')) return;
+
+      try {
+        const items = loadItems(getStorageKey('projectIds')) || [];
+        const filtered = items.filter(item => item.id !== itemId);
+        saveItems(getStorageKey('projectIds'), filtered);
+        populateProjectIdDropdown();
+        refreshProjectIdList();
+      } catch (e) {
+        alert('Error deleting project ID: ' + e.message);
+      }
+    }
+
+    function applyProjectId(itemId) {
+      const items = loadItems(getStorageKey('projectIds')) || [];
+      const item = items.find(i => i.id === itemId);
+      if (!item) return;
+
+      document.getElementById('projectId').value = item.value;
+      closeProjectIdManager();
+      saveState();
+    }
+
+    function cancelProjectIdEdit() {
+      currentEditingProjectIdId = null;
+      const aliasInput = document.getElementById('projectIdAliasInput');
+      const valueInput = document.getElementById('projectIdValueInput');
+      if (aliasInput) aliasInput.value = '';
+      if (valueInput) valueInput.value = '';
+      
+      const saveBtn = document.getElementById('saveProjectIdBtn');
+      const cancelBtn = document.getElementById('cancelProjectIdBtn');
+      if (saveBtn) {
+        saveBtn.textContent = 'Save';
+        saveBtn.style.background = '#27ae60';
+      }
+      if (cancelBtn) cancelBtn.style.display = 'none';
+    }
+
+    function refreshProjectIdList() {
+      const list = document.getElementById('projectIdSavedList');
+      if (!list) return;
+      
+      let items = loadItems(getStorageKey('projectIds')) || loadItems('jiraSavedProjectIds') || [];
+      list.innerHTML = '';
+      
+      if (items.length === 0) {
+        list.innerHTML = '<div style="padding:16px;color:#999;text-align:center;">No saved project IDs yet.<br>Add one above to get started!</div>';
+        return;
+      }
+
+      items.forEach(item => {
+        const row = document.createElement('div');
+        row.style.cssText = 'padding:12px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:flex-start;';
+
+        const info = document.createElement('div');
+        info.style.cssText = 'flex:1;';
+        info.innerHTML = `
+          <div style="font-weight:600;margin-bottom:6px;font-size:1.05em;color:#2c3e50;">${escapeHtml(item.alias)}</div>
+          <div style="font-size:0.9em;color:#666;">${escapeHtml(item.value)}</div>
+        `;
+
+        const buttons = document.createElement('div');
+        buttons.style.cssText = 'display:flex;gap:8px;flex-direction:column;';
+
+        const useBtn = document.createElement('button');
+        useBtn.type = 'button';
+        useBtn.textContent = 'Use';
+        useBtn.style.cssText = 'background:#27ae60;color:#fff;border:none;border-radius:4px;padding:6px 16px;cursor:pointer;font-size:0.9em;white-space:nowrap;';
+        useBtn.onclick = () => applyProjectId(item.id);
+
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.textContent = 'Edit';
+        editBtn.style.cssText = 'background:#3498db;color:#fff;border:none;border-radius:4px;padding:6px 16px;cursor:pointer;font-size:0.9em;';
+        editBtn.onclick = () => editProjectId(item.id);
+
+        const deleteBtn = document.createElement('button');
+        deleteBtn.type = 'button';
+        deleteBtn.textContent = 'Delete';
+        deleteBtn.style.cssText = 'background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:6px 16px;cursor:pointer;font-size:0.9em;';
+        deleteBtn.onclick = () => deleteProjectId(item.id);
+
+        buttons.appendChild(useBtn);
+        buttons.appendChild(editBtn);
+        buttons.appendChild(deleteBtn);
+        row.appendChild(info);
+        row.appendChild(buttons);
+        list.appendChild(row);
+      });
+    }
+
+    function populateProjectIdDropdown() {
+      const select = document.getElementById('projectId');
+      if (!select) return;
+      
+      let items = loadItems(getStorageKey('projectIds')) || loadItems('jiraSavedProjectIds') || [];
       const currentValue = select.value;
       
       // Clear existing options except first
@@ -1975,13 +2289,15 @@
     function exportConfiguration() {
       try {
         const config = {
-          version: '0.5.11',
+          version: '1.0.0',
           exportedAt: new Date().toISOString(),
-          description: 'ServiceNow Link Generator Configuration',
+          description: 'Link Generator Configuration',
+          appType: currentAppType,
           configItems: loadConfigurationItems(),
           fieldDefinitions: loadFieldDefinitions(),
-          baseUrls: loadItems('snowSavedBaseUrls'),
-          issueTypes: loadItems('snowSavedIssueTypes') || loadItems('snowSavedTableNames') || []
+          baseUrls: loadItems(getStorageKey('baseUrls')) || loadItems('snowSavedBaseUrls') || [],
+          issueTypes: loadItems(getStorageKey('issueTypes')) || loadItems('snowSavedIssueTypes') || [],
+          projectIds: loadItems(getStorageKey('projectIds')) || []
         };
 
         const jsonString = JSON.stringify(config, null, 2);
@@ -1989,7 +2305,7 @@
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `servicenow-config-${new Date().toISOString().split('T')[0]}.json`;
+        link.download = `link-generator-config-${new Date().toISOString().split('T')[0]}.json`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
@@ -2030,17 +2346,26 @@
             saveFieldDefinitions(mergeItems(existing, config.fieldDefinitions));
           }
           if (config.baseUrls && Array.isArray(config.baseUrls)) {
-            const existing = loadItems('snowSavedBaseUrls');
-            saveItems('snowSavedBaseUrls', mergeItems(existing, config.baseUrls));
+            const existing = loadItems(getStorageKey('baseUrls')) || [];
+            saveItems(getStorageKey('baseUrls'), mergeItems(existing, config.baseUrls));
           }
           // Support both new issueTypes and legacy tableNames
           if (config.issueTypes && Array.isArray(config.issueTypes)) {
-            const existing = loadItems('snowSavedIssueTypes') || [];
-            saveItems('snowSavedIssueTypes', mergeItems(existing, config.issueTypes));
+            const existing = loadItems(getStorageKey('issueTypes')) || [];
+            saveItems(getStorageKey('issueTypes'), mergeItems(existing, config.issueTypes));
           }
           if (config.tableNames && Array.isArray(config.tableNames)) {
-            const existing = loadItems('snowSavedIssueTypes') || [];
-            saveItems('snowSavedIssueTypes', mergeItems(existing, config.tableNames));
+            const existing = loadItems(getStorageKey('issueTypes')) || [];
+            saveItems(getStorageKey('issueTypes'), mergeItems(existing, config.tableNames));
+          }
+          if (config.projectIds && Array.isArray(config.projectIds)) {
+            const existing = loadItems(getStorageKey('projectIds')) || [];
+            saveItems(getStorageKey('projectIds'), mergeItems(existing, config.projectIds));
+          }
+          
+          // Detect app type from config if available
+          if (config.appType) {
+            switchAppType(config.appType);
           }
 
           alert('Configuration imported successfully! Items have been appended/updated. Reloading...');
@@ -2079,18 +2404,26 @@
               saveFieldDefinitions(config.fieldDefinitions);
             }
             if (config.baseUrls && Array.isArray(config.baseUrls)) {
-              saveItems('snowSavedBaseUrls', config.baseUrls);
+              saveItems(getStorageKey('baseUrls'), config.baseUrls);
             }
             // Support both new issueTypes and legacy tableNames
             if (config.issueTypes && Array.isArray(config.issueTypes)) {
-              saveItems('snowSavedIssueTypes', config.issueTypes);
+              saveItems(getStorageKey('issueTypes'), config.issueTypes);
             }
             if (config.tableNames && Array.isArray(config.tableNames)) {
-              saveItems('snowSavedIssueTypes', config.tableNames);
+              saveItems(getStorageKey('issueTypes'), config.tableNames);
+            }
+            if (config.projectIds && Array.isArray(config.projectIds)) {
+              saveItems(getStorageKey('projectIds'), config.projectIds);
+            }
+            
+            // Detect app type from config if available
+            if (config.appType) {
+              switchAppType(config.appType);
             }
 
             // Save import timestamp
-            localStorage.setItem('snowLastConfigUrl', configUrl);
+            localStorage.setItem('linkGenLastConfigUrl', configUrl);
 
             console.log('Configuration loaded from URL successfully');
             // Reload to refresh UI with new config
@@ -2129,127 +2462,322 @@
         return;
       }
       
-      // Set the bookmarklet href dynamically to avoid HTML encoding issues
+      // Set the bookmarklet href dynamically based on current app type
       const bookmarkletLink = document.getElementById('fieldExtractorBookmarklet');
       if (bookmarkletLink) {
-        const bookmarkletCode = `(function(){
-          // Extract base URL and issue type from the current page URL
-          const currentUrl = window.location.href;
-          const urlObj = new URL(currentUrl);
-          const baseUrl = urlObj.protocol + '//' + urlObj.hostname;
-          
-          // Extract issue type (table name) from ServiceNow URL patterns
-          let issueType = '';
-          // Pattern 1: /nav_to.do?uri=incident.do?... -> extract 'incident'
-          const uriMatch = currentUrl.match(/uri=([a-z_]+)\\.do/i);
-          if (uriMatch) {
-            issueType = uriMatch[1];
-          } else {
-            // Pattern 2: /incident.do?... -> extract 'incident'
-            const pathMatch = urlObj.pathname.match(/\\/([a-z_]+)\\.do/i);
-            if (pathMatch) {
-              issueType = pathMatch[1];
-            }
-          }
-          
-          const fields = document.querySelectorAll('input[id], input[name], select[id], select[name], textarea[id], textarea[name]');
-          const extracted = [];
-          
-          fields.forEach(field => {
-            if (!field.id && !field.name) return;
-            const fieldId = field.id || field.name;
-            if (extracted.some(f => f.id === fieldId)) return;
+        let bookmarkletCode;
+        
+        if (currentAppType === 'jira') {
+          // Jira Field Extractor Bookmarklet
+          bookmarkletCode = `(function(){
+            const currentUrl = window.location.href;
+            const urlObj = new URL(currentUrl);
+            const baseUrl = urlObj.protocol + '//' + urlObj.hostname;
             
-            let label = fieldId;
-            const closestLabel = field.closest('label');
-            if (closestLabel && closestLabel.textContent) {
-              label = closestLabel.textContent.trim();
-            } else {
-              const labelFor = document.querySelector("label[for='" + field.id + "']");
-              if (labelFor && labelFor.textContent) {
-                label = labelFor.textContent.trim();
+            // Extract project key and issue type from Jira URLs
+            let projectKey = '';
+            let issueType = '';
+            
+            // Pattern 1: /browse/PROJ-123 -> extract 'PROJ'
+            const browseMatch = currentUrl.match(/\\/browse\\/([A-Z0-9]+)-/i);
+            if (browseMatch) {
+              projectKey = browseMatch[1].toUpperCase();
+            }
+            
+            // Pattern 2: /projects/PROJ/... -> extract 'PROJ'
+            if (!projectKey) {
+              const projectMatch = currentUrl.match(/\\/projects\\/([A-Z0-9]+)/i);
+              if (projectMatch) {
+                projectKey = projectMatch[1].toUpperCase();
               }
             }
             
-            const fieldContainer = field.closest("[class*='field']");
-            if (fieldContainer && fieldContainer.querySelector('label')) {
-              label = fieldContainer.querySelector('label').textContent.trim();
+            // Pattern 3: pid= query parameter
+            const pidParam = urlObj.searchParams.get('pid');
+            if (pidParam) {
+              projectKey = projectKey || pidParam;
             }
             
-            label = label.replace(/[*:]/g, '').trim();
-            extracted.push({
-              id: fieldId,
-              label: label || fieldId,
-              category: 'custom',
-              fieldType: 'text',
-              issueType: issueType
+            // Extract issue type from issuetype param or DOM
+            const issueTypeParam = urlObj.searchParams.get('issuetype');
+            if (issueTypeParam) {
+              issueType = issueTypeParam;
+            } else {
+              const typeEl = document.querySelector('#type-val, [data-field-id="issuetype"]');
+              if (typeEl) {
+                issueType = typeEl.textContent.trim();
+              }
+            }
+            
+            const fields = document.querySelectorAll('input[id], input[name], select[id], select[name], textarea[id], textarea[name]');
+            const extracted = [];
+            
+            fields.forEach(field => {
+              if (!field.id && !field.name) return;
+              const fieldId = field.id || field.name;
+              if (extracted.some(f => f.id === fieldId)) return;
+              
+              let label = fieldId;
+              const closestLabel = field.closest('label');
+              if (closestLabel && closestLabel.textContent) {
+                label = closestLabel.textContent.trim();
+              } else {
+                const labelFor = document.querySelector("label[for='" + field.id + "']");
+                if (labelFor && labelFor.textContent) {
+                  label = labelFor.textContent.trim();
+                }
+              }
+              
+              label = label.replace(/[*:]/g, '').trim();
+              
+              // Determine field type and extract options for dropdowns
+              let fieldType = 'text';
+              let options = [];
+              
+              if (field.tagName === 'SELECT') {
+                fieldType = 'combobox';
+                // Extract all options with their labels and values
+                Array.from(field.options).forEach(opt => {
+                  if (opt.value) { // Skip empty placeholder options
+                    options.push({
+                      label: opt.textContent.trim(),
+                      value: opt.value
+                    });
+                  }
+                });
+              }
+              
+              const fieldDef = {
+                id: fieldId,
+                label: label || fieldId,
+                category: 'custom',
+                fieldType: fieldType,
+                issueType: issueType
+              };
+              
+              if (options.length > 0) {
+                fieldDef.options = options;
+              }
+              
+              extracted.push(fieldDef);
             });
-          });
-          
-          const result = {
-            version: '1.1.0',
-            extractedAt: new Date().toISOString(),
-            description: 'Extracted Field Definitions',
-            tool: 'Field Extractor Bookmarklet',
-            appType: 'servicenow',
-            baseUrl: baseUrl,
-            issueType: issueType,
-            fieldDefinitions: extracted
-          };
-          
-          const jsonStr = JSON.stringify(result, null, 2);
-          const modal = document.createElement('div');
-          modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:999999;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif;';
-          
-          const copyBtn = document.createElement('button');
-          copyBtn.textContent = 'Copy to Clipboard';
-          copyBtn.style.cssText = 'background:#3498db;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;margin-right:10px;';
-          copyBtn.onclick = function() {
-            navigator.clipboard.writeText(jsonStr);
-            this.textContent = '✓ Copied!';
-            setTimeout(() => { this.textContent = 'Copy to Clipboard'; }, 2000);
-          };
-          
-          const downloadBtn = document.createElement('button');
-          downloadBtn.textContent = 'Download JSON';
-          downloadBtn.style.cssText = 'background:#27ae60;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;margin-right:10px;';
-          downloadBtn.onclick = function() {
-            const blob = new Blob([jsonStr], {type: 'application/json'});
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'extracted-fields-' + new Date().toISOString().split('T')[0] + '.json';
-            a.click();
-            URL.revokeObjectURL(url);
-          };
-          
-          const closeBtn = document.createElement('button');
-          closeBtn.textContent = 'Close';
-          closeBtn.style.cssText = 'background:#95a5a6;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;';
-          closeBtn.onclick = function() { modal.remove(); };
-          
-          const textarea = document.createElement('textarea');
-          textarea.value = jsonStr;
-          textarea.readOnly = true;
-          textarea.style.cssText = 'width:100%;height:200px;padding:12px;border:1px solid #ccc;border-radius:6px;font-family:monospace;font-size:12px;resize:vertical;margin-bottom:15px;box-sizing:border-box;';
-          
-          const btnContainer = document.createElement('div');
-          btnContainer.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;';
-          btnContainer.appendChild(copyBtn);
-          btnContainer.appendChild(downloadBtn);
-          btnContainer.appendChild(closeBtn);
-          
-          const content = document.createElement('div');
-          content.style.cssText = 'background:white;border-radius:12px;padding:30px;max-width:600px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.3);';
-          content.innerHTML = '<h2 style="color:#2c3e50;margin:0 0 20px 0;">Field Extractor Results</h2><p style="color:#555;margin:0 0 10px 0;">Found <strong>' + extracted.length + '</strong> fields on this page.</p><p style="color:#666;font-size:0.9em;margin:0 0 20px 0;"><strong>Base URL:</strong> ' + baseUrl + '<br><strong>Issue Type:</strong> ' + (issueType || '(not detected)') + '</p>';
-          content.appendChild(textarea);
-          content.appendChild(btnContainer);
-          
-          modal.appendChild(content);
-          document.body.appendChild(modal);
-        })();`;
+            
+            // Count dropdown fields for summary
+            const dropdownCount = extracted.filter(f => f.fieldType === 'combobox').length;
+            
+            const result = {
+              version: '1.2.0',
+              extractedAt: new Date().toISOString(),
+              description: 'Extracted Field Definitions',
+              tool: 'Field Extractor Bookmarklet',
+              appType: 'jira',
+              baseUrl: baseUrl,
+              projectKey: projectKey,
+              issueType: issueType,
+              fieldDefinitions: extracted
+            };
+            
+            const jsonStr = JSON.stringify(result, null, 2);
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:999999;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif;';
+            
+            const copyBtn = document.createElement('button');
+            copyBtn.textContent = 'Copy to Clipboard';
+            copyBtn.style.cssText = 'background:#3498db;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;margin-right:10px;';
+            copyBtn.onclick = function() {
+              navigator.clipboard.writeText(jsonStr);
+              this.textContent = '✓ Copied!';
+              setTimeout(() => { this.textContent = 'Copy to Clipboard'; }, 2000);
+            };
+            
+            const downloadBtn = document.createElement('button');
+            downloadBtn.textContent = 'Download JSON';
+            downloadBtn.style.cssText = 'background:#27ae60;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;margin-right:10px;';
+            downloadBtn.onclick = function() {
+              const blob = new Blob([jsonStr], {type: 'application/json'});
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'extracted-fields-jira-' + new Date().toISOString().split('T')[0] + '.json';
+              a.click();
+              URL.revokeObjectURL(url);
+            };
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = 'Close';
+            closeBtn.style.cssText = 'background:#95a5a6;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;';
+            closeBtn.onclick = function() { modal.remove(); };
+            
+            const textarea = document.createElement('textarea');
+            textarea.value = jsonStr;
+            textarea.readOnly = true;
+            textarea.style.cssText = 'width:100%;height:200px;padding:12px;border:1px solid #ccc;border-radius:6px;font-family:monospace;font-size:12px;resize:vertical;margin-bottom:15px;box-sizing:border-box;';
+            
+            const btnContainer = document.createElement('div');
+            btnContainer.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;';
+            btnContainer.appendChild(copyBtn);
+            btnContainer.appendChild(downloadBtn);
+            btnContainer.appendChild(closeBtn);
+            
+            const content = document.createElement('div');
+            content.style.cssText = 'background:white;border-radius:12px;padding:30px;max-width:600px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.3);';
+            content.innerHTML = '<h2 style="color:#2c3e50;margin:0 0 20px 0;">Jira Field Extractor Results</h2><p style="color:#555;margin:0 0 10px 0;">Found <strong>' + extracted.length + '</strong> fields (' + dropdownCount + ' dropdowns with options).</p><p style="color:#666;font-size:0.9em;margin:0 0 20px 0;"><strong>Base URL:</strong> ' + baseUrl + '<br><strong>Project:</strong> ' + (projectKey || '(not detected)') + '<br><strong>Issue Type:</strong> ' + (issueType || '(not detected)') + '</p>';
+            content.appendChild(textarea);
+            content.appendChild(btnContainer);
+            
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+          })();`;
+        } else {
+          // ServiceNow Field Extractor Bookmarklet
+          bookmarkletCode = `(function(){
+            const currentUrl = window.location.href;
+            const urlObj = new URL(currentUrl);
+            const baseUrl = urlObj.protocol + '//' + urlObj.hostname;
+            
+            let issueType = '';
+            const uriMatch = currentUrl.match(/uri=([a-z_]+)\\.do/i);
+            if (uriMatch) {
+              issueType = uriMatch[1];
+            } else {
+              const pathMatch = urlObj.pathname.match(/\\/([a-z_]+)\\.do/i);
+              if (pathMatch) {
+                issueType = pathMatch[1];
+              }
+            }
+            
+            const fields = document.querySelectorAll('input[id], input[name], select[id], select[name], textarea[id], textarea[name]');
+            const extracted = [];
+            
+            fields.forEach(field => {
+              if (!field.id && !field.name) return;
+              const fieldId = field.id || field.name;
+              if (extracted.some(f => f.id === fieldId)) return;
+              
+              let label = fieldId;
+              const closestLabel = field.closest('label');
+              if (closestLabel && closestLabel.textContent) {
+                label = closestLabel.textContent.trim();
+              } else {
+                const labelFor = document.querySelector("label[for='" + field.id + "']");
+                if (labelFor && labelFor.textContent) {
+                  label = labelFor.textContent.trim();
+                }
+              }
+              
+              const fieldContainer = field.closest("[class*='field']");
+              if (fieldContainer && fieldContainer.querySelector('label')) {
+                label = fieldContainer.querySelector('label').textContent.trim();
+              }
+              
+              label = label.replace(/[*:]/g, '').trim();
+              
+              // Determine field type and extract options for dropdowns
+              let fieldType = 'text';
+              let options = [];
+              
+              if (field.tagName === 'SELECT') {
+                fieldType = 'combobox';
+                // Extract all options with their labels and values
+                Array.from(field.options).forEach(opt => {
+                  if (opt.value) { // Skip empty placeholder options
+                    options.push({
+                      label: opt.textContent.trim(),
+                      value: opt.value
+                    });
+                  }
+                });
+              }
+              
+              const fieldDef = {
+                id: fieldId,
+                label: label || fieldId,
+                category: 'custom',
+                fieldType: fieldType,
+                issueType: issueType
+              };
+              
+              if (options.length > 0) {
+                fieldDef.options = options;
+              }
+              
+              extracted.push(fieldDef);
+            });
+            
+            // Count dropdown fields for summary
+            const dropdownCount = extracted.filter(f => f.fieldType === 'combobox').length;
+            
+            const result = {
+              version: '1.2.0',
+              extractedAt: new Date().toISOString(),
+              description: 'Extracted Field Definitions',
+              tool: 'Field Extractor Bookmarklet',
+              appType: 'servicenow',
+              baseUrl: baseUrl,
+              issueType: issueType,
+              fieldDefinitions: extracted
+            };
+            
+            const jsonStr = JSON.stringify(result, null, 2);
+            const modal = document.createElement('div');
+            modal.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:999999;display:flex;align-items:center;justify-content:center;font-family:Arial,sans-serif;';
+            
+            const copyBtn = document.createElement('button');
+            copyBtn.textContent = 'Copy to Clipboard';
+            copyBtn.style.cssText = 'background:#3498db;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;margin-right:10px;';
+            copyBtn.onclick = function() {
+              navigator.clipboard.writeText(jsonStr);
+              this.textContent = '✓ Copied!';
+              setTimeout(() => { this.textContent = 'Copy to Clipboard'; }, 2000);
+            };
+            
+            const downloadBtn = document.createElement('button');
+            downloadBtn.textContent = 'Download JSON';
+            downloadBtn.style.cssText = 'background:#27ae60;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;margin-right:10px;';
+            downloadBtn.onclick = function() {
+              const blob = new Blob([jsonStr], {type: 'application/json'});
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'extracted-fields-servicenow-' + new Date().toISOString().split('T')[0] + '.json';
+              a.click();
+              URL.revokeObjectURL(url);
+            };
+            
+            const closeBtn = document.createElement('button');
+            closeBtn.textContent = 'Close';
+            closeBtn.style.cssText = 'background:#95a5a6;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;';
+            closeBtn.onclick = function() { modal.remove(); };
+            
+            const textarea = document.createElement('textarea');
+            textarea.value = jsonStr;
+            textarea.readOnly = true;
+            textarea.style.cssText = 'width:100%;height:200px;padding:12px;border:1px solid #ccc;border-radius:6px;font-family:monospace;font-size:12px;resize:vertical;margin-bottom:15px;box-sizing:border-box;';
+            
+            const btnContainer = document.createElement('div');
+            btnContainer.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;';
+            btnContainer.appendChild(copyBtn);
+            btnContainer.appendChild(downloadBtn);
+            btnContainer.appendChild(closeBtn);
+            
+            const content = document.createElement('div');
+            content.style.cssText = 'background:white;border-radius:12px;padding:30px;max-width:600px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.3);';
+            content.innerHTML = '<h2 style="color:#2c3e50;margin:0 0 20px 0;">ServiceNow Field Extractor Results</h2><p style="color:#555;margin:0 0 10px 0;">Found <strong>' + extracted.length + '</strong> fields (' + dropdownCount + ' dropdowns with options).</p><p style="color:#666;font-size:0.9em;margin:0 0 20px 0;"><strong>Base URL:</strong> ' + baseUrl + '<br><strong>Issue Type:</strong> ' + (issueType || '(not detected)') + '</p>';
+            content.appendChild(textarea);
+            content.appendChild(btnContainer);
+            
+            modal.appendChild(content);
+            document.body.appendChild(modal);
+          })();`;
+        }
         
         bookmarkletLink.href = 'javascript:' + encodeURIComponent(bookmarkletCode);
+        
+        // Update the modal title to reflect current app type
+        const modalTitle = modal.querySelector('h2');
+        if (modalTitle) {
+          modalTitle.textContent = currentAppType === 'jira' ? 'Jira Field Extractor' : 'ServiceNow Field Extractor';
+        }
       }
       
       modal.style.display = 'block';
@@ -2261,11 +2789,52 @@
       modal.style.display = 'none';
     }
 
-    // Initialize dropdowns on page load
+    // Initialize dropdowns and restore state on page load
     window.addEventListener('DOMContentLoaded', () => {
+      // Restore app type from storage or default to 'servicenow'
+      const savedAppType = localStorage.getItem('linkGenAppType') || 'servicenow';
+      switchAppType(savedAppType);
+      
+      // Populate all dropdowns
       populateBaseUrlDropdown();
       populateIssueTypeDropdown();
+      populateProjectIdDropdown();
+      
+      // Restore saved form state
+      restoreState();
     });
+    
+    function saveState() {
+      const state = {
+        baseUrl: document.getElementById('baseUrl')?.value || '',
+        issueType: document.getElementById('issueType')?.value || '',
+        projectId: document.getElementById('projectId')?.value || ''
+      };
+      localStorage.setItem('linkGenFormState', JSON.stringify(state));
+    }
+    
+    function restoreState() {
+      try {
+        const saved = localStorage.getItem('linkGenFormState');
+        if (saved) {
+          const state = JSON.parse(saved);
+          if (state.baseUrl) {
+            const baseUrlSelect = document.getElementById('baseUrl');
+            if (baseUrlSelect) baseUrlSelect.value = state.baseUrl;
+          }
+          if (state.issueType) {
+            const issueTypeSelect = document.getElementById('issueType');
+            if (issueTypeSelect) issueTypeSelect.value = state.issueType;
+          }
+          if (state.projectId) {
+            const projectIdSelect = document.getElementById('projectId');
+            if (projectIdSelect) projectIdSelect.value = state.projectId;
+          }
+        }
+      } catch (e) {
+        console.error('Error restoring state:', e);
+      }
+    }
   </script>
 </body>
 </html>

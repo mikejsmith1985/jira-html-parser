@@ -1,15 +1,26 @@
-# Jira Issue Link Generator
+# Link Generator
 
-A powerful, client-side tool to generate pre-filled Jira issue creation links with custom fields, rich text formatting, and configuration management.
+A powerful, client-side tool suite for generating pre-filled issue creation links for **Jira** and **ServiceNow** with custom fields, rich text formatting, and configuration management.
+
+## Available Tools
+
+| File | Description |
+|------|-------------|
+| **`link-generator.html`** | **🆕 Unified Link Generator** - Single tool for both Jira and ServiceNow with app type selector |
+| `jira-link-generator.html` | Jira-specific link generator (legacy) |
+| `servicenow-link-generator.html` | ServiceNow-specific link generator (legacy) |
+
+> **Recommended**: Use `link-generator.html` for the best experience. It combines both tools with automatic app type detection and unified configuration.
 
 ## Features
 
 ✨ **Core Features**
-- Generate pre-filled Jira issue links with custom fields
-- Base URL, Project ID, and Issue Type ID management
+- Generate pre-filled issue links for Jira and ServiceNow
+- Base URL, Project ID (Jira), and Issue Type management
 - Custom field definitions and persistence
 - Configuration presets for quick setup
 - Fully customizable configuration item labels
+- **Field Extractor**: Extract fields from live pages with base URL and issue type auto-detection
 
 📝 **Flexible Field Types** (v0.4.0+)
 - **Text Fields**: Rich text editing with full formatting toolbar (bold, italic, underline, strikethrough, lists)
@@ -49,13 +60,17 @@ A powerful, client-side tool to generate pre-filled Jira issue creation links wi
 
 1. **Open the application**
    ```
-   Open jira-link-generator.html in your web browser
+   Open link-generator.html in your web browser
    ```
 
-2. **Fill in configuration**
-   - Base URL: Your Jira server URL (e.g., https://jira.example.com)
-   - Project ID: Target project (e.g., PROJ)
-   - Issue Type ID: Type of issue (e.g., 10001)
+2. **Select your app type** (Jira or ServiceNow)
+   - Click the Jira or ServiceNow button at the top
+   - The UI adapts automatically based on your selection
+
+3. **Fill in configuration**
+   - **Base URL**: Your server URL (e.g., https://jira.example.com or https://instance.service-now.com)
+   - **Project ID** (Jira only): Target project (e.g., 10001)
+   - **Issue Type**: Type of issue (e.g., Bug, incident, change_request)
 
 3. **Add fields**
    - Click "+ Add Field" to add custom fields

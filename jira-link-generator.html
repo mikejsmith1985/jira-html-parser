@@ -2,8 +2,15 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Jira Issue Link Generator</title>
+  <title>Jira Issue Link Generator (Legacy)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <!-- 
+    =====================================================
+    DEPRECATED: This file is maintained for backward compatibility.
+    Please use link-generator.html instead, which provides a unified
+    experience for both Jira and ServiceNow.
+    =====================================================
+  -->
   <style>
     body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6fa; margin: 0; padding: 0; }
     .container { max-width: 1200px; width: 90%; margin: 20px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 24px; }
@@ -2789,6 +2796,47 @@
       const bookmarkletLink = document.getElementById('fieldExtractorBookmarklet');
       if (bookmarkletLink) {
         const bookmarkletCode = `(function(){
+          // Extract base URL and project/issue type from the current Jira page URL
+          const currentUrl = window.location.href;
+          const urlObj = new URL(currentUrl);
+          const baseUrl = urlObj.protocol + '//' + urlObj.hostname + (urlObj.port ? ':' + urlObj.port : '');
+          
+          // Extract project key from Jira URL patterns
+          let projectKey = '';
+          let issueType = '';
+          
+          // Pattern 1: /browse/PROJ-123 -> extract 'PROJ'
+          const browseMatch = currentUrl.match(/\\/browse\\/([A-Z][A-Z0-9]*)-/i);
+          if (browseMatch) {
+            projectKey = browseMatch[1].toUpperCase();
+          }
+          
+          // Pattern 2: /projects/PROJ/... -> extract 'PROJ'
+          const projectMatch = currentUrl.match(/\\/projects\\/([A-Z][A-Z0-9]*)/i);
+          if (projectMatch) {
+            projectKey = projectMatch[1].toUpperCase();
+          }
+          
+          // Pattern 3: pid= in query string
+          const pidMatch = currentUrl.match(/[?&]pid=([^&]+)/);
+          if (pidMatch) {
+            projectKey = pidMatch[1];
+          }
+          
+          // Pattern 4: issuetype= in query string
+          const issueTypeMatch = currentUrl.match(/[?&]issuetype=([^&]+)/);
+          if (issueTypeMatch) {
+            issueType = issueTypeMatch[1];
+          }
+          
+          // Try to get issue type from the page if available
+          if (!issueType) {
+            const issueTypeEl = document.querySelector('#type-val, [data-issue-type], .issue-type-name');
+            if (issueTypeEl) {
+              issueType = issueTypeEl.textContent.trim();
+            }
+          }
+          
           const fields = document.querySelectorAll('input[id], input[name], select[id], select[name], textarea[id], textarea[name]');
           const extracted = [];
           
@@ -2818,15 +2866,21 @@
               id: fieldId,
               label: label || fieldId,
               category: 'custom',
-              fieldType: 'text'
+              fieldType: 'text',
+              projectKey: projectKey,
+              issueType: issueType
             });
           });
           
           const result = {
-            version: '1.0.0',
+            version: '1.1.0',
             extractedAt: new Date().toISOString(),
             description: 'Extracted Field Definitions',
             tool: 'Field Extractor Bookmarklet',
+            appType: 'jira',
+            baseUrl: baseUrl,
+            projectKey: projectKey,
+            issueType: issueType,
             fieldDefinitions: extracted
           };
           
@@ -2874,7 +2928,7 @@
           
           const content = document.createElement('div');
           content.style.cssText = 'background:white;border-radius:12px;padding:30px;max-width:600px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.3);';
-          content.innerHTML = '<h2 style="color:#2c3e50;margin:0 0 20px 0;">Field Extractor Results</h2><p style="color:#555;margin:0 0 20px 0;">Found <strong>' + extracted.length + '</strong> fields on this page.</p>';
+          content.innerHTML = '<h2 style="color:#2c3e50;margin:0 0 20px 0;">Field Extractor Results</h2><p style="color:#555;margin:0 0 10px 0;">Found <strong>' + extracted.length + '</strong> fields on this page.</p><p style="color:#666;font-size:0.9em;margin:0 0 20px 0;"><strong>Base URL:</strong> ' + baseUrl + '<br><strong>Project:</strong> ' + (projectKey || '(not detected)') + '<br><strong>Issue Type:</strong> ' + (issueType || '(not detected)') + '</p>';
           content.appendChild(textarea);
           content.appendChild(btnContainer);
           
