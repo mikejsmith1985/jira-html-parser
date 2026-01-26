@@ -2,9 +2,8 @@ name: Release
 
 on:
   push:
-    branches:
-      - master
-      - main
+    tags:
+      - 'v*'
 
 jobs:
   release:
@@ -23,6 +22,26 @@ jobs:
         with:
           node-version: '18'
 
+      - name: Get version from tag
+        id: version
+        run: |
+          TAG=${GITHUB_REF#refs/tags/v}
+          echo "tag=$TAG" >> $GITHUB_OUTPUT
+          PACKAGE_VERSION=$(cat package.json | grep '"version"' | head -1 | sed 's/.*: "\([^"]*\)".*/\1/')
+          echo "package=$PACKAGE_VERSION" >> $GITHUB_OUTPUT
+
+      - name: Verify version match
+        run: |
+          if [ "${{ steps.version.outputs.tag }}" != "${{ steps.version.outputs.package }}" ]; then
+            echo "❌ Error: Tag version (v${{ steps.version.outputs.tag }}) does not match package.json version (${{ steps.version.outputs.package }})"
+            exit 1
+          fi
+          echo "✅ Version verified: ${{ steps.version.outputs.tag }}"
+
+      - name: Run tests
+        continue-on-error: true
+        run: npm test
+
       - name: Get commit info
         id: commit
         run: |
@@ -30,56 +49,11 @@ jobs:
           echo "author=$(git log -1 --pretty=%an)" >> $GITHUB_OUTPUT
           echo "sha=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
-      - name: Run tests
-        continue-on-error: true
-        run: npm test
-
-      - name: Determine version bump
-        id: version
-        run: |
-          VERSION=$(cat package.json | grep '"version"' | head -1 | sed 's/.*: "\([^"]*\)".*/\1/')
-          COMMIT_MSG="${{ steps.commit.outputs.message }}"
-          
-          # Determine version bump type
-          if echo "$COMMIT_MSG" | grep -q "^feat!"; then
-            MAJOR=$(echo $VERSION | cut -d. -f1)
-            MAJOR=$((MAJOR + 1))
-            NEW_VERSION="$MAJOR.0.0"
-          elif echo "$COMMIT_MSG" | grep -q "^feat"; then
-            MAJOR=$(echo $VERSION | cut -d. -f1)
-            MINOR=$(echo $VERSION | cut -d. -f2)
-            MINOR=$((MINOR + 1))
-            NEW_VERSION="$MAJOR.$MINOR.0"
-          else
-            MAJOR=$(echo $VERSION | cut -d. -f1)
-            MINOR=$(echo $VERSION | cut -d. -f2)
-            PATCH=$(echo $VERSION | cut -d. -f3)
-            PATCH=$((PATCH + 1))
-            NEW_VERSION="$MAJOR.$MINOR.$PATCH"
-          fi
-          
-          echo "current=$VERSION" >> $GITHUB_OUTPUT
-          echo "new=$NEW_VERSION" >> $GITHUB_OUTPUT
-
-      - name: Update package.json version
-        run: |
-          sed -i 's/"version": "[^"]*"/"version": "${{ steps.version.outputs.new }}"/g' package.json
-
-      - name: Commit and tag
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add package.json
-          git commit -m "chore: bump version to ${{ steps.version.outputs.new }}" || true
-          git push origin master || true
-          git tag -a "v${{ steps.version.outputs.new }}" -m "Release v${{ steps.version.outputs.new }}" || true
-          git push origin "v${{ steps.version.outputs.new }}" || true
-
       - name: Create Release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: v${{ steps.version.outputs.new }}
-          name: Release v${{ steps.version.outputs.new }}
+          tag_name: v${{ steps.version.outputs.tag }}
+          name: Release v${{ steps.version.outputs.tag }}
           files: |
             link-generator.html
             jira-link-generator.html
@@ -87,11 +61,10 @@ jobs:
             package.json
             README.md
           body: |
-            # Release v${{ steps.version.outputs.new }}
+            # Release v${{ steps.version.outputs.tag }}
             
             ## Version Information
-            - **Previous Version**: ${{ steps.version.outputs.current }}
-            - **Current Version**: ${{ steps.version.outputs.new }}
+            - **Version**: ${{ steps.version.outputs.tag }}
             - **Commit**: ${{ steps.commit.outputs.sha }}
             - **Author**: ${{ steps.commit.outputs.author }}
             
