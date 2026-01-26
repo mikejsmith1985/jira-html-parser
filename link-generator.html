@@ -143,7 +143,7 @@
       </label>
       
       <!-- Filter Fields by Issue Type Toggle -->
-      <label style="display:flex;align-items:center;gap:8px;margin-top:-8px;margin-bottom:8px;font-size:0.95em;color:#555;">
+      <label style="display:flex;align-items:center;gap:8px;margin-top:8px;margin-bottom:16px;font-size:0.95em;color:#555;">
         <input type="checkbox" id="filterFieldsByIssueType" onchange="updateAllFieldSelects(); saveState();" style="width:auto;margin:0;">
         <span>Only show fields for selected issue type</span>
       </label>
@@ -674,7 +674,8 @@
         if ((matchesBaseUrl && matchesIssueType && matchesAppType) || def.id === data.fieldId) {
           const option = document.createElement('option');
           option.value = def.id;
-          option.textContent = def.label;
+          // Add visual indicator for required fields
+          option.textContent = def.required ? '⚠️ ' + def.label + ' (Required)' : def.label;
           fieldSelect.appendChild(option);
         }
       });
@@ -1034,7 +1035,8 @@
           if ((matchesBaseUrl && matchesIssueType && matchesAppType) || def.id === currentValue) {
             const option = document.createElement('option');
             option.value = def.id;
-            option.textContent = def.label;
+            // Add visual indicator for required fields
+            option.textContent = def.required ? '⚠️ ' + def.label + ' (Required)' : def.label;
             select.appendChild(option);
           }
         });
@@ -1051,11 +1053,29 @@
       const definitions = loadFieldDefinitions();
       const fieldsDiv = document.getElementById('fields');
       
-      // Find all required fields for this issue type
-      const requiredFields = definitions.filter(def => 
-        def.required && 
-        (def.issueTypeId === currentIssueTypeId || def.tableNameId === currentIssueTypeId)
-      );
+      // Get current app type
+      const isJira = document.body.classList.contains('app-jira');
+      const isServiceNow = document.body.classList.contains('app-servicenow');
+      
+      // Find all required fields for this issue type AND current app
+      const requiredFields = definitions.filter(def => {
+        const matchesIssueType = def.issueTypeId === currentIssueTypeId || def.tableNameId === currentIssueTypeId;
+        let matchesAppType = true;
+        if (def.appType) {
+          if (isJira && def.appType !== 'jira') matchesAppType = false;
+          if (isServiceNow && def.appType !== 'servicenow') matchesAppType = false;
+        }
+        return def.required && matchesIssueType && matchesAppType;
+      });
+      
+      console.log('Auto-populate: Found ' + requiredFields.length + ' required fields for issue type ' + currentIssueTypeId);
+      console.log('Required fields:', requiredFields.map(f => f.label));
+      
+      // If no required fields found, show a message
+      if (requiredFields.length === 0) {
+        console.log('No required fields detected. Fields need to be extracted with v0.6.6+ Field Extractor.');
+        return;
+      }
       
       // Get currently added field IDs
       const existingFieldIds = new Set();
@@ -1065,6 +1085,8 @@
           existingFieldIds.add(select.value);
         }
       });
+      
+      let addedCount = 0;
       
       // Add missing required fields
       requiredFields.forEach(reqField => {
@@ -1085,17 +1107,15 @@
               select.value = reqField.id;
               // Trigger change to update field type
               select.dispatchEvent(new Event('change'));
+              addedCount++;
             }
           }
         }
       });
       
       // Show notification if fields were added
-      if (requiredFields.length > existingFieldIds.size) {
-        const addedCount = requiredFields.filter(f => !existingFieldIds.has(f.id)).length;
-        if (addedCount > 0) {
-          showNotification('✓ Auto-added ' + addedCount + ' required field(s)', 'success');
-        }
+      if (addedCount > 0) {
+        showNotification('✓ Auto-added ' + addedCount + ' required field(s)', 'success');
       }
     }
     
