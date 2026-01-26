@@ -3481,8 +3481,21 @@
               
               label = label.replace(/[*:]/g, '').trim();
               
+              // Skip validation fields BEFORE cleaning the label (need "Required" text for detection)
+              if (fieldId.endsWith('-field') && label.match(/Required|Mandatory/i)) {
+                console.log('[Jira] Skipping validation field:', fieldId, 'label:', label);
+                return;
+              }
+              
               // Clean up "Required" and "Mandatory" from labels
               label = label.replace(/\s*(Required|Mandatory)\s*$/i, '').trim();
+              
+              // Capitalize first letter of each word for better readability
+              if (label && label.length > 0) {
+                label = label.split(' ').map(word => 
+                  word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                ).join(' ');
+              }
               
               // Skip if this is a technical/validation field
               if (shouldSkipField(field, fieldId, label)) return;
@@ -3721,8 +3734,21 @@
               
               label = label.replace(/[*:]/g, '').trim();
               
+              // Skip validation fields BEFORE cleaning the label (need "Required" text for detection)
+              if (fieldId.endsWith('-field') && label.match(/Required|Mandatory/i)) {
+                console.log('[SNOW] Skipping validation field:', fieldId, 'label:', label);
+                return;
+              }
+              
               // Clean up "Required" and "Mandatory" from labels
               label = label.replace(/\s*(Required|Mandatory)\s*$/i, '').trim();
+              
+              // Capitalize first letter of each word for better readability
+              if (label && label.length > 0) {
+                label = label.split(' ').map(word => 
+                  word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                ).join(' ');
+              }
               
               // Skip if this is a technical/validation field
               if (shouldSkipField(field, fieldId, label)) return;
