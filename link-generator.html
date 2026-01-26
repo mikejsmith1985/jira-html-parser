@@ -94,6 +94,7 @@
       </select>
       <button type="button" onclick="openManagePresetsModal()" style="background: #3498db; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer;">Manage Presets</button>
       <button type="button" onclick="openFieldExtractorModal()" style="background: #9b59b6; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Extract fields from forms">🔍 Field Extractor</button>
+      <button type="button" onclick="openConfigManagementModal()" style="background: #34495e; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Manage your configurations">⚙️ Manage Configs</button>
       <button type="button" onclick="exportConfiguration()" style="background: #27ae60; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Export all configurations, fields, and dropdowns to a JSON file">Export Config</button>
       <button type="button" onclick="openImportModal()" style="background: #e67e22; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Import configurations from a JSON file">Import Config</button>
       <button type="button" onclick="undoLastImport()" style="background: #e74c3c; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Undo the last import operation">↶ Undo Import</button>
@@ -364,6 +365,65 @@
 
       <div style="margin-top:24px;text-align:right;">
         <button type="button" onclick="closeFieldExtractorModal()" style="background:#6c757d;color:#fff;border:none;border-radius:6px;padding:10px 24px;cursor:pointer;font-size:14px;font-weight:500;transition:background 0.2s;" onmouseover="this.style.background='#5a6268'" onmouseout="this.style.background='#6c757d'">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Config Management Modal -->
+  <div id="configManagementModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;">
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:12px;padding:28px;max-width:900px;width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 4px 20px rgba(0,0,0,0.15);">
+      <h2 style="margin:0 0 16px 0;color:#2c3e50;">⚙️ Configuration Management</h2>
+      <p style="color:#666;margin:0 0 24px 0;line-height:1.5;">Manage your imported field definitions, base URLs, issue types, and project IDs.</p>
+      
+      <div id="configManagementTabs" style="display:flex;gap:8px;margin-bottom:20px;border-bottom:2px solid #e9ecef;">
+        <button id="tabFieldsBtn" class="config-tab active" onclick="showConfigTab('fields')" style="background:none;border:none;padding:12px 20px;cursor:pointer;font-weight:600;color:#6c757d;border-bottom:3px solid transparent;transition:all 0.2s;">Fields</button>
+        <button id="tabDropdownsBtn" class="config-tab" onclick="showConfigTab('dropdowns')" style="background:none;border:none;padding:12px 20px;cursor:pointer;font-weight:600;color:#6c757d;border-bottom:3px solid transparent;transition:all 0.2s;">Base URLs</button>
+        <button id="tabIssueTypesBtn" class="config-tab" onclick="showConfigTab('issueTypes')" style="background:none;border:none;padding:12px 20px;cursor:pointer;font-weight:600;color:#6c757d;border-bottom:3px solid transparent;transition:all 0.2s;">Issue Types</button>
+        <button id="tabProjectsBtn" class="config-tab jira-only" onclick="showConfigTab('projects')" style="background:none;border:none;padding:12px 20px;cursor:pointer;font-weight:600;color:#6c757d;border-bottom:3px solid transparent;transition:all 0.2s;">Project IDs</button>
+      </div>
+
+      <div id="configFieldsTab" class="config-tab-content" style="display:block;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div id="fieldsSummary" style="color:#666;font-size:0.9em;"></div>
+          <div>
+            <button onclick="clearAllFields()" style="background:#e74c3c;color:#fff;border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-size:13px;">Clear All Fields</button>
+          </div>
+        </div>
+        <div id="fieldsListByIssueType" style="max-height:400px;overflow-y:auto;"></div>
+      </div>
+
+      <div id="configDropdownsTab" class="config-tab-content" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div id="urlsSummary" style="color:#666;font-size:0.9em;"></div>
+          <div>
+            <button onclick="clearAllBaseUrls()" style="background:#e74c3c;color:#fff;border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-size:13px;">Clear All URLs</button>
+          </div>
+        </div>
+        <div id="baseUrlsList" style="max-height:400px;overflow-y:auto;"></div>
+      </div>
+
+      <div id="configIssueTypesTab" class="config-tab-content" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div id="issueTypesSummary" style="color:#666;font-size:0.9em;"></div>
+          <div>
+            <button onclick="clearAllIssueTypesConfig()" style="background:#e74c3c;color:#fff;border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-size:13px;">Clear All Issue Types</button>
+          </div>
+        </div>
+        <div id="issueTypesList" style="max-height:400px;overflow-y:auto;"></div>
+      </div>
+
+      <div id="configProjectsTab" class="config-tab-content jira-only" style="display:none;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div id="projectsSummary" style="color:#666;font-size:0.9em;"></div>
+          <div>
+            <button onclick="clearAllProjectIds()" style="background:#e74c3c;color:#fff;border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-size:13px;">Clear All Projects</button>
+          </div>
+        </div>
+        <div id="projectIdsList" style="max-height:400px;overflow-y:auto;"></div>
+      </div>
+
+      <div style="margin-top:24px;display:flex;gap:12px;justify-content:flex-end;">
+        <button type="button" onclick="closeConfigManagementModal()" style="background:#6c757d;color:#fff;border:none;border-radius:6px;padding:10px 24px;cursor:pointer;font-size:14px;font-weight:500;">Close</button>
       </div>
     </div>
   </div>
@@ -2603,6 +2663,253 @@
       }
     }
 
+    // ========================================================================
+    // CONFIG MANAGEMENT MODAL
+    // ========================================================================
+
+    function openConfigManagementModal() {
+      const modal = document.getElementById('configManagementModal');
+      if (!modal) return;
+      
+      modal.style.display = 'block';
+      showConfigTab('fields'); // Show fields tab by default
+    }
+
+    function closeConfigManagementModal() {
+      const modal = document.getElementById('configManagementModal');
+      if (!modal) return;
+      modal.style.display = 'none';
+    }
+
+    function showConfigTab(tabName) {
+      // Update tab buttons
+      document.querySelectorAll('.config-tab').forEach(btn => {
+        btn.style.color = '#6c757d';
+        btn.style.borderBottom = '3px solid transparent';
+      });
+      
+      const activeBtn = document.getElementById(`tab${tabName.charAt(0).toUpperCase() + tabName.slice(1)}Btn`);
+      if (activeBtn) {
+        activeBtn.style.color = '#3498db';
+        activeBtn.style.borderBottom = '3px solid #3498db';
+      }
+      
+      // Hide all tab contents
+      document.querySelectorAll('.config-tab-content').forEach(content => {
+        content.style.display = 'none';
+      });
+      
+      // Show selected tab
+      const selectedTab = document.getElementById(`config${tabName.charAt(0).toUpperCase() + tabName.slice(1)}Tab`);
+      if (selectedTab) {
+        selectedTab.style.display = 'block';
+      }
+      
+      // Load data for the selected tab
+      if (tabName === 'fields') {
+        loadFieldsManagement();
+      } else if (tabName === 'dropdowns') {
+        loadBaseUrlsManagement();
+      } else if (tabName === 'issueTypes') {
+        loadIssueTypesManagement();
+      } else if (tabName === 'projects') {
+        loadProjectIdsManagement();
+      }
+    }
+
+    function loadFieldsManagement() {
+      const fields = loadFieldDefinitions();
+      const summary = document.getElementById('fieldsSummary');
+      const list = document.getElementById('fieldsListByIssueType');
+      
+      const dropdownCount = fields.filter(f => f.fieldType === 'combobox').length;
+      summary.textContent = `Total: ${fields.length} fields (${dropdownCount} dropdowns)`;
+      
+      // Group by issue type
+      const grouped = {};
+      fields.forEach(field => {
+        const issueType = field.issueType || field.issueTypeLabel || '(No Issue Type)';
+        if (!grouped[issueType]) grouped[issueType] = [];
+        grouped[issueType].push(field);
+      });
+      
+      let html = '';
+      Object.keys(grouped).forEach(issueType => {
+        const fieldsInType = grouped[issueType];
+        html += `
+          <div style="margin-bottom:20px;border:1px solid #dee2e6;border-radius:8px;padding:16px;background:#f8f9fa;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+              <h4 style="margin:0;color:#2c3e50;">${issueType} <span style="color:#6c757d;font-size:0.9em;font-weight:normal;">(${fieldsInType.length})</span></h4>
+              <button onclick="deleteFieldsByIssueType('${issueType}')" style="background:#dc3545;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:12px;">Delete All</button>
+            </div>
+            <div style="max-height:200px;overflow-y:auto;">
+        `;
+        
+        fieldsInType.forEach(field => {
+          const optionsInfo = field.options ? ` <span style="color:#6c757d;">(${field.options.length} options)</span>` : '';
+          html += `
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:white;margin-bottom:4px;border-radius:4px;">
+              <div>
+                <strong>${field.label}</strong> <span style="color:#999;font-size:0.85em;">${field.id}</span>${optionsInfo}
+              </div>
+              <button onclick="deleteField('${field.id}')" style="background:#6c757d;color:#fff;border:none;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:11px;">Delete</button>
+            </div>
+          `;
+        });
+        
+        html += `</div></div>`;
+      });
+      
+      list.innerHTML = html || '<p style="color:#999;text-align:center;padding:40px;">No fields found.</p>';
+    }
+
+    function loadBaseUrlsManagement() {
+      const urls = loadItems(getStorageKey('baseUrls')) || [];
+      const summary = document.getElementById('urlsSummary');
+      const list = document.getElementById('baseUrlsList');
+      
+      summary.textContent = `Total: ${urls.length} base URLs`;
+      
+      let html = '';
+      urls.forEach(url => {
+        html += `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:#f8f9fa;margin-bottom:8px;border-radius:6px;border:1px solid #dee2e6;">
+            <div>
+              <strong>${url.alias}</strong><br>
+              <span style="color:#666;font-size:0.9em;">${url.value}</span>
+            </div>
+            <button onclick="deleteBaseUrl('${url.id}')" style="background:#6c757d;color:#fff;border:none;border-radius:4px;padding:6px 14px;cursor:pointer;font-size:12px;">Delete</button>
+          </div>
+        `;
+      });
+      
+      list.innerHTML = html || '<p style="color:#999;text-align:center;padding:40px;">No base URLs found.</p>';
+    }
+
+    function loadIssueTypesManagement() {
+      const issueTypes = loadItems(getStorageKey('issueTypes')) || [];
+      const summary = document.getElementById('issueTypesSummary');
+      const list = document.getElementById('issueTypesList');
+      
+      summary.textContent = `Total: ${issueTypes.length} issue types`;
+      
+      let html = '';
+      issueTypes.forEach(it => {
+        html += `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:#f8f9fa;margin-bottom:8px;border-radius:6px;border:1px solid #dee2e6;">
+            <div>
+              <strong>${it.alias}</strong><br>
+              <span style="color:#666;font-size:0.9em;">ID: ${it.value}</span>
+            </div>
+            <button onclick="deleteIssueTypeFromConfig('${it.id}')" style="background:#6c757d;color:#fff;border:none;border-radius:4px;padding:6px 14px;cursor:pointer;font-size:12px;">Delete</button>
+          </div>
+        `;
+      });
+      
+      list.innerHTML = html || '<p style="color:#999;text-align:center;padding:40px;">No issue types found.</p>';
+    }
+
+    function loadProjectIdsManagement() {
+      const projects = loadItems(getStorageKey('projectIds')) || [];
+      const summary = document.getElementById('projectsSummary');
+      const list = document.getElementById('projectIdsList');
+      
+      summary.textContent = `Total: ${projects.length} project IDs`;
+      
+      let html = '';
+      projects.forEach(p => {
+        html += `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:12px;background:#f8f9fa;margin-bottom:8px;border-radius:6px;border:1px solid #dee2e6;">
+            <div>
+              <strong>${p.alias}</strong><br>
+              <span style="color:#666;font-size:0.9em;">ID: ${p.value}</span>
+            </div>
+            <button onclick="deleteProjectIdFromConfig('${p.id}')" style="background:#6c757d;color:#fff;border:none;border-radius:4px;padding:6px 14px;cursor:pointer;font-size:12px;">Delete</button>
+          </div>
+        `;
+      });
+      
+      list.innerHTML = html || '<p style="color:#999;text-align:center;padding:40px;">No project IDs found.</p>';
+    }
+
+    // Delete functions
+    function deleteField(fieldId) {
+      if (!confirm(`Delete field "${fieldId}"?`)) return;
+      const fields = loadFieldDefinitions();
+      const filtered = fields.filter(f => f.id !== fieldId);
+      saveFieldDefinitions(filtered);
+      loadFieldsManagement();
+      updateAllFieldSelects();
+    }
+
+    function deleteFieldsByIssueType(issueType) {
+      if (!confirm(`Delete all fields for issue type "${issueType}"?`)) return;
+      const fields = loadFieldDefinitions();
+      const filtered = fields.filter(f => {
+        const fieldIssueType = f.issueType || f.issueTypeLabel || '(No Issue Type)';
+        return fieldIssueType !== issueType;
+      });
+      saveFieldDefinitions(filtered);
+      loadFieldsManagement();
+      updateAllFieldSelects();
+    }
+
+    function clearAllFields() {
+      if (!confirm('Clear ALL field definitions? This cannot be undone!')) return;
+      saveFieldDefinitions([]);
+      loadFieldsManagement();
+      updateAllFieldSelects();
+    }
+
+    function deleteBaseUrl(urlId) {
+      const urls = loadItems(getStorageKey('baseUrls')) || [];
+      const filtered = urls.filter(u => u.id !== urlId);
+      saveItems(getStorageKey('baseUrls'), filtered);
+      loadBaseUrlsManagement();
+      populateBaseUrlDropdown();
+    }
+
+    function clearAllBaseUrls() {
+      if (!confirm('Clear ALL base URLs? This cannot be undone!')) return;
+      saveItems(getStorageKey('baseUrls'), []);
+      loadBaseUrlsManagement();
+      populateBaseUrlDropdown();
+    }
+
+    function deleteIssueTypeFromConfig(itId) {
+      const issueTypes = loadItems(getStorageKey('issueTypes')) || [];
+      const filtered = issueTypes.filter(it => it.id !== itId);
+      saveItems(getStorageKey('issueTypes'), filtered);
+      loadIssueTypesManagement();
+      populateIssueTypeDropdown();
+      refreshIssueTypeList();
+    }
+
+    function clearAllIssueTypesConfig() {
+      if (!confirm('Clear ALL issue types? This cannot be undone!')) return;
+      saveItems(getStorageKey('issueTypes'), []);
+      loadIssueTypesManagement();
+      populateIssueTypeDropdown();
+      refreshIssueTypeList();
+    }
+
+    function deleteProjectIdFromConfig(pId) {
+      const projects = loadItems(getStorageKey('projectIds')) || [];
+      const filtered = projects.filter(p => p.id !== pId);
+      saveItems(getStorageKey('projectIds'), filtered);
+      loadProjectIdsManagement();
+      populateProjectIdDropdown();
+      refreshProjectIdList();
+    }
+
+    function clearAllProjectIds() {
+      if (!confirm('Clear ALL project IDs? This cannot be undone!')) return;
+      saveItems(getStorageKey('projectIds'), []);
+      loadProjectIdsManagement();
+      populateProjectIdDropdown();
+      refreshProjectIdList();
+    }
+
     function loadConfigurationFromUrl(configUrl) {
       try {
         console.log('Loading configuration from URL:', configUrl);
@@ -2996,10 +3303,13 @@
         
         bookmarkletLink.href = 'javascript:' + encodeURIComponent(bookmarkletCode);
         
+        // Update bookmarklet link text
+        bookmarkletLink.textContent = currentAppType === 'jira' ? '🔍 Jira Field Extractor' : '🔍 ServiceNow Field Extractor';
+        
         // Update the modal title to reflect current app type
         const modalTitle = modal.querySelector('h2');
         if (modalTitle) {
-          modalTitle.textContent = currentAppType === 'jira' ? 'Jira Field Extractor' : 'ServiceNow Field Extractor';
+          modalTitle.textContent = currentAppType === 'jira' ? '🔍 Jira Field Extractor' : '🔍 ServiceNow Field Extractor';
         }
       }
       
