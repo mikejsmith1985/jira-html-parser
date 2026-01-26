@@ -3212,26 +3212,55 @@
             const extracted = [];
             const requiredFieldIds = new Set();
             
-            // First pass: identify required fields by finding validation fields
+            // First pass: identify required fields by checking labels
             fields.forEach(field => {
               if (!field.id && !field.name) return;
               const fieldId = field.id || field.name;
               
-              // Check if this is a validation/required field
-              if (fieldId.match(/(Required|_required|_mandatory)$/i)) {
-                // Extract base field name (e.g., "reporterRequired" -> "reporter")
-                const baseFieldId = fieldId.replace(/(Required|_required|_mandatory)$/i, '');
-                if (baseFieldId) {
+              // Get label for this field
+              let label = fieldId;
+              const closestLabel = field.closest('label');
+              if (closestLabel && closestLabel.textContent) {
+                label = closestLabel.textContent.trim();
+              } else {
+                const labelFor = document.querySelector("label[for='" + field.id + "']");
+                if (labelFor && labelFor.textContent) {
+                  label = labelFor.textContent.trim();
+                }
+              }
+              label = label.replace(/[*:]/g, '').trim();
+              
+              // Check if label indicates this is a required validation field
+              if (label.match(/Required|Mandatory/i)) {
+                // Pattern 1: "reporter-field" with label "Reporter Required" -> base: "reporter"
+                if (fieldId.endsWith('-field')) {
+                  const baseFieldId = fieldId.replace(/-field$/, '');
                   requiredFieldIds.add(baseFieldId);
-                  requiredFieldIds.add(baseFieldId.toLowerCase());
+                  console.log('[Jira] Found required field (pattern -field):', fieldId, '->', baseFieldId, 'label:', label);
+                }
+                // Pattern 2: "reporterRequired" -> base: "reporter"
+                else if (fieldId.match(/(Required|_required|_mandatory)$/i)) {
+                  const baseFieldId = fieldId.replace(/(Required|_required|_mandatory)$/i, '');
+                  if (baseFieldId) {
+                    requiredFieldIds.add(baseFieldId);
+                    console.log('[Jira] Found required field (pattern suffix):', fieldId, '->', baseFieldId, 'label:', label);
+                  }
                 }
               }
             });
+            
+            console.log('[Jira] Total required fields detected:', requiredFieldIds.size);
+            if (requiredFieldIds.size > 0) {
+              console.log('[Jira] Required field IDs:', Array.from(requiredFieldIds));
+            }
             
             // Helper function to check if a field should be skipped
             const shouldSkipField = (field, fieldId, label) => {
               // Skip hidden fields
               if (field.type === 'hidden') return true;
+              
+              // Skip validation fields with -field suffix and "Required" in label
+              if (fieldId.endsWith('-field') && label && label.match(/Required|Mandatory/i)) return true;
               
               // Skip fields with validation/technical suffixes
               const skipSuffixes = ['Required', '_required', '_mandatory', '_validation', 
@@ -3396,26 +3425,61 @@
             const extracted = [];
             const requiredFieldIds = new Set();
             
-            // First pass: identify required fields by finding validation fields
+            // First pass: identify required fields by checking labels
             fields.forEach(field => {
               if (!field.id && !field.name) return;
               const fieldId = field.id || field.name;
               
-              // Check if this is a validation/required field
-              if (fieldId.match(/(Required|_required|_mandatory)$/i)) {
-                // Extract base field name (e.g., "reporterRequired" -> "reporter")
-                const baseFieldId = fieldId.replace(/(Required|_required|_mandatory)$/i, '');
-                if (baseFieldId) {
+              // Get label for this field
+              let label = fieldId;
+              const closestLabel = field.closest('label');
+              if (closestLabel && closestLabel.textContent) {
+                label = closestLabel.textContent.trim();
+              } else {
+                const labelFor = document.querySelector("label[for='" + field.id + "']");
+                if (labelFor && labelFor.textContent) {
+                  label = labelFor.textContent.trim();
+                }
+              }
+              
+              const fieldContainer = field.closest("[class*='field']");
+              if (fieldContainer && fieldContainer.querySelector('label')) {
+                label = fieldContainer.querySelector('label').textContent.trim();
+              }
+              
+              label = label.replace(/[*:]/g, '').trim();
+              
+              // Check if label indicates this is a required validation field
+              if (label.match(/Required|Mandatory/i)) {
+                // Pattern 1: "reporter-field" with label "Reporter Required" -> base: "reporter"
+                if (fieldId.endsWith('-field')) {
+                  const baseFieldId = fieldId.replace(/-field$/, '');
                   requiredFieldIds.add(baseFieldId);
-                  requiredFieldIds.add(baseFieldId.toLowerCase());
+                  console.log('[SNOW] Found required field (pattern -field):', fieldId, '->', baseFieldId, 'label:', label);
+                }
+                // Pattern 2: "reporterRequired" -> base: "reporter"
+                else if (fieldId.match(/(Required|_required|_mandatory)$/i)) {
+                  const baseFieldId = fieldId.replace(/(Required|_required|_mandatory)$/i, '');
+                  if (baseFieldId) {
+                    requiredFieldIds.add(baseFieldId);
+                    console.log('[SNOW] Found required field (pattern suffix):', fieldId, '->', baseFieldId, 'label:', label);
+                  }
                 }
               }
             });
+            
+            console.log('[SNOW] Total required fields detected:', requiredFieldIds.size);
+            if (requiredFieldIds.size > 0) {
+              console.log('[SNOW] Required field IDs:', Array.from(requiredFieldIds));
+            }
             
             // Helper function to check if a field should be skipped
             const shouldSkipField = (field, fieldId, label) => {
               // Skip hidden fields
               if (field.type === 'hidden') return true;
+              
+              // Skip validation fields with -field suffix and "Required" in label
+              if (fieldId.endsWith('-field') && label && label.match(/Required|Mandatory/i)) return true;
               
               // Skip fields with validation/technical suffixes
               const skipSuffixes = ['Required', '_required', '_mandatory', '_validation', 
