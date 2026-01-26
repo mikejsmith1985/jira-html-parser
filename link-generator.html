@@ -651,14 +651,26 @@
       const definitions = loadFieldDefinitions();
       const currentBaseUrlId = document.getElementById('baseUrl').value;
       const currentIssueTypeId = document.getElementById('issueType').value;
+      
+      // Get current app type from body class
+      const isJira = document.body.classList.contains('app-jira');
+      const isServiceNow = document.body.classList.contains('app-servicenow');
 
       definitions.sort((a, b) => a.label.localeCompare(b.label)).forEach(def => {
         // Filter: Show if Global (no baseUrlId) OR matches current Base URL OR matches the current field (so it doesn't disappear if already selected)
         // AND (no issueTypeId OR matches current Issue Type)
+        // AND matches current app type
         const matchesBaseUrl = !def.baseUrlId || def.baseUrlId === currentBaseUrlId;
         const matchesIssueType = !def.issueTypeId && !def.tableNameId || def.issueTypeId === currentIssueTypeId || def.tableNameId === currentIssueTypeId;
         
-        if ((matchesBaseUrl && matchesIssueType) || def.id === data.fieldId) {
+        // Filter by app type
+        let matchesAppType = true;
+        if (def.appType) {
+          if (isJira && def.appType !== 'jira') matchesAppType = false;
+          if (isServiceNow && def.appType !== 'servicenow') matchesAppType = false;
+        }
+        
+        if ((matchesBaseUrl && matchesIssueType && matchesAppType) || def.id === data.fieldId) {
           const option = document.createElement('option');
           option.value = def.id;
           option.textContent = def.label;
@@ -991,6 +1003,10 @@
       const filterByIssueType = document.getElementById('filterFieldsByIssueType').checked;
       const definitions = loadFieldDefinitions();
       
+      // Get current app type from body class
+      const isJira = document.body.classList.contains('app-jira');
+      const isServiceNow = document.body.classList.contains('app-servicenow');
+      
       rows.forEach(row => {
         const select = row.querySelector('.field-select');
         if (!select) return;
@@ -1007,7 +1023,14 @@
           const matchesBaseUrl = !def.baseUrlId || def.baseUrlId === currentBaseUrlId;
           const matchesIssueType = !filterByIssueType || !def.issueTypeId && !def.tableNameId || def.issueTypeId === currentIssueTypeId || def.tableNameId === currentIssueTypeId;
           
-          if ((matchesBaseUrl && matchesIssueType) || def.id === currentValue) {
+          // Filter by app type - only show fields for current app
+          let matchesAppType = true;
+          if (def.appType) {
+            if (isJira && def.appType !== 'jira') matchesAppType = false;
+            if (isServiceNow && def.appType !== 'servicenow') matchesAppType = false;
+          }
+          
+          if ((matchesBaseUrl && matchesIssueType && matchesAppType) || def.id === currentValue) {
             const option = document.createElement('option');
             option.value = def.id;
             option.textContent = def.label;
@@ -2634,6 +2657,16 @@
           }
           return true;
         });
+        
+        // Ensure all field definitions have appType from config
+        if (processed.appType) {
+          processed.fieldDefinitions.forEach(field => {
+            if (!field.appType) {
+              field.appType = processed.appType;
+            }
+          });
+        }
+        
         processed.skippedFields = original - processed.fieldDefinitions.length;
       }
 
