@@ -116,7 +116,7 @@
     <form id="linkForm" autocomplete="off">
       <label>Base URL
         <div style="display:flex;gap:8px;align-items:center;">
-          <select id="baseUrl" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" required onchange="saveState(); updateAllFieldSelects(); detectAppType();">
+          <select id="baseUrl" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" required onchange="saveState(); updateAllFieldSelects(); detectAppType(); autoPopulateRequiredFields();">
             <option value="">-- Select Base URL --</option>
           </select>
           <button type="button" onclick="openBaseUrlManager()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:10px 16px;cursor:pointer;white-space:nowrap;font-weight:500;">Manage</button>
@@ -126,7 +126,7 @@
       <!-- Jira-specific: Project ID -->
       <label id="projectIdRow" class="jira-only">Project ID (pid)
         <div style="display:flex;gap:8px;align-items:center;">
-          <select id="projectId" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" onchange="saveState()">
+          <select id="projectId" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" onchange="saveState(); autoPopulateRequiredFields()">
             <option value="">-- Select Project ID --</option>
           </select>
           <button type="button" onclick="openProjectIdManager()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:10px 16px;cursor:pointer;white-space:nowrap;font-weight:500;">Manage</button>
@@ -1067,8 +1067,12 @@
     
     function autoPopulateRequiredFields() {
       const currentIssueTypeId = document.getElementById('issueType').value;
-      if (!currentIssueTypeId) return;
+      if (!currentIssueTypeId) {
+        console.log('Auto-populate: No issue type selected, skipping');
+        return;
+      }
       
+      const currentBaseUrlId = document.getElementById('baseUrl').value;
       const definitions = loadFieldDefinitions();
       const fieldsDiv = document.getElementById('fields');
       
@@ -1076,23 +1080,27 @@
       const isJira = document.body.classList.contains('app-jira');
       const isServiceNow = document.body.classList.contains('app-servicenow');
       
-      // Find all required fields for this issue type AND current app
+      // Find all required fields for this issue type, base URL, AND current app
       const requiredFields = definitions.filter(def => {
         const matchesIssueType = def.issueTypeId === currentIssueTypeId || def.tableNameId === currentIssueTypeId;
+        const matchesBaseUrl = !def.baseUrlId || def.baseUrlId === currentBaseUrlId;
         let matchesAppType = true;
         if (def.appType) {
           if (isJira && def.appType !== 'jira') matchesAppType = false;
           if (isServiceNow && def.appType !== 'servicenow') matchesAppType = false;
         }
-        return def.required && matchesIssueType && matchesAppType;
+        return def.required && matchesIssueType && matchesBaseUrl && matchesAppType;
       });
       
-      console.log('Auto-populate: Found ' + requiredFields.length + ' required fields for issue type ' + currentIssueTypeId);
-      console.log('Required fields:', requiredFields.map(f => f.label));
+      console.log('Auto-populate: Base URL=' + currentBaseUrlId + ', Issue Type=' + currentIssueTypeId + ', App=' + (isJira ? 'Jira' : 'ServiceNow'));
+      console.log('Auto-populate: Found ' + requiredFields.length + ' required fields');
+      if (requiredFields.length > 0) {
+        console.log('Required fields:', requiredFields.map(f => f.label));
+      }
       
       // If no required fields found, show a message
       if (requiredFields.length === 0) {
-        console.log('No required fields detected. Fields need to be extracted with v0.6.6+ Field Extractor.');
+        console.log('No required fields detected for this combination. Ensure fields were extracted with v0.7.1+ Field Extractor.');
         return;
       }
       
@@ -2973,6 +2981,10 @@
         if (config.appType) {
           switchAppType(config.appType);
         }
+
+        // Clear form state so user gets a clean slate after import
+        localStorage.removeItem('linkGenFormState');
+        localStorage.removeItem('snowGenState'); // Legacy key
 
         alert('Configuration imported successfully! Items have been merged. Use "Undo Last Import" if needed. Reloading...');
         window.location.reload();
