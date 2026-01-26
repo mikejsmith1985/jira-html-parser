@@ -1070,25 +1070,24 @@
       if (requiredFields.length > existingFieldIds.size) {
         const addedCount = requiredFields.filter(f => !existingFieldIds.has(f.id)).length;
         if (addedCount > 0) {
-          showNotification(\`✓ Auto-added \${addedCount} required field(s)\`, 'success');
+          showNotification('✓ Auto-added ' + addedCount + ' required field(s)', 'success');
         }
       }
     }
     
     function showNotification(message, type = 'info') {
       const notification = document.createElement('div');
-      notification.style.cssText = \`
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 12px 20px;
-        background: \${type === 'success' ? '#27ae60' : '#3498db'};
-        color: white;
-        border-radius: 4px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.2);
-        z-index: 10000;
-        animation: slideIn 0.3s ease-out;
-      \`;
+      notification.style.cssText = 
+        'position: fixed;' +
+        'top: 20px;' +
+        'right: 20px;' +
+        'padding: 12px 20px;' +
+        'background: ' + (type === 'success' ? '#27ae60' : '#3498db') + ';' +
+        'color: white;' +
+        'border-radius: 4px;' +
+        'box-shadow: 0 2px 8px rgba(0,0,0,0.2);' +
+        'z-index: 10000;' +
+        'animation: slideIn 0.3s ease-out;';
       notification.textContent = message;
       document.body.appendChild(notification);
       
