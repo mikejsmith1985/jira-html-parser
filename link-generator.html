@@ -414,8 +414,8 @@
     }
     
     function getStorageKey(key) {
-      // Use unified storage keys that work for both apps
-      const prefix = 'linkGen';
+      // Use app-specific unified storage keys
+      const prefix = currentAppType === 'jira' ? 'linkGenJira' : 'linkGenSnow';
       return prefix + key.charAt(0).toUpperCase() + key.slice(1);
     }
     
@@ -1854,7 +1854,9 @@
       // Load from unified key, fallback to legacy keys for migration
       let items = loadItems(getStorageKey('baseUrls'));
       if (!items || items.length === 0) {
-        items = loadItems('snowSavedBaseUrls') || loadItems('jiraSavedBaseUrls') || [];
+        // Migrate from app-specific legacy keys
+        const legacyKey = currentAppType === 'jira' ? 'jiraSavedBaseUrls' : 'snowSavedBaseUrls';
+        items = loadItems(legacyKey) || [];
         if (items.length > 0) {
           saveItems(getStorageKey('baseUrls'), items);
         }
@@ -2001,7 +2003,10 @@
       // Load from unified key, fallback to legacy keys for migration
       let items = loadItems(getStorageKey('issueTypes'));
       if (!items || items.length === 0) {
-        items = loadItems('snowSavedIssueTypes') || loadItems('snowSavedTableNames') || loadItems('jiraSavedIssueTypes') || [];
+        // Migrate from app-specific legacy keys
+        const legacyKey = currentAppType === 'jira' ? 'jiraSavedIssueTypes' : 
+                         (loadItems('snowSavedIssueTypes') ? 'snowSavedIssueTypes' : 'snowSavedTableNames');
+        items = loadItems(legacyKey) || [];
         if (items.length > 0) {
           saveItems(getStorageKey('issueTypes'), items);
         }
@@ -2061,7 +2066,10 @@
       // Load from unified key, fallback to legacy keys for migration
       let items = loadItems(getStorageKey('issueTypes'));
       if (!items || items.length === 0) {
-        items = loadItems('snowSavedIssueTypes') || loadItems('snowSavedTableNames') || loadItems('jiraSavedIssueTypes') || [];
+        // Migrate from app-specific legacy keys
+        const legacyKey = currentAppType === 'jira' ? 'jiraSavedIssueTypes' : 
+                         (loadItems('snowSavedIssueTypes') ? 'snowSavedIssueTypes' : 'snowSavedTableNames');
+        items = loadItems(legacyKey) || [];
         if (items.length > 0) {
           saveItems(getStorageKey('issueTypes'), items);
         }
@@ -2260,7 +2268,14 @@
       const select = document.getElementById('projectId');
       if (!select) return;
       
-      let items = loadItems(getStorageKey('projectIds')) || loadItems('jiraSavedProjectIds') || [];
+      // Load from unified key, fallback to legacy key for migration
+      let items = loadItems(getStorageKey('projectIds'));
+      if (!items || items.length === 0) {
+        items = loadItems('jiraSavedProjectIds') || [];
+        if (items.length > 0) {
+          saveItems(getStorageKey('projectIds'), items);
+        }
+      }
       const currentValue = select.value;
       
       // Clear existing options except first
