@@ -1753,7 +1753,22 @@
 
     function loadConfigurationPresets() {
       try {
-        const stored = localStorage.getItem('snowConfigurationPresets');
+        // Load from app-specific key first
+        const appKey = currentAppType === 'jira' ? 'linkGenJiraPresets' : 'linkGenSnowPresets';
+        let stored = localStorage.getItem(appKey);
+        
+        // Migration: Check for legacy preset data and migrate if needed
+        if (!stored || stored === '[]') {
+          const legacyStored = localStorage.getItem('snowConfigurationPresets');
+          if (legacyStored) {
+            console.log('Migrating legacy presets to app-specific storage');
+            // Assign presets to both apps initially (user can delete unwanted ones later)
+            localStorage.setItem('linkGenJiraPresets', legacyStored);
+            localStorage.setItem('linkGenSnowPresets', legacyStored);
+            stored = legacyStored;
+          }
+        }
+        
         if (!stored) return [];
         const parsed = JSON.parse(stored);
         return Array.isArray(parsed) ? parsed : [];
@@ -1768,6 +1783,10 @@
         if (!preset.id || !preset.name) {
           throw new Error('Preset must have id and name');
         }
+        
+        // Add app type to preset for future filtering
+        preset.appType = currentAppType;
+        
         const presets = loadConfigurationPresets();
         const index = presets.findIndex(p => p.id === preset.id);
         if (index >= 0) {
@@ -1775,7 +1794,10 @@
         } else {
           presets.push(preset);
         }
-        localStorage.setItem('snowConfigurationPresets', JSON.stringify(presets));
+        
+        // Save to app-specific key
+        const appKey = currentAppType === 'jira' ? 'linkGenJiraPresets' : 'linkGenSnowPresets';
+        localStorage.setItem(appKey, JSON.stringify(presets));
         return preset;
       } catch (e) {
         throw new Error('Failed to save preset: ' + e.message);
@@ -1790,7 +1812,10 @@
           throw new Error('Preset not found');
         }
         presets.splice(index, 1);
-        localStorage.setItem('snowConfigurationPresets', JSON.stringify(presets));
+        
+        // Save to app-specific key
+        const appKey = currentAppType === 'jira' ? 'linkGenJiraPresets' : 'linkGenSnowPresets';
+        localStorage.setItem(appKey, JSON.stringify(presets));
         return true;
       } catch (e) {
         throw new Error('Failed to delete preset: ' + e.message);
