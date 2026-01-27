@@ -2785,7 +2785,7 @@
       modal.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);z-index:2000;display:flex;align-items:center;justify-content:center;';
       
       const content = document.createElement('div');
-      content.style.cssText = 'background:#fff;border-radius:12px;padding:32px;max-width:700px;width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.3);';
+      content.style.cssText = 'background:#fff;border-radius:12px;padding:32px;max-width:900px;width:90vw;max-height:90vh;display:flex;flex-direction:column;box-shadow:0 10px 40px rgba(0,0,0,0.3);';
       
       let issueTypeInfo = '';
       if (processed.issueTypeLabel) {
@@ -2803,43 +2803,127 @@
 
       content.innerHTML = `
         <h2 style="margin:0 0 16px 0;color:#2c3e50;">📥 Import Preview</h2>
-        <p style="color:#666;margin:0 0 20px 0;">Review what will be imported before confirming.</p>
+        <p style="color:#666;margin:0 0 20px 0;">Review and select items to import. Uncheck any you don't want.</p>
         
         ${issueTypeInfo}
         ${skippedInfo}
         
-        <div style="background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px;">
-          <h3 style="margin:0 0 12px 0;font-size:1.1em;color:#2c3e50;">Import Summary</h3>
-          <ul style="margin:0;padding-left:24px;color:#555;line-height:1.8;">
-            <li><strong>${counts.fields}</strong> field definition(s)</li>
-            ${counts.baseUrls > 0 ? `<li><strong>${counts.baseUrls}</strong> base URL(s)</li>` : ''}
-            ${counts.issueTypes > 0 ? `<li><strong>${counts.issueTypes}</strong> issue type(s)</li>` : ''}
-            ${counts.projectIds > 0 ? `<li><strong>${counts.projectIds}</strong> project ID(s)</li>` : ''}
-          </ul>
-          <p style="color:#666;margin:12px 0 0 0;font-size:0.9em;">
-            <strong>Merge Strategy:</strong> Existing items will be kept, new items added, dropdown options merged.
-          </p>
+        <div style="background:#f8f9fa;padding:16px;border-radius:8px;margin-bottom:16px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+            <h3 style="margin:0;font-size:1.1em;color:#2c3e50;">Field Definitions (${counts.fields})</h3>
+            <div style="display:flex;gap:8px;">
+              <button id="selectAllFieldsBtn" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.85em;">Select All</button>
+              <button id="deselectAllFieldsBtn" style="background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.85em;">Deselect All</button>
+            </div>
+          </div>
+          <div id="fieldsList" style="max-height:300px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:12px;background:#fff;">
+            ${processed.fieldDefinitions && processed.fieldDefinitions.length > 0 ? '' : '<div style="color:#999;text-align:center;padding:20px;">No fields to import</div>'}
+          </div>
         </div>
 
-        <div style="background:#e7f3ff;padding:16px;border-radius:8px;border-left:4px solid #2196F3;margin-bottom:20px;">
-          <strong>💡 Note:</strong> You can undo this import using the "Undo Last Import" button after confirming.
+        <div style="background:#e7f3ff;padding:12px;border-radius:8px;border-left:4px solid #2196F3;margin-bottom:16px;font-size:0.9em;">
+          <strong>💡 Tip:</strong> Required fields are marked with ⚠️. Toggle the checkbox to change. Use "Undo Last Import" if needed.
         </div>
 
-        <div style="display:flex;gap:12px;justify-content:flex-end;">
+        <div style="display:flex;gap:12px;justify-content:flex-end;margin-top:auto;">
           <button id="cancelImportBtn" style="background:#6c757d;color:#fff;border:none;border-radius:6px;padding:12px 24px;cursor:pointer;font-size:14px;font-weight:500;">Cancel</button>
-          <button id="confirmImportBtn" style="background:#27ae60;color:#fff;border:none;border-radius:6px;padding:12px 24px;cursor:pointer;font-size:14px;font-weight:600;">Confirm Import</button>
+          <button id="confirmImportBtn" style="background:#27ae60;color:#fff;border:none;border-radius:6px;padding:12px 24px;cursor:pointer;font-size:14px;font-weight:600;">Import Selected</button>
         </div>
       `;
 
       modal.appendChild(content);
       document.body.appendChild(modal);
 
+      // Populate fields list with checkboxes
+      const fieldsList = document.getElementById('fieldsList');
+      if (processed.fieldDefinitions && processed.fieldDefinitions.length > 0) {
+        processed.fieldDefinitions.forEach((field, index) => {
+          const row = document.createElement('div');
+          row.style.cssText = 'display:flex;gap:8px;align-items:center;padding:8px;border-bottom:1px solid #eee;';
+          row.setAttribute('data-field-index', index);
+
+          // Checkbox for selection
+          const checkbox = document.createElement('input');
+          checkbox.type = 'checkbox';
+          checkbox.checked = true;
+          checkbox.className = 'import-field-checkbox';
+          checkbox.style.cssText = 'cursor:pointer;';
+
+          // Field info
+          const info = document.createElement('div');
+          info.style.cssText = 'flex:1;';
+          
+          let badges = '';
+          if (field.appType) {
+            const appColor = field.appType === 'jira' ? '#5dade2' : '#45b7d1';
+            badges += `<span style="font-size:0.75em;background:${appColor};color:#fff;padding:2px 6px;border-radius:3px;margin-left:4px;">${field.appType.toUpperCase()}</span>`;
+          }
+          
+          info.innerHTML = `
+            <div style="font-weight:500;">${escapeHtml(field.label)}${badges}</div>
+            <div style="font-size:0.85em;color:#666;">${escapeHtml(field.id)}</div>
+          `;
+
+          // Required checkbox
+          const requiredLabel = document.createElement('label');
+          requiredLabel.style.cssText = 'display:flex;align-items:center;gap:4px;cursor:pointer;white-space:nowrap;';
+          
+          const requiredCheckbox = document.createElement('input');
+          requiredCheckbox.type = 'checkbox';
+          requiredCheckbox.checked = field.required || false;
+          requiredCheckbox.className = 'import-required-checkbox';
+          requiredCheckbox.style.cssText = 'cursor:pointer;';
+          
+          const requiredText = document.createElement('span');
+          requiredText.textContent = field.required ? '⚠️ Required' : 'Optional';
+          requiredText.style.cssText = `font-size:0.85em;color:${field.required ? '#e74c3c' : '#95a5a6'};font-weight:500;`;
+          
+          requiredCheckbox.onchange = function() {
+            field.required = this.checked;
+            requiredText.textContent = this.checked ? '⚠️ Required' : 'Optional';
+            requiredText.style.color = this.checked ? '#e74c3c' : '#95a5a6';
+          };
+
+          requiredLabel.appendChild(requiredCheckbox);
+          requiredLabel.appendChild(requiredText);
+
+          row.appendChild(checkbox);
+          row.appendChild(info);
+          row.appendChild(requiredLabel);
+          fieldsList.appendChild(row);
+        });
+      }
+
       // Button handlers
+      document.getElementById('selectAllFieldsBtn').onclick = function() {
+        document.querySelectorAll('.import-field-checkbox').forEach(cb => cb.checked = true);
+      };
+
+      document.getElementById('deselectAllFieldsBtn').onclick = function() {
+        document.querySelectorAll('.import-field-checkbox').forEach(cb => cb.checked = false);
+      };
+
       document.getElementById('cancelImportBtn').onclick = function() {
         document.body.removeChild(modal);
       };
 
       document.getElementById('confirmImportBtn').onclick = function() {
+        // Filter to only selected fields
+        const selectedFields = [];
+        document.querySelectorAll('.import-field-checkbox').forEach((checkbox, index) => {
+          if (checkbox.checked) {
+            selectedFields.push(processed.fieldDefinitions[index]);
+          }
+        });
+        
+        if (selectedFields.length === 0) {
+          alert('Please select at least one field to import, or click Cancel.');
+          return;
+        }
+
+        // Update processed config with only selected fields
+        processed.fieldDefinitions = selectedFields;
+        
         document.body.removeChild(modal);
         executeImport(processed);
       };
