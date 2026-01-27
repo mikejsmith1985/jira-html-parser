@@ -4450,7 +4450,8 @@
             const dropdownCount = extracted.filter(f => f.fieldType === 'combobox').length;
             
             const result = {
-              version: '1.2.0',
+              version: '1.3.0',
+              extractorVersion: '0.11.4',
               extractedAt: new Date().toISOString(),
               description: 'Extracted Field Definitions',
               tool: 'Field Extractor Bookmarklet',
@@ -4505,7 +4506,7 @@
             
             const content = document.createElement('div');
             content.style.cssText = 'background:white;border-radius:12px;padding:30px;max-width:600px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.3);';
-            content.innerHTML = '<h2 style="color:#2c3e50;margin:0 0 20px 0;">Jira Field Extractor Results</h2><p style="color:#555;margin:0 0 10px 0;">Found <strong>' + extracted.length + '</strong> fields (' + dropdownCount + ' dropdowns with options).</p><p style="color:#666;font-size:0.9em;margin:0 0 20px 0;"><strong>Base URL:</strong> ' + baseUrl + '<br><strong>Project:</strong> ' + (projectKey || '(not detected)') + '<br><strong>Issue Type:</strong> ' + (issueType || '(not detected)') + '</p>';
+            content.innerHTML = '<h2 style="color:#2c3e50;margin:0 0 20px 0;">Jira Field Extractor Results</h2><p style="color:#555;margin:0 0 10px 0;">Found <strong>' + extracted.length + '</strong> fields (' + dropdownCount + ' dropdowns with options).</p><p style="color:#666;font-size:0.9em;margin:0 0 20px 0;"><strong>Extractor Version:</strong> <span style="background:#27ae60;color:white;padding:2px 8px;border-radius:3px;font-weight:600;">0.11.4</span><br><strong>Base URL:</strong> ' + baseUrl + '<br><strong>Project:</strong> ' + (projectKey || '(not detected)') + '<br><strong>Issue Type:</strong> ' + (issueType || '(not detected)') + '</p>';
             content.appendChild(textarea);
             content.appendChild(btnContainer);
             
@@ -4737,7 +4738,8 @@
             const dropdownCount = extracted.filter(f => f.fieldType === 'combobox').length;
             
             const result = {
-              version: '1.2.0',
+              version: '1.3.0',
+              extractorVersion: '0.11.4',
               extractedAt: new Date().toISOString(),
               description: 'Extracted Field Definitions',
               tool: 'Field Extractor Bookmarklet',
@@ -4791,7 +4793,7 @@
             
             const content = document.createElement('div');
             content.style.cssText = 'background:white;border-radius:12px;padding:30px;max-width:600px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.3);';
-            content.innerHTML = '<h2 style="color:#2c3e50;margin:0 0 20px 0;">ServiceNow Field Extractor Results</h2><p style="color:#555;margin:0 0 10px 0;">Found <strong>' + extracted.length + '</strong> fields (' + dropdownCount + ' dropdowns with options).</p><p style="color:#666;font-size:0.9em;margin:0 0 20px 0;"><strong>Base URL:</strong> ' + baseUrl + '<br><strong>Issue Type:</strong> ' + (issueType || '(not detected)') + '</p>';
+            content.innerHTML = '<h2 style="color:#2c3e50;margin:0 0 20px 0;">ServiceNow Field Extractor Results</h2><p style="color:#555;margin:0 0 10px 0;">Found <strong>' + extracted.length + '</strong> fields (' + dropdownCount + ' dropdowns with options).</p><p style="color:#666;font-size:0.9em;margin:0 0 20px 0;"><strong>Extractor Version:</strong> <span style="background:#27ae60;color:white;padding:2px 8px;border-radius:3px;font-weight:600;">0.11.4</span><br><strong>Base URL:</strong> ' + baseUrl + '<br><strong>Issue Type:</strong> ' + (issueType || '(not detected)') + '</p>';
             content.appendChild(textarea);
             content.appendChild(btnContainer);
             
