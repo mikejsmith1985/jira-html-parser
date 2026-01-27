@@ -4284,7 +4284,7 @@
               const systemPrefixes = ['__', 'sys_', 'csrf', 'token_', '_token'];
               if (systemPrefixes.some(prefix => fieldId.startsWith(prefix))) return true;
               
-              // SMART AUTO-EXCLUSION PATTERNS (v0.11.0)
+              // SMART AUTO-EXCLUSION PATTERNS (v0.11.1)
               // Pattern 1: QuickSearch fields (never used)
               if (fieldId.toLowerCase().includes('quicksearch') || label.toLowerCase().includes('quick search')) {
                 console.log('[Skip] QuickSearch pattern:', fieldId);
@@ -4297,23 +4297,22 @@
                 return true;
               }
               
-              // Pattern 3: Both label and ID are "customfield" (incomplete metadata)
-              if (label.toLowerCase() === 'customfield' && fieldId.toLowerCase().includes('customfield')) {
-                console.log('[Skip] Generic customfield:', fieldId);
-                return true;
-              }
-              
-              // Pattern 4: Textarea duplicates (same field as another type)
-              // Check if this is a textarea and there's already a field with same base ID
-              if (field.tagName === 'TEXTAREA' && fieldId.endsWith('textarea')) {
-                const baseId = fieldId.replace(/textarea$/i, '').replace(/_$/,'');
-                const hasNonTextarea = Array.from(fields).some(f => 
-                  (f.id === baseId || f.name === baseId) && f !== field
-                );
-                if (hasNonTextarea) {
-                  console.log('[Skip] Textarea duplicate:', fieldId, '(base:', baseId, ')');
+              // Pattern 3: Customfield with useless label
+              // Skip if ID contains "customfield" AND label is just a variation of the ID
+              if (fieldId.toLowerCase().includes('customfield')) {
+                const labelNorm = label.toLowerCase().replace(/[^a-z0-9]/g, '');
+                const idNorm = fieldId.toLowerCase().replace(/[^a-z0-9]/g, '');
+                if (labelNorm === idNorm || label.toLowerCase() === 'customfield') {
+                  console.log('[Skip] Customfield with useless label:', fieldId, 'label:', label);
                   return true;
                 }
+              }
+              
+              // Pattern 4: ALL textarea variant fields (always duplicates in Jira/SNOW)
+              // Any field with "-textarea" or "_textarea" in ID is a duplicate
+              if (fieldId.toLowerCase().includes('-textarea') || fieldId.toLowerCase().includes('_textarea')) {
+                console.log('[Skip] Textarea variant:', fieldId);
+                return true;
               }
               
               return false;
@@ -4564,7 +4563,7 @@
               const systemPrefixes = ['__', 'sys_', 'csrf', 'token_', '_token'];
               if (systemPrefixes.some(prefix => fieldId.startsWith(prefix))) return true;
               
-              // SMART AUTO-EXCLUSION PATTERNS (v0.11.0)
+              // SMART AUTO-EXCLUSION PATTERNS (v0.11.1)
               // Pattern 1: QuickSearch fields (never used)
               if (fieldId.toLowerCase().includes('quicksearch') || label.toLowerCase().includes('quick search')) {
                 console.log('[Skip] QuickSearch pattern:', fieldId);
@@ -4577,23 +4576,22 @@
                 return true;
               }
               
-              // Pattern 3: Both label and ID are "customfield" (incomplete metadata)
-              if (label.toLowerCase() === 'customfield' && fieldId.toLowerCase().includes('customfield')) {
-                console.log('[Skip] Generic customfield:', fieldId);
-                return true;
-              }
-              
-              // Pattern 4: Textarea duplicates (same field as another type)
-              // Check if this is a textarea and there's already a field with same base ID
-              if (field.tagName === 'TEXTAREA' && fieldId.endsWith('textarea')) {
-                const baseId = fieldId.replace(/textarea$/i, '').replace(/_$/,'');
-                const hasNonTextarea = Array.from(fields).some(f => 
-                  (f.id === baseId || f.name === baseId) && f !== field
-                );
-                if (hasNonTextarea) {
-                  console.log('[Skip] Textarea duplicate:', fieldId, '(base:', baseId, ')');
+              // Pattern 3: Customfield with useless label
+              // Skip if ID contains "customfield" AND label is just a variation of the ID
+              if (fieldId.toLowerCase().includes('customfield')) {
+                const labelNorm = label.toLowerCase().replace(/[^a-z0-9]/g, '');
+                const idNorm = fieldId.toLowerCase().replace(/[^a-z0-9]/g, '');
+                if (labelNorm === idNorm || label.toLowerCase() === 'customfield') {
+                  console.log('[Skip] Customfield with useless label:', fieldId, 'label:', label);
                   return true;
                 }
+              }
+              
+              // Pattern 4: ALL textarea variant fields (always duplicates in Jira/SNOW)
+              // Any field with "-textarea" or "_textarea" in ID is a duplicate
+              if (fieldId.toLowerCase().includes('-textarea') || fieldId.toLowerCase().includes('_textarea')) {
+                console.log('[Skip] Textarea variant:', fieldId);
+                return true;
               }
               
               return false;
