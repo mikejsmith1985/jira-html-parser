@@ -4110,14 +4110,6 @@
       updateAllFieldSelects();
     }
 
-    function deleteBaseUrl(urlId) {
-      const urls = loadItems(getStorageKey('baseUrls')) || [];
-      const filtered = urls.filter(u => u.id !== urlId);
-      saveItems(getStorageKey('baseUrls'), filtered);
-      loadBaseUrlsManagement();
-      populateBaseUrlDropdown();
-    }
-
     function clearAllBaseUrls() {
       if (!confirm('Clear ALL base URLs? This cannot be undone!')) return;
       saveItems(getStorageKey('baseUrls'), []);
