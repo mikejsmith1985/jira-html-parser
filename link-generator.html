@@ -176,6 +176,13 @@
           <span id="selectedFieldCount" style="display:none;font-size:0.85em;color:#3498db;font-weight:normal;margin-left:8px;"></span>
         </h3>
         
+        <!-- Ignored Fields Button -->
+        <div style="margin-bottom:8px;">
+          <button type="button" onclick="openIgnoredFieldsManager()" style="background:#e67e22;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.85em;width:100%;">
+            📛 Manage Ignored Fields (<span id="ignoredFieldsCount">0</span>)
+          </button>
+        </div>
+        
         <!-- Bulk Operations Toolbar -->
         <div id="bulkOperationsToolbar" style="display:none;background:#e8f4fd;border:1px solid #3498db;border-radius:4px;padding:8px;margin-bottom:8px;">
           <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
@@ -226,6 +233,32 @@
       <div style="margin-top:16px;text-align:right;gap:8px;display:flex;justify-content:flex-end;">
         <button type="button" onclick="cancelEditField()" id="cancelEditFieldBtn" style="display:none;background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Cancel</button>
         <button type="button" onclick="closeFieldManager()" style="background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ignored Fields Manager Modal -->
+  <div id="ignoredFieldsModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1001;align-items:center;justify-content:center;">
+    <div style="background:#fff;border-radius:8px;padding:24px;max-width:600px;width:90vw;max-height:80vh;overflow-y:auto;">
+      <h2>📛 Manage Ignored Fields</h2>
+      <p style="color:#666;margin-top:8px;">Fields marked as ignored are hidden from dropdowns and won't auto-populate.</p>
+      
+      <!-- Search -->
+      <input type="text" id="ignoredFieldSearchInput" placeholder="🔍 Search ignored fields..." oninput="filterIgnoredFieldsList()" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;margin:16px 0 8px 0;box-sizing:border-box;">
+      
+      <!-- Ignored Fields List -->
+      <div id="ignoredFieldsList" style="margin-bottom:16px;max-height:300px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:8px;background:#f9f9f9;">
+        <!-- Fields will be populated here -->
+      </div>
+      
+      <!-- Bulk Actions -->
+      <div style="display:flex;gap:8px;margin-bottom:16px;">
+        <button type="button" onclick="bulkUnignoreFields()" style="background:#27ae60;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-size:0.9em;">Un-ignore Selected</button>
+        <button type="button" onclick="clearAllIgnoredFields()" style="background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-size:0.9em;">Clear All</button>
+      </div>
+      
+      <div style="text-align:right;">
+        <button type="button" onclick="closeIgnoredFieldsManager()" style="background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;">Close</button>
       </div>
     </div>
   </div>
@@ -572,9 +605,24 @@
         if (!stored) return DEFAULT_FIELDS;
         const parsed = JSON.parse(stored);
         if (!Array.isArray(parsed)) return DEFAULT_FIELDS;
-        return parsed.filter(f => f.id && f.label);
+        // Filter out ignored fields by default
+        return parsed.filter(f => f.id && f.label && !f.ignored);
       } catch (e) {
         console.error('Failed to load field definitions:', e);
+        return DEFAULT_FIELDS;
+      }
+    }
+    
+    function loadAllFieldDefinitions() {
+      // Load ALL fields including ignored ones (for Ignored Fields Manager)
+      try {
+        const stored = localStorage.getItem('snowFieldDefinitions');
+        if (!stored) return DEFAULT_FIELDS;
+        const parsed = JSON.parse(stored);
+        if (!Array.isArray(parsed)) return DEFAULT_FIELDS;
+        return parsed.filter(f => f.id && f.label);
+      } catch (e) {
+        console.error('Failed to load all field definitions:', e);
         return DEFAULT_FIELDS;
       }
     }
@@ -1193,6 +1241,9 @@
       const modal = document.getElementById('fieldManagerModal');
       modal.style.display = 'flex';
       
+      // Update ignored fields count
+      updateIgnoredFieldsCount();
+      
       // Populate Base URL select
       const select = document.getElementById('fieldBaseUrlSelect');
       select.innerHTML = '<option value="">All Instances (Global)</option>';
@@ -1224,6 +1275,172 @@
       const modal = document.getElementById('fieldManagerModal');
       modal.style.display = 'none';
       cancelEditField();
+    }
+
+    // ========================================================================
+    // IGNORED FIELDS MANAGER
+    // ========================================================================
+    
+    function openIgnoredFieldsManager() {
+      const modal = document.getElementById('ignoredFieldsModal');
+      modal.style.display = 'flex';
+      refreshIgnoredFieldsList();
+    }
+    
+    function closeIgnoredFieldsManager() {
+      const modal = document.getElementById('ignoredFieldsModal');
+      modal.style.display = 'none';
+      // Refresh main field manager to update counts
+      refreshFieldsList();
+      updateIgnoredFieldsCount();
+    }
+    
+    function refreshIgnoredFieldsList() {
+      const list = document.getElementById('ignoredFieldsList');
+      const allFields = loadAllFieldDefinitions();
+      const ignoredFields = allFields.filter(f => f.ignored);
+      const searchTerm = document.getElementById('ignoredFieldSearchInput')?.value.toLowerCase() || '';
+      
+      list.innerHTML = '';
+      
+      if (ignoredFields.length === 0) {
+        list.innerHTML = '<div style="color:#999;text-align:center;padding:20px;">No ignored fields</div>';
+        return;
+      }
+      
+      ignoredFields.filter(field => {
+        if (!searchTerm) return true;
+        return field.label.toLowerCase().includes(searchTerm) || 
+               field.id.toLowerCase().includes(searchTerm);
+      }).forEach(field => {
+        const row = document.createElement('div');
+        row.style.cssText = 'display:flex;gap:8px;align-items:center;padding:8px;border-bottom:1px solid #ddd;background:#fff;margin-bottom:4px;border-radius:4px;';
+        
+        // Checkbox
+        const checkbox = document.createElement('input');
+        checkbox.type = 'checkbox';
+        checkbox.className = 'ignored-field-checkbox';
+        checkbox.dataset.fieldId = field.id;
+        checkbox.style.cssText = 'cursor:pointer;';
+        
+        // Field info
+        const info = document.createElement('div');
+        info.style.cssText = 'flex:1;';
+        
+        let badges = '';
+        if (field.appType) {
+          const appColor = field.appType === 'jira' ? '#5dade2' : '#45b7d1';
+          badges += `<span style="font-size:0.75em;background:${appColor};color:#fff;padding:2px 6px;border-radius:3px;margin-left:4px;">${field.appType.toUpperCase()}</span>`;
+        }
+        
+        const ignoredDate = field.ignoredAt ? new Date(field.ignoredAt).toLocaleDateString() : 'Unknown';
+        const reason = field.ignoredReason || 'manual';
+        
+        info.innerHTML = `
+          <div style="font-weight:500;">${escapeHtml(field.label)}${badges}</div>
+          <div style="font-size:0.85em;color:#666;">${escapeHtml(field.id)}</div>
+          <div style="font-size:0.75em;color:#999;">Ignored on ${ignoredDate} (${reason})</div>
+        `;
+        
+        // Un-ignore button
+        const unignoreBtn = document.createElement('button');
+        unignoreBtn.textContent = 'Un-ignore';
+        unignoreBtn.style.cssText = 'background:#27ae60;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.85em;';
+        unignoreBtn.onclick = function() {
+          unignoreField(field.id);
+        };
+        
+        row.appendChild(checkbox);
+        row.appendChild(info);
+        row.appendChild(unignoreBtn);
+        list.appendChild(row);
+      });
+    }
+    
+    function filterIgnoredFieldsList() {
+      refreshIgnoredFieldsList();
+    }
+    
+    function unignoreField(fieldId) {
+      const allFields = loadAllFieldDefinitions();
+      const field = allFields.find(f => f.id === fieldId);
+      
+      if (field) {
+        field.ignored = false;
+        delete field.ignoredAt;
+        delete field.ignoredReason;
+        localStorage.setItem('snowFieldDefinitions', JSON.stringify(allFields));
+        refreshIgnoredFieldsList();
+        updateIgnoredFieldsCount();
+        showNotification('✓ Field un-ignored: ' + field.label, 'success');
+      }
+    }
+    
+    function bulkUnignoreFields() {
+      const checkboxes = document.querySelectorAll('.ignored-field-checkbox:checked');
+      if (checkboxes.length === 0) {
+        alert('Please select fields to un-ignore.');
+        return;
+      }
+      
+      if (!confirm(`Un-ignore ${checkboxes.length} field(s)?`)) {
+        return;
+      }
+      
+      const allFields = loadAllFieldDefinitions();
+      let count = 0;
+      
+      checkboxes.forEach(cb => {
+        const fieldId = cb.dataset.fieldId;
+        const field = allFields.find(f => f.id === fieldId);
+        if (field) {
+          field.ignored = false;
+          delete field.ignoredAt;
+          delete field.ignoredReason;
+          count++;
+        }
+      });
+      
+      localStorage.setItem('snowFieldDefinitions', JSON.stringify(allFields));
+      refreshIgnoredFieldsList();
+      updateIgnoredFieldsCount();
+      showNotification(`✓ Un-ignored ${count} field(s)`, 'success');
+    }
+    
+    function clearAllIgnoredFields() {
+      const allFields = loadAllFieldDefinitions();
+      const ignoredCount = allFields.filter(f => f.ignored).length;
+      
+      if (ignoredCount === 0) {
+        alert('No ignored fields to clear.');
+        return;
+      }
+      
+      if (!confirm(`Un-ignore all ${ignoredCount} field(s)? This cannot be undone.`)) {
+        return;
+      }
+      
+      allFields.forEach(field => {
+        if (field.ignored) {
+          field.ignored = false;
+          delete field.ignoredAt;
+          delete field.ignoredReason;
+        }
+      });
+      
+      localStorage.setItem('snowFieldDefinitions', JSON.stringify(allFields));
+      refreshIgnoredFieldsList();
+      updateIgnoredFieldsCount();
+      showNotification(`✓ Cleared all ${ignoredCount} ignored field(s)`, 'success');
+    }
+    
+    function updateIgnoredFieldsCount() {
+      const allFields = loadAllFieldDefinitions();
+      const ignoredCount = allFields.filter(f => f.ignored).length;
+      const countSpan = document.getElementById('ignoredFieldsCount');
+      if (countSpan) {
+        countSpan.textContent = ignoredCount;
+      }
     }
 
     function editFieldDefinition(index) {
@@ -2744,13 +2961,19 @@
 
     function exportConfiguration() {
       try {
+        // Get all fields including ignored ones
+        const allFields = loadAllFieldDefinitions();
+        const activeFields = allFields.filter(f => !f.ignored);
+        const ignoredFields = allFields.filter(f => f.ignored);
+        
         const config = {
           version: '1.0.0',
           exportedAt: new Date().toISOString(),
           description: 'Link Generator Configuration',
           appType: currentAppType,
           configItems: loadConfigurationItems(),
-          fieldDefinitions: loadFieldDefinitions(),
+          fieldDefinitions: activeFields,
+          ignoredFields: ignoredFields,
           baseUrls: loadItems(getStorageKey('baseUrls')) || loadItems('snowSavedBaseUrls') || [],
           issueTypes: loadItems(getStorageKey('issueTypes')) || loadItems('snowSavedIssueTypes') || [],
           projectIds: loadItems(getStorageKey('projectIds')) || []
@@ -2806,6 +3029,7 @@
       // Count what will be imported
       const counts = {
         fields: (processed.fieldDefinitions || []).length,
+        ignored: (processed.ignoredFields || []).length,
         baseUrls: (processed.baseUrls || []).length,
         issueTypes: (processed.issueTypes || []).length,
         projectIds: (processed.projectIds || []).length,
@@ -2843,7 +3067,7 @@
         
         <div style="background:#f8f9fa;padding:16px;border-radius:8px;margin-bottom:16px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <h3 style="margin:0;font-size:1.1em;color:#2c3e50;">Field Definitions (${counts.fields})</h3>
+            <h3 style="margin:0;font-size:1.1em;color:#2c3e50;">Field Definitions (${counts.fields}${counts.ignored > 0 ? `, ${counts.ignored} ignored` : ''})</h3>
             <div style="display:flex;gap:8px;">
               <button id="selectAllFieldsBtn" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.85em;">Select All</button>
               <button id="deselectAllFieldsBtn" style="background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.85em;">Deselect All</button>
@@ -2932,9 +3156,48 @@
           requiredLabel.appendChild(requiredCheckbox);
           requiredLabel.appendChild(requiredText);
 
+          // Ignore checkbox
+          const ignoreLabel = document.createElement('label');
+          ignoreLabel.style.cssText = 'display:flex;align-items:center;gap:4px;cursor:pointer;white-space:nowrap;';
+          
+          const ignoreCheckbox = document.createElement('input');
+          ignoreCheckbox.type = 'checkbox';
+          ignoreCheckbox.checked = false;
+          ignoreCheckbox.className = 'import-ignore-checkbox';
+          ignoreCheckbox.style.cssText = 'cursor:pointer;';
+          
+          const ignoreText = document.createElement('span');
+          ignoreText.textContent = '🚫 Ignore';
+          ignoreText.style.cssText = 'font-size:0.85em;color:#e67e22;font-weight:500;';
+          
+          ignoreCheckbox.onchange = function() {
+            if (this.checked) {
+              // If ignoring, uncheck select and gray out
+              checkbox.checked = false;
+              row.style.opacity = '0.5';
+              field.ignored = true;
+            } else {
+              // If un-ignoring, restore normal appearance
+              row.style.opacity = '1';
+              field.ignored = false;
+            }
+          };
+          
+          // Prevent selecting if ignored
+          checkbox.onchange = function() {
+            if (this.checked && ignoreCheckbox.checked) {
+              // Can't select AND ignore
+              this.checked = false;
+            }
+          };
+
+          ignoreLabel.appendChild(ignoreCheckbox);
+          ignoreLabel.appendChild(ignoreText);
+
           row.appendChild(checkbox);
           row.appendChild(info);
           row.appendChild(requiredLabel);
+          row.appendChild(ignoreLabel);
           fieldsList.appendChild(row);
         });
         
@@ -2958,21 +3221,34 @@
       };
 
       document.getElementById('confirmImportBtn').onclick = function() {
-        // Filter to only selected fields
+        // Separate selected fields from ignored fields
         const selectedFields = [];
+        const ignoredFields = [];
+        
         document.querySelectorAll('.import-field-checkbox').forEach((checkbox, index) => {
-          if (checkbox.checked) {
-            selectedFields.push(processed.fieldDefinitions[index]);
+          const field = processed.fieldDefinitions[index];
+          const ignoreCheckbox = document.querySelectorAll('.import-ignore-checkbox')[index];
+          
+          if (ignoreCheckbox && ignoreCheckbox.checked) {
+            // Field is marked as ignored
+            field.ignored = true;
+            field.ignoredAt = new Date().toISOString();
+            field.ignoredReason = 'manual';
+            ignoredFields.push(field);
+          } else if (checkbox.checked) {
+            // Field is selected for import
+            selectedFields.push(field);
           }
         });
         
-        if (selectedFields.length === 0) {
-          alert('Please select at least one field to import, or click Cancel.');
+        if (selectedFields.length === 0 && ignoredFields.length === 0) {
+          alert('Please select at least one field to import or ignore, or click Cancel.');
           return;
         }
 
-        // Update processed config with only selected fields
+        // Update processed config with selected and ignored fields
         processed.fieldDefinitions = selectedFields;
+        processed.ignoredFields = ignoredFields;
         
         document.body.removeChild(modal);
         executeImport(processed);
@@ -3094,6 +3370,30 @@
           }
           
           saveFieldDefinitions(mergeItems(existing, config.fieldDefinitions));
+        }
+        
+        // Handle ignored fields - merge them into existing fields with ignored flag
+        if (config.ignoredFields && Array.isArray(config.ignoredFields)) {
+          const allFields = loadAllFieldDefinitions(); // Load including ignored
+          
+          config.ignoredFields.forEach(ignoredField => {
+            // Check if field already exists in storage
+            const existingIndex = allFields.findIndex(f => f.id === ignoredField.id);
+            if (existingIndex >= 0) {
+              // Field exists - update it to be ignored
+              allFields[existingIndex].ignored = true;
+              allFields[existingIndex].ignoredAt = ignoredField.ignoredAt || new Date().toISOString();
+              allFields[existingIndex].ignoredReason = ignoredField.ignoredReason || 'manual';
+            } else {
+              // Field doesn't exist - add it as ignored
+              ignoredField.ignored = true;
+              allFields.push(ignoredField);
+            }
+          });
+          
+          // Save back all fields including ignored ones
+          localStorage.setItem('snowFieldDefinitions', JSON.stringify(allFields));
+          console.log('[executeImport] Processed', config.ignoredFields.length, 'ignored fields');
         }
         
         // Auto-create dropdown items from extracted metadata if arrays not provided
