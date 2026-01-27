@@ -4394,8 +4394,11 @@
                 return;
               }
               
-              // Clean up "Required" and "Mandatory" from labels
-              label = label.replace(/\s*(Required|Mandatory)\s*$/i, '').trim();
+              // Clean up "Required" and "Mandatory" from labels (v0.11.3 - more robust)
+              // Remove from end of string, or if followed only by whitespace/punctuation
+              label = label.replace(/\s*(Required|Mandatory)[\s\.\,\:\;\!\?]*$/i, '').trim();
+              // Also remove if it's the entire label after first word
+              label = label.replace(/^(.+?)\s+(Required|Mandatory)$/i, '$1').trim();
               
               // Capitalize first letter of each word for better readability
               if (label && label.length > 0) {
@@ -4678,8 +4681,11 @@
                 return;
               }
               
-              // Clean up "Required" and "Mandatory" from labels
-              label = label.replace(/\s*(Required|Mandatory)\s*$/i, '').trim();
+              // Clean up "Required" and "Mandatory" from labels (v0.11.3 - more robust)
+              // Remove from end of string, or if followed only by whitespace/punctuation
+              label = label.replace(/\s*(Required|Mandatory)[\s\.\,\:\;\!\?]*$/i, '').trim();
+              // Also remove if it's the entire label after first word
+              label = label.replace(/^(.+?)\s+(Required|Mandatory)$/i, '$1').trim();
               
               // Capitalize first letter of each word for better readability
               if (label && label.length > 0) {
