@@ -3748,109 +3748,32 @@
           console.log('[executeImport] Processed', config.ignoredFields.length, 'ignored fields');
         }
         
-        // Auto-create dropdown items from extracted metadata if arrays not provided
-        // Use the config's appType to determine correct storage key
-        const importAppType = config.appType || currentAppType;
-        const getImportStorageKey = (key) => {
-          const prefix = importAppType === 'jira' ? 'linkGenJira' : 'linkGenSnow';
-          return prefix + key.charAt(0).toUpperCase() + key.slice(1);
-        };
+        // v0.11.0: Field metadata is preserved but dropdown entries are NOT auto-created
+        // This prevents duplicate/conflicting base URLs, issue types, and project IDs.
+        // Users must manually create dropdown entries via management screens.
+        // 
+        // Fields retain baseUrl/issueType/projectKey metadata for:
+        // - Proper filtering and display
+        // - Auto-populate matching logic
+        // - Field organization and categorization
         
-        if (config.baseUrl && typeof config.baseUrl === 'string' && !config.baseUrls) {
-          // Check if this URL already exists in storage
-          const existingBaseUrls = loadItems(getImportStorageKey('baseUrls')) || [];
-          const normalizedUrl = config.baseUrl.toLowerCase();
-          const existingMatch = existingBaseUrls.find(bu => 
-            bu.url && bu.url.toLowerCase() === normalizedUrl
-          );
-          
-          if (existingMatch) {
-            // Reuse existing base URL entry
-            config.baseUrls = [existingMatch];
-            console.log('Reusing existing base URL:', existingMatch.id, existingMatch.alias || existingMatch.label);
-            
-            // Update field definitions to use existing base URL ID
-            if (config.fieldDefinitions) {
-              config.fieldDefinitions.forEach(field => {
-                if (!field.baseUrlId) {
-                  field.baseUrlId = existingMatch.id;
-                }
-              });
-            }
-          } else {
-            // Create new base URL entry
-            const baseUrlId = config.baseUrl.replace(/https?:\/\//, '').replace(/\//g, '-');
-            const baseUrlLabel = config.baseUrl.replace(/https?:\/\//, ''); // Clean label without protocol
-            config.baseUrls = [{
-              id: baseUrlId,
-              url: config.baseUrl,
-              label: baseUrlLabel,
-              value: config.baseUrl,
-              alias: baseUrlLabel
-            }];
-            console.log('Auto-created baseUrls array from baseUrl:', config.baseUrls);
-          }
-        }
+        // v0.11.0: DO NOT auto-create dropdown entries from import
+        // Fields keep metadata (baseUrl, issueType, projectId) but dropdown items
+        // must be created manually by user. This prevents duplicate/conflicting entries.
+        // 
+        // Field metadata is preserved for matching logic:
+        // - fields know which issue type/base URL they belong to
+        // - auto-populate still works if matching dropdown entries exist
+        // - import won't create unwanted dropdown clutter
         
-        if (config.issueType && typeof config.issueType === 'string' && !config.issueTypes) {
-          // Check if this issue type already exists
-          const existingIssueTypes = loadItems(getImportStorageKey('issueTypes')) || [];
-          const existingMatch = existingIssueTypes.find(it => 
-            it.id === config.issueType || it.value === config.issueType
-          );
-          
-          if (existingMatch) {
-            // Reuse existing issue type
-            config.issueTypes = [existingMatch];
-            console.log('Reusing existing issue type:', existingMatch.id, existingMatch.name || existingMatch.alias);
-          } else {
-            // Create new issue type entry
-            config.issueTypes = [{
-              id: config.issueType,
-              name: config.issueType,
-              value: config.issueType,
-              alias: config.issueType
-            }];
-            console.log('Auto-created issueTypes array from issueType:', config.issueTypes);
-          }
-        }
+        console.log('[Import] Skipping auto-creation of dropdown items (v0.11.0 behavior)');
+        console.log('[Import] Field metadata preserved:', {
+          baseUrl: config.baseUrl || 'none',
+          issueType: config.issueType || 'none',
+          projectKey: config.projectKey || 'none'
+        });
         
-        if (config.projectKey && typeof config.projectKey === 'string' && !config.projectIds) {
-          config.projectIds = [{
-            id: config.projectKey,
-            name: config.projectKey,
-            value: config.projectKey,
-            alias: config.projectKey
-          }];
-          console.log('Auto-created projectIds array from projectKey:', config.projectIds);
-        }
-        
-        if (config.baseUrls && Array.isArray(config.baseUrls)) {
-          const existing = loadItems(getImportStorageKey('baseUrls')) || [];
-          const merged = mergeItems(existing, config.baseUrls);
-          console.log('[executeImport] Saving baseUrls to', getImportStorageKey('baseUrls'), ':', merged);
-          saveItems(getImportStorageKey('baseUrls'), merged);
-        }
-        if (config.issueTypes && Array.isArray(config.issueTypes)) {
-          const existing = loadItems(getImportStorageKey('issueTypes')) || [];
-          const merged = mergeItems(existing, config.issueTypes);
-          console.log('[executeImport] Saving issueTypes to', getImportStorageKey('issueTypes'), ':', merged);
-          saveItems(getImportStorageKey('issueTypes'), merged);
-        }
-        if (config.tableNames && Array.isArray(config.tableNames)) {
-          const existing = loadItems(getImportStorageKey('issueTypes')) || [];
-          const merged = mergeItems(existing, config.tableNames);
-          console.log('[executeImport] Saving tableNames to', getImportStorageKey('issueTypes'), ':', merged);
-          saveItems(getImportStorageKey('issueTypes'), merged);
-        }
-        if (config.projectIds && Array.isArray(config.projectIds)) {
-          const existing = loadItems(getImportStorageKey('projectIds')) || [];
-          const merged = mergeItems(existing, config.projectIds);
-          console.log('[executeImport] Saving projectIds to', getImportStorageKey('projectIds'), ':', merged);
-          saveItems(getImportStorageKey('projectIds'), merged);
-        }
-        
-        // Detect app type from config if available (AFTER saving dropdown items)
+        // Detect app type from config if available
         if (config.appType) {
           switchAppType(config.appType);
         }
@@ -4361,6 +4284,38 @@
               const systemPrefixes = ['__', 'sys_', 'csrf', 'token_', '_token'];
               if (systemPrefixes.some(prefix => fieldId.startsWith(prefix))) return true;
               
+              // SMART AUTO-EXCLUSION PATTERNS (v0.11.0)
+              // Pattern 1: QuickSearch fields (never used)
+              if (fieldId.toLowerCase().includes('quicksearch') || label.toLowerCase().includes('quick search')) {
+                console.log('[Skip] QuickSearch pattern:', fieldId);
+                return true;
+              }
+              
+              // Pattern 2: Empty or missing labels
+              if (!label || label.trim() === '' || label === fieldId) {
+                console.log('[Skip] Empty/missing label:', fieldId);
+                return true;
+              }
+              
+              // Pattern 3: Both label and ID are "customfield" (incomplete metadata)
+              if (label.toLowerCase() === 'customfield' && fieldId.toLowerCase().includes('customfield')) {
+                console.log('[Skip] Generic customfield:', fieldId);
+                return true;
+              }
+              
+              // Pattern 4: Textarea duplicates (same field as another type)
+              // Check if this is a textarea and there's already a field with same base ID
+              if (field.tagName === 'TEXTAREA' && fieldId.endsWith('textarea')) {
+                const baseId = fieldId.replace(/textarea$/i, '').replace(/_$/,'');
+                const hasNonTextarea = Array.from(fields).some(f => 
+                  (f.id === baseId || f.name === baseId) && f !== field
+                );
+                if (hasNonTextarea) {
+                  console.log('[Skip] Textarea duplicate:', fieldId, '(base:', baseId, ')');
+                  return true;
+                }
+              }
+              
               return false;
             };
             
@@ -4608,6 +4563,38 @@
               // Skip system fields
               const systemPrefixes = ['__', 'sys_', 'csrf', 'token_', '_token'];
               if (systemPrefixes.some(prefix => fieldId.startsWith(prefix))) return true;
+              
+              // SMART AUTO-EXCLUSION PATTERNS (v0.11.0)
+              // Pattern 1: QuickSearch fields (never used)
+              if (fieldId.toLowerCase().includes('quicksearch') || label.toLowerCase().includes('quick search')) {
+                console.log('[Skip] QuickSearch pattern:', fieldId);
+                return true;
+              }
+              
+              // Pattern 2: Empty or missing labels
+              if (!label || label.trim() === '' || label === fieldId) {
+                console.log('[Skip] Empty/missing label:', fieldId);
+                return true;
+              }
+              
+              // Pattern 3: Both label and ID are "customfield" (incomplete metadata)
+              if (label.toLowerCase() === 'customfield' && fieldId.toLowerCase().includes('customfield')) {
+                console.log('[Skip] Generic customfield:', fieldId);
+                return true;
+              }
+              
+              // Pattern 4: Textarea duplicates (same field as another type)
+              // Check if this is a textarea and there's already a field with same base ID
+              if (field.tagName === 'TEXTAREA' && fieldId.endsWith('textarea')) {
+                const baseId = fieldId.replace(/textarea$/i, '').replace(/_$/,'');
+                const hasNonTextarea = Array.from(fields).some(f => 
+                  (f.id === baseId || f.name === baseId) && f !== field
+                );
+                if (hasNonTextarea) {
+                  console.log('[Skip] Textarea duplicate:', fieldId, '(base:', baseId, ')');
+                  return true;
+                }
+              }
               
               return false;
             };
