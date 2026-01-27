@@ -3757,26 +3757,62 @@
         };
         
         if (config.baseUrl && typeof config.baseUrl === 'string' && !config.baseUrls) {
-          const baseUrlId = config.baseUrl.replace(/https?:\/\//, '').replace(/\//g, '-');
-          const baseUrlLabel = config.baseUrl.replace(/https?:\/\//, ''); // Clean label without protocol
-          config.baseUrls = [{
-            id: baseUrlId,
-            url: config.baseUrl,
-            label: baseUrlLabel,
-            value: config.baseUrl,
-            alias: baseUrlLabel
-          }];
-          console.log('Auto-created baseUrls array from baseUrl:', config.baseUrls);
+          // Check if this URL already exists in storage
+          const existingBaseUrls = loadItems(getImportStorageKey('baseUrls')) || [];
+          const normalizedUrl = config.baseUrl.toLowerCase();
+          const existingMatch = existingBaseUrls.find(bu => 
+            bu.url && bu.url.toLowerCase() === normalizedUrl
+          );
+          
+          if (existingMatch) {
+            // Reuse existing base URL entry
+            config.baseUrls = [existingMatch];
+            console.log('Reusing existing base URL:', existingMatch.id, existingMatch.alias || existingMatch.label);
+            
+            // Update field definitions to use existing base URL ID
+            if (config.fieldDefinitions) {
+              config.fieldDefinitions.forEach(field => {
+                if (!field.baseUrlId) {
+                  field.baseUrlId = existingMatch.id;
+                }
+              });
+            }
+          } else {
+            // Create new base URL entry
+            const baseUrlId = config.baseUrl.replace(/https?:\/\//, '').replace(/\//g, '-');
+            const baseUrlLabel = config.baseUrl.replace(/https?:\/\//, ''); // Clean label without protocol
+            config.baseUrls = [{
+              id: baseUrlId,
+              url: config.baseUrl,
+              label: baseUrlLabel,
+              value: config.baseUrl,
+              alias: baseUrlLabel
+            }];
+            console.log('Auto-created baseUrls array from baseUrl:', config.baseUrls);
+          }
         }
         
         if (config.issueType && typeof config.issueType === 'string' && !config.issueTypes) {
-          config.issueTypes = [{
-            id: config.issueType,
-            name: config.issueType,
-            value: config.issueType,
-            alias: config.issueType
-          }];
-          console.log('Auto-created issueTypes array from issueType:', config.issueTypes);
+          // Check if this issue type already exists
+          const existingIssueTypes = loadItems(getImportStorageKey('issueTypes')) || [];
+          const existingMatch = existingIssueTypes.find(it => 
+            it.id === config.issueType || it.value === config.issueType
+          );
+          
+          if (existingMatch) {
+            // Reuse existing issue type
+            config.issueTypes = [existingMatch];
+            console.log('Reusing existing issue type:', existingMatch.id, existingMatch.name || existingMatch.alias);
+          } else {
+            // Create new issue type entry
+            config.issueTypes = [{
+              id: config.issueType,
+              name: config.issueType,
+              value: config.issueType,
+              alias: config.issueType
+            }];
+            console.log('Auto-created issueTypes array from issueType:', config.issueTypes);
+          }
         }
         
         if (config.projectKey && typeof config.projectKey === 'string' && !config.projectIds) {
