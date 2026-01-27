@@ -1111,12 +1111,16 @@
         return;
       }
       
-      // Get currently added field IDs
+      // Get currently added field IDs and remove empty field rows
       const existingFieldIds = new Set();
+      const emptyRows = [];
       document.querySelectorAll('.field-row').forEach(row => {
         const select = row.querySelector('.field-select');
         if (select && select.value) {
           existingFieldIds.add(select.value);
+        } else if (select && !select.value) {
+          // Track empty rows to remove after auto-populate
+          emptyRows.push(row);
         }
       });
       
@@ -1146,6 +1150,12 @@
           }
         }
       });
+      
+      // Remove empty field rows after auto-populating
+      if (addedCount > 0 && emptyRows.length > 0) {
+        console.log('Removing ' + emptyRows.length + ' empty field row(s)');
+        emptyRows.forEach(row => row.remove());
+      }
       
       // Show notification if fields were added
       if (addedCount > 0) {
