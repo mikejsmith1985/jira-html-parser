@@ -1067,8 +1067,13 @@
       
       // Find all required fields for this issue type, base URL, AND current app
       const requiredFields = definitions.filter(def => {
-        const matchesIssueType = def.issueTypeId === currentIssueTypeId || def.tableNameId === currentIssueTypeId;
+        // Issue Type matching: exact match OR field has no issue type (global field)
+        const matchesIssueType = !def.issueTypeId || !def.tableNameId || 
+                                 def.issueTypeId === currentIssueTypeId || 
+                                 def.tableNameId === currentIssueTypeId;
+        // Base URL matching: exact match OR field has no base URL (global field)
         const matchesBaseUrl = !def.baseUrlId || def.baseUrlId === currentBaseUrlId;
+        // App Type matching
         let matchesAppType = true;
         if (def.appType) {
           if (isJira && def.appType !== 'jira') matchesAppType = false;
@@ -1077,10 +1082,27 @@
         return def.required && matchesIssueType && matchesBaseUrl && matchesAppType;
       });
       
-      console.log('Auto-populate: Base URL=' + currentBaseUrlId + ', Issue Type=' + currentIssueTypeId + ', App=' + (isJira ? 'Jira' : 'ServiceNow'));
-      console.log('Auto-populate: Found ' + requiredFields.length + ' required fields');
+      console.log('=== AUTO-POPULATE DEBUG ===');
+      console.log('Selected Base URL ID:', currentBaseUrlId);
+      console.log('Selected Issue Type ID:', currentIssueTypeId);
+      console.log('Current App:', isJira ? 'Jira' : 'ServiceNow');
+      console.log('Total field definitions in storage:', definitions.length);
+      console.log('Fields marked as required:', definitions.filter(d => d.required).length);
+      
+      // Debug each required field's matching
+      definitions.filter(d => d.required).forEach(def => {
+        console.log('- Field:', def.label, {
+          id: def.id,
+          issueTypeId: def.issueTypeId,
+          baseUrlId: def.baseUrlId,
+          appType: def.appType,
+          required: def.required
+        });
+      });
+      
+      console.log('Auto-populate: Found ' + requiredFields.length + ' required fields matching criteria');
       if (requiredFields.length > 0) {
-        console.log('Required fields:', requiredFields.map(f => f.label));
+        console.log('Matching required fields:', requiredFields.map(f => f.label + ' (ID: ' + f.id + ')'));
       }
       
       // If no required fields found, show a message
