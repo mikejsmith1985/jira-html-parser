@@ -619,24 +619,9 @@
         return; // Don't continue until config is loaded
       }
 
-      const fieldDefinitions = loadFieldDefinitions();
-      const saved = localStorage.getItem('snowGenState');
-      if (saved) {
-        const state = JSON.parse(saved);
-        document.getElementById('baseUrl').value = state.baseUrl || '';
-        document.getElementById('issueType').value = state.issueType || state.tableName || '';
-
-        if (state.fields && state.fields.length > 0) {
-          // Migrate old format to new format if needed
-          const migratedFields = migrateFieldNames(state.fields, fieldDefinitions);
-          saveFieldDefinitions(fieldDefinitions);
-          migratedFields.forEach(f => addField(f));
-        } else {
-          addField();
-        }
-      } else {
-        addField();
-      }
+      // Don't restore any saved state - user wants clean form every time
+      // Just add one empty field to start
+      addField();
 
       // Populate preset dropdown
       populatePresetDropdown();
@@ -3920,20 +3905,18 @@
       const savedAppType = localStorage.getItem('linkGenAppType') || 'servicenow';
       switchAppType(savedAppType);
       
-      // Populate all dropdowns
+      // Populate all dropdowns (starts with clean/empty selections)
       populateBaseUrlDropdown();
       populateIssueTypeDropdown();
       populateProjectIdDropdown();
       
-      // Restore saved form state
-      restoreState();
+      // Don't restore form state - user wants clean slate every time
+      // Only app type is remembered (handled above)
     });
     
     function saveState() {
+      // Save filter checkbox preference only (useful to remember)
       const state = {
-        baseUrl: document.getElementById('baseUrl')?.value || '',
-        issueType: document.getElementById('issueType')?.value || '',
-        projectId: document.getElementById('projectId')?.value || '',
         filterFieldsByIssueType: document.getElementById('filterFieldsByIssueType')?.checked || false
       };
       localStorage.setItem('linkGenFormState', JSON.stringify(state));
@@ -3944,18 +3927,7 @@
         const saved = localStorage.getItem('linkGenFormState');
         if (saved) {
           const state = JSON.parse(saved);
-          if (state.baseUrl) {
-            const baseUrlSelect = document.getElementById('baseUrl');
-            if (baseUrlSelect) baseUrlSelect.value = state.baseUrl;
-          }
-          if (state.issueType) {
-            const issueTypeSelect = document.getElementById('issueType');
-            if (issueTypeSelect) issueTypeSelect.value = state.issueType;
-          }
-          if (state.projectId) {
-            const projectIdSelect = document.getElementById('projectId');
-            if (projectIdSelect) projectIdSelect.value = state.projectId;
-          }
+          // Only restore the filter checkbox preference
           if (state.filterFieldsByIssueType !== undefined) {
             const filterCheckbox = document.getElementById('filterFieldsByIssueType');
             if (filterCheckbox) filterCheckbox.checked = state.filterFieldsByIssueType;
