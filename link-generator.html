@@ -191,7 +191,7 @@
         <!-- Search/Filter -->
         <input type="text" id="fieldSearchInput" placeholder="🔍 Search fields..." oninput="filterFieldsList()" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;margin-bottom:8px;box-sizing:border-box;">
         
-        <div id="fieldsList" style="margin-bottom:16px;max-height:200px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:8px;"></div>
+        <div id="fieldManagerList" style="margin-bottom:16px;max-height:200px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:8px;"></div>
       </div>
       
       <div style="margin-top:16px;display:flex;flex-direction:column;gap:8px;">
@@ -1400,7 +1400,7 @@
     }
 
     function refreshFieldsList() {
-      const fieldsList = document.getElementById('fieldsList');
+      const fieldsList = document.getElementById('fieldManagerList');
       const definitions = loadFieldDefinitions();
       const baseUrls = loadItems(getStorageKey('baseUrls')) || [];
       const issueTypes = loadItems(getStorageKey('issueTypes')) || [];
