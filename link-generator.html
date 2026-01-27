@@ -3337,9 +3337,21 @@
       // Process and enhance the config before showing preview
       const processed = processImportedConfig(config);
       
+      // Load existing ignored fields to check for matches
+      const allStoredFields = loadAllFieldDefinitions();
+      const alreadyIgnoredFieldIds = new Set(
+        allStoredFields.filter(f => f.ignored).map(f => f.id)
+      );
+      
+      // Count how many incoming fields are already ignored
+      const preIgnoredCount = (processed.fieldDefinitions || []).filter(f => 
+        alreadyIgnoredFieldIds.has(f.id)
+      ).length;
+      
       // Count what will be imported
       const counts = {
         fields: (processed.fieldDefinitions || []).length,
+        preIgnored: preIgnoredCount,
         ignored: (processed.ignoredFields || []).length,
         baseUrls: (processed.baseUrls || []).length,
         issueTypes: (processed.issueTypes || []).length,
@@ -3368,6 +3380,13 @@
           ⚠ Skipped ${counts.skipped} field(s) with auto-generated/meaningless IDs
         </div>`;
       }
+      
+      let preIgnoredInfo = '';
+      if (counts.preIgnored > 0) {
+        preIgnoredInfo = `<div style="background:#e7f3ff;border:1px solid #2196F3;color:#004085;padding:12px;border-radius:6px;margin-bottom:16px;">
+          ℹ️ ${counts.preIgnored} field(s) already in your ignore list (pre-checked below)
+        </div>`;
+      }
 
       content.innerHTML = `
         <h2 style="margin:0 0 16px 0;color:#2c3e50;">📥 Import Preview</h2>
@@ -3375,6 +3394,7 @@
         
         ${issueTypeInfo}
         ${skippedInfo}
+        ${preIgnoredInfo}
         
         <div style="background:#f8f9fa;padding:16px;border-radius:8px;margin-bottom:16px;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
@@ -3417,10 +3437,24 @@
         // Clear any existing content first
         fieldsList.innerHTML = '';
         
+        // Load existing ignored fields to check against
+        const allStoredFields = loadAllFieldDefinitions();
+        const alreadyIgnoredFieldIds = new Set(
+          allStoredFields.filter(f => f.ignored).map(f => f.id)
+        );
+        
         processed.fieldDefinitions.forEach((field, index) => {
+          // Check if this field is already ignored in storage
+          const isAlreadyIgnored = alreadyIgnoredFieldIds.has(field.id);
+          
           const row = document.createElement('div');
           row.style.cssText = 'display:flex;gap:8px;align-items:center;padding:8px;border-bottom:1px solid #eee;';
           row.setAttribute('data-field-index', index);
+          
+          // Pre-set opacity if already ignored
+          if (isAlreadyIgnored) {
+            row.style.opacity = '0.5';
+          }
 
           // Checkbox for selection
           const checkbox = document.createElement('input');
@@ -3473,13 +3507,18 @@
           
           const ignoreCheckbox = document.createElement('input');
           ignoreCheckbox.type = 'checkbox';
-          ignoreCheckbox.checked = false;
+          ignoreCheckbox.checked = isAlreadyIgnored; // Pre-check if already ignored
           ignoreCheckbox.className = 'import-ignore-checkbox';
           ignoreCheckbox.style.cssText = 'cursor:pointer;';
           
           const ignoreText = document.createElement('span');
-          ignoreText.textContent = '🚫 Ignore';
+          ignoreText.textContent = isAlreadyIgnored ? '🚫 Already Ignored' : '🚫 Ignore';
           ignoreText.style.cssText = 'font-size:0.85em;color:#e67e22;font-weight:500;';
+          
+          // If already ignored, also uncheck the select checkbox
+          if (isAlreadyIgnored) {
+            checkbox.checked = false;
+          }
           
           ignoreCheckbox.onchange = function() {
             if (this.checked) {
@@ -3487,10 +3526,12 @@
               checkbox.checked = false;
               row.style.opacity = '0.5';
               field.ignored = true;
+              ignoreText.textContent = '🚫 Ignore';
             } else {
               // If un-ignoring, restore normal appearance
               row.style.opacity = '1';
               field.ignored = false;
+              ignoreText.textContent = '🚫 Ignore';
             }
           };
           
