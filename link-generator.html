@@ -2836,7 +2836,19 @@
 
       // Populate fields list with checkboxes
       const fieldsList = document.getElementById('fieldsList');
+      
+      console.log('Import Preview: fieldsList element found?', !!fieldsList);
+      console.log('Import Preview: Number of fields to display:', processed.fieldDefinitions ? processed.fieldDefinitions.length : 0);
+      
+      if (!fieldsList) {
+        console.error('Import Preview: fieldsList element not found!');
+        return;
+      }
+      
       if (processed.fieldDefinitions && processed.fieldDefinitions.length > 0) {
+        // Clear any existing content first
+        fieldsList.innerHTML = '';
+        
         processed.fieldDefinitions.forEach((field, index) => {
           const row = document.createElement('div');
           row.style.cssText = 'display:flex;gap:8px;align-items:center;padding:8px;border-bottom:1px solid #eee;';
@@ -2892,6 +2904,11 @@
           row.appendChild(requiredLabel);
           fieldsList.appendChild(row);
         });
+        
+        console.log('Import Preview: Successfully added', processed.fieldDefinitions.length, 'field rows to DOM');
+      } else {
+        fieldsList.innerHTML = '<div style="color:#999;text-align:center;padding:20px;">No fields to import</div>';
+        console.log('Import Preview: No fields to display');
       }
 
       // Button handlers
