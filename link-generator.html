@@ -4394,11 +4394,14 @@
                 return;
               }
               
-              // Clean up "Required" and "Mandatory" from labels (v0.11.3 - more robust)
-              // Remove from end of string, or if followed only by whitespace/punctuation
-              label = label.replace(/\s*(Required|Mandatory)[\s\.\,\:\;\!\?]*$/i, '').trim();
-              // Also remove if it's the entire label after first word
+              // Clean up "Required" and "Mandatory" from labels (v0.11.5 - fixed)
+              // CRITICAL FIX: Removed backslash escaping inside character class
+              const labelBefore = label;
+              label = label.replace(/\s*(Required|Mandatory)[\s.,;:!?]*$/i, '').trim();
               label = label.replace(/^(.+?)\s+(Required|Mandatory)$/i, '$1').trim();
+              if (labelBefore !== label && fieldId === 'summary') {
+                console.log('[Jira Label Clean] "' + labelBefore + '" -> "' + label + '" (charCodes: ' + Array.from(labelBefore).map(c => c.charCodeAt(0)).join(',') + ')');
+              }
               
               // Capitalize first letter of each word for better readability
               if (label && label.length > 0) {
@@ -4506,7 +4509,7 @@
             
             const content = document.createElement('div');
             content.style.cssText = 'background:white;border-radius:12px;padding:30px;max-width:600px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.3);';
-            content.innerHTML = '<h2 style="color:#2c3e50;margin:0 0 20px 0;">Jira Field Extractor Results</h2><p style="color:#555;margin:0 0 10px 0;">Found <strong>' + extracted.length + '</strong> fields (' + dropdownCount + ' dropdowns with options).</p><p style="color:#666;font-size:0.9em;margin:0 0 20px 0;"><strong>Extractor Version:</strong> <span style="background:#27ae60;color:white;padding:2px 8px;border-radius:3px;font-weight:600;">0.11.4</span><br><strong>Base URL:</strong> ' + baseUrl + '<br><strong>Project:</strong> ' + (projectKey || '(not detected)') + '<br><strong>Issue Type:</strong> ' + (issueType || '(not detected)') + '</p>';
+            content.innerHTML = '<h2 style="color:#2c3e50;margin:0 0 20px 0;">Jira Field Extractor Results</h2><p style="color:#555;margin:0 0 10px 0;">Found <strong>' + extracted.length + '</strong> fields (' + dropdownCount + ' dropdowns with options).</p><p style="color:#666;font-size:0.9em;margin:0 0 20px 0;"><strong>Extractor Version:</strong> <span style="background:#27ae60;color:white;padding:2px 8px;border-radius:3px;font-weight:600;">0.11.5</span><br><strong>Base URL:</strong> ' + baseUrl + '<br><strong>Project:</strong> ' + (projectKey || '(not detected)') + '<br><strong>Issue Type:</strong> ' + (issueType || '(not detected)') + '</p>';
             content.appendChild(textarea);
             content.appendChild(btnContainer);
             
@@ -4682,11 +4685,14 @@
                 return;
               }
               
-              // Clean up "Required" and "Mandatory" from labels (v0.11.3 - more robust)
-              // Remove from end of string, or if followed only by whitespace/punctuation
-              label = label.replace(/\s*(Required|Mandatory)[\s\.\,\:\;\!\?]*$/i, '').trim();
-              // Also remove if it's the entire label after first word
+              // Clean up "Required" and "Mandatory" from labels (v0.11.5 - fixed)
+              // CRITICAL FIX: Removed backslash escaping inside character class
+              const labelBefore = label;
+              label = label.replace(/\s*(Required|Mandatory)[\s.,;:!?]*$/i, '').trim();
               label = label.replace(/^(.+?)\s+(Required|Mandatory)$/i, '$1').trim();
+              if (labelBefore !== label && fieldId === 'summary') {
+                console.log('[SNOW Label Clean] "' + labelBefore + '" -> "' + label + '" (charCodes: ' + Array.from(labelBefore).map(c => c.charCodeAt(0)).join(',') + ')');
+              }
               
               // Capitalize first letter of each word for better readability
               if (label && label.length > 0) {
@@ -4793,7 +4799,7 @@
             
             const content = document.createElement('div');
             content.style.cssText = 'background:white;border-radius:12px;padding:30px;max-width:600px;width:90%;box-shadow:0 10px 40px rgba(0,0,0,0.3);';
-            content.innerHTML = '<h2 style="color:#2c3e50;margin:0 0 20px 0;">ServiceNow Field Extractor Results</h2><p style="color:#555;margin:0 0 10px 0;">Found <strong>' + extracted.length + '</strong> fields (' + dropdownCount + ' dropdowns with options).</p><p style="color:#666;font-size:0.9em;margin:0 0 20px 0;"><strong>Extractor Version:</strong> <span style="background:#27ae60;color:white;padding:2px 8px;border-radius:3px;font-weight:600;">0.11.4</span><br><strong>Base URL:</strong> ' + baseUrl + '<br><strong>Issue Type:</strong> ' + (issueType || '(not detected)') + '</p>';
+            content.innerHTML = '<h2 style="color:#2c3e50;margin:0 0 20px 0;">ServiceNow Field Extractor Results</h2><p style="color:#555;margin:0 0 10px 0;">Found <strong>' + extracted.length + '</strong> fields (' + dropdownCount + ' dropdowns with options).</p><p style="color:#666;font-size:0.9em;margin:0 0 20px 0;"><strong>Extractor Version:</strong> <span style="background:#27ae60;color:white;padding:2px 8px;border-radius:3px;font-weight:600;">0.11.5</span><br><strong>Base URL:</strong> ' + baseUrl + '<br><strong>Issue Type:</strong> ' + (issueType || '(not detected)') + '</p>';
             content.appendChild(textarea);
             content.appendChild(btnContainer);
             

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Label Cleaning</title>
+</head>
+<body>
+  <h1>Test Label Cleaning Regex</h1>
+  <div id="output"></div>
+  
+  <script>
+    const testCases = [
+      'Summary Required',
+      'Description Mandatory',
+      'Reporter Required.',
+      'Assignee Required  ',
+      'Summary  Required',
+      'Priority Mandatory!',
+      'Status Required:'
+    ];
+    
+    let output = '<h2>Results:</h2><table border="1" cellpadding="5"><tr><th>Input</th><th>After First Regex</th><th>After Second Regex</th><th>After Capitalize</th></tr>';
+    
+    testCases.forEach(testLabel => {
+      let label = testLabel;
+      
+      // First regex - from v0.11.3
+      const after1 = label.replace(/\s*(Required|Mandatory)[\s\.\,\:\;\!\?]*$/i, '').trim();
+      
+      // Second regex - from v0.11.3
+      const after2 = after1.replace(/^(.+?)\s+(Required|Mandatory)$/i, '$1').trim();
+      
+      // Capitalize
+      let after3 = after2;
+      if (after3 && after3.length > 0) {
+        after3 = after3.split(' ').map(word => 
+          word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        ).join(' ');
+      }
+      
+      output += `<tr><td>"${testLabel}"</td><td>"${after1}"</td><td>"${after2}"</td><td>"${after3}"</td></tr>`;
+    });
+    
+    output += '</table>';
+    document.getElementById('output').innerHTML = output;
+  </script>
+</body>
+</html>
