@@ -2283,6 +2283,7 @@
       
       // Load from unified key, fallback to legacy keys for migration
       let items = loadItems(getStorageKey('baseUrls'));
+      console.log('[populateBaseUrlDropdown] Loaded items:', items);
       if (!items || items.length === 0) {
         // Migrate from app-specific legacy keys
         const legacyKey = currentAppType === 'jira' ? 'jiraSavedBaseUrls' : 'snowSavedBaseUrls';
@@ -3066,26 +3067,92 @@
         }
         if (config.fieldDefinitions && Array.isArray(config.fieldDefinitions)) {
           const existing = loadFieldDefinitions();
+          
+          // If baseUrl/issueType/projectKey exist, update field definitions to reference them
+          if (config.baseUrl) {
+            const baseUrlId = config.baseUrl.replace(/https?:\/\//, '').replace(/\//g, '-');
+            config.fieldDefinitions.forEach(field => {
+              if (!field.baseUrlId) field.baseUrlId = baseUrlId;
+            });
+          }
+          if (config.issueType) {
+            config.fieldDefinitions.forEach(field => {
+              if (!field.issueTypeId && field.issueType === config.issueType) {
+                field.issueTypeId = config.issueType;
+              }
+            });
+          }
+          
           saveFieldDefinitions(mergeItems(existing, config.fieldDefinitions));
         }
-        if (config.baseUrls && Array.isArray(config.baseUrls)) {
-          const existing = loadItems(getStorageKey('baseUrls')) || [];
-          saveItems(getStorageKey('baseUrls'), mergeItems(existing, config.baseUrls));
-        }
-        if (config.issueTypes && Array.isArray(config.issueTypes)) {
-          const existing = loadItems(getStorageKey('issueTypes')) || [];
-          saveItems(getStorageKey('issueTypes'), mergeItems(existing, config.issueTypes));
-        }
-        if (config.tableNames && Array.isArray(config.tableNames)) {
-          const existing = loadItems(getStorageKey('issueTypes')) || [];
-          saveItems(getStorageKey('issueTypes'), mergeItems(existing, config.tableNames));
-        }
-        if (config.projectIds && Array.isArray(config.projectIds)) {
-          const existing = loadItems(getStorageKey('projectIds')) || [];
-          saveItems(getStorageKey('projectIds'), mergeItems(existing, config.projectIds));
+        
+        // Auto-create dropdown items from extracted metadata if arrays not provided
+        // Use the config's appType to determine correct storage key
+        const importAppType = config.appType || currentAppType;
+        const getImportStorageKey = (key) => {
+          const prefix = importAppType === 'jira' ? 'linkGenJira' : 'linkGenSnow';
+          return prefix + key.charAt(0).toUpperCase() + key.slice(1);
+        };
+        
+        if (config.baseUrl && typeof config.baseUrl === 'string' && !config.baseUrls) {
+          const baseUrlId = config.baseUrl.replace(/https?:\/\//, '').replace(/\//g, '-');
+          const baseUrlLabel = config.baseUrl.replace(/https?:\/\//, ''); // Clean label without protocol
+          config.baseUrls = [{
+            id: baseUrlId,
+            url: config.baseUrl,
+            label: baseUrlLabel,
+            value: config.baseUrl,
+            alias: baseUrlLabel
+          }];
+          console.log('Auto-created baseUrls array from baseUrl:', config.baseUrls);
         }
         
-        // Detect app type from config if available
+        if (config.issueType && typeof config.issueType === 'string' && !config.issueTypes) {
+          config.issueTypes = [{
+            id: config.issueType,
+            name: config.issueType,
+            value: config.issueType,
+            alias: config.issueType
+          }];
+          console.log('Auto-created issueTypes array from issueType:', config.issueTypes);
+        }
+        
+        if (config.projectKey && typeof config.projectKey === 'string' && !config.projectIds) {
+          config.projectIds = [{
+            id: config.projectKey,
+            name: config.projectKey,
+            value: config.projectKey,
+            alias: config.projectKey
+          }];
+          console.log('Auto-created projectIds array from projectKey:', config.projectIds);
+        }
+        
+        if (config.baseUrls && Array.isArray(config.baseUrls)) {
+          const existing = loadItems(getImportStorageKey('baseUrls')) || [];
+          const merged = mergeItems(existing, config.baseUrls);
+          console.log('[executeImport] Saving baseUrls to', getImportStorageKey('baseUrls'), ':', merged);
+          saveItems(getImportStorageKey('baseUrls'), merged);
+        }
+        if (config.issueTypes && Array.isArray(config.issueTypes)) {
+          const existing = loadItems(getImportStorageKey('issueTypes')) || [];
+          const merged = mergeItems(existing, config.issueTypes);
+          console.log('[executeImport] Saving issueTypes to', getImportStorageKey('issueTypes'), ':', merged);
+          saveItems(getImportStorageKey('issueTypes'), merged);
+        }
+        if (config.tableNames && Array.isArray(config.tableNames)) {
+          const existing = loadItems(getImportStorageKey('issueTypes')) || [];
+          const merged = mergeItems(existing, config.tableNames);
+          console.log('[executeImport] Saving tableNames to', getImportStorageKey('issueTypes'), ':', merged);
+          saveItems(getImportStorageKey('issueTypes'), merged);
+        }
+        if (config.projectIds && Array.isArray(config.projectIds)) {
+          const existing = loadItems(getImportStorageKey('projectIds')) || [];
+          const merged = mergeItems(existing, config.projectIds);
+          console.log('[executeImport] Saving projectIds to', getImportStorageKey('projectIds'), ':', merged);
+          saveItems(getImportStorageKey('projectIds'), merged);
+        }
+        
+        // Detect app type from config if available (AFTER saving dropdown items)
         if (config.appType) {
           switchAppType(config.appType);
         }
