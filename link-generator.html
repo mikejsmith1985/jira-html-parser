@@ -2816,8 +2816,8 @@
               <button id="deselectAllFieldsBtn" style="background:#95a5a6;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.85em;">Deselect All</button>
             </div>
           </div>
-          <div id="fieldsList" style="max-height:300px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:12px;background:#fff;">
-            ${processed.fieldDefinitions && processed.fieldDefinitions.length > 0 ? '' : '<div style="color:#999;text-align:center;padding:20px;">No fields to import</div>'}
+          <div id="fieldsList" style="min-height:200px;max-height:300px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:12px;background:#fff;">
+            <!-- Fields will be populated here -->
           </div>
         </div>
 
