@@ -1148,21 +1148,72 @@
       const isJira = document.body.classList.contains('app-jira');
       const isServiceNow = document.body.classList.contains('app-servicenow');
       
+      // Load dropdown entries to match by value (v0.11.2 fix)
+      const baseUrls = loadItems(getStorageKey('baseUrls')) || [];
+      const issueTypes = loadItems(getStorageKey('issueTypes')) || [];
+      
+      // Get the actual values for selected IDs
+      const selectedBaseUrl = baseUrls.find(bu => bu.id === currentBaseUrlId);
+      const selectedIssueType = issueTypes.find(it => it.id === currentIssueTypeId);
+      
+      console.log('[Auto-populate] Matching criteria:', {
+        baseUrlId: currentBaseUrlId,
+        baseUrlValue: selectedBaseUrl?.value || selectedBaseUrl?.url,
+        issueTypeId: currentIssueTypeId,
+        issueTypeValue: selectedIssueType?.value || selectedIssueType?.id
+      });
+      
       // Find all required fields for this issue type, base URL, AND current app
       const requiredFields = definitions.filter(def => {
-        // Issue Type matching: exact match OR field has no issue type (global field)
-        const matchesIssueType = !def.issueTypeId || !def.tableNameId || 
-                                 def.issueTypeId === currentIssueTypeId || 
-                                 def.tableNameId === currentIssueTypeId;
-        // Base URL matching: exact match OR field has no base URL (global field)
-        const matchesBaseUrl = !def.baseUrlId || def.baseUrlId === currentBaseUrlId;
+        // Issue Type matching: exact match by ID OR by value (v0.11.2)
+        let matchesIssueType = !def.issueTypeId && !def.tableNameId; // Global field
+        if (!matchesIssueType && (def.issueTypeId || def.tableNameId)) {
+          const fieldIssueTypeId = def.issueTypeId || def.tableNameId;
+          // Match by ID
+          matchesIssueType = fieldIssueTypeId === currentIssueTypeId;
+          // OR match by value (for imported fields before dropdown existed)
+          if (!matchesIssueType && selectedIssueType) {
+            matchesIssueType = fieldIssueTypeId === selectedIssueType.value ||
+                              fieldIssueTypeId === selectedIssueType.id;
+          }
+        } else {
+          matchesIssueType = true; // Global field matches all
+        }
+        
+        // Base URL matching: exact match by ID OR by value (v0.11.2)
+        let matchesBaseUrl = !def.baseUrlId; // Global field
+        if (!matchesBaseUrl && def.baseUrlId) {
+          // Match by ID
+          matchesBaseUrl = def.baseUrlId === currentBaseUrlId;
+          // OR match by value (for imported fields before dropdown existed)
+          if (!matchesBaseUrl && selectedBaseUrl) {
+            const baseUrlValue = selectedBaseUrl.value || selectedBaseUrl.url;
+            matchesBaseUrl = def.baseUrlId === baseUrlValue ||
+                            def.baseUrlId.includes(baseUrlValue) ||
+                            baseUrlValue.includes(def.baseUrlId);
+          }
+        } else {
+          matchesBaseUrl = true; // Global field matches all
+        }
+        
         // App Type matching
         let matchesAppType = true;
         if (def.appType) {
           if (isJira && def.appType !== 'jira') matchesAppType = false;
           if (isServiceNow && def.appType !== 'servicenow') matchesAppType = false;
         }
-        return def.required && matchesIssueType && matchesBaseUrl && matchesAppType;
+        
+        const matches = def.required && matchesIssueType && matchesBaseUrl && matchesAppType;
+        if (def.required) {
+          console.log('[Auto-populate] Field:', def.label, {
+            required: def.required,
+            matchesIssueType,
+            matchesBaseUrl,
+            matchesAppType,
+            finalMatch: matches
+          });
+        }
+        return matches;
       });
       
       console.log('=== AUTO-POPULATE DEBUG ===');
