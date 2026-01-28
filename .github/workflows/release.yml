@@ -56,8 +56,6 @@ jobs:
           name: Release v${{ steps.version.outputs.tag }}
           files: |
             link-generator.html
-            jira-link-generator.html
-            servicenow-link-generator.html
             package.json
             README.md
           body: |
