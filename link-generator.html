@@ -4760,9 +4760,9 @@
               // Handle all variations: trailing, with punctuation, with extra spaces
               const labelBefore = label;
               // Remove Required/Mandatory at END (with optional trailing punctuation/spaces)
-              label = label.replace(/\\s+(Required|Mandatory)[\\s.,;:!?]*$/gi, '').trim();
+              label = label.replace(/\s+(Required|Mandatory)[\s.,;:!?]*$/gi, '').trim();
               // Remove if it's anywhere with word boundary  
-              label = label.replace(/\\s+(Required|Mandatory)\\b/gi, '').trim();
+              label = label.replace(/\s+(Required|Mandatory)\b/gi, '').trim();
               if (labelBefore !== label && (fieldId === 'summary' || labelBefore.includes('Required') || labelBefore.includes('Mandatory'))) {
                 console.log('[Label Clean] "' + labelBefore + '" -> "' + label + '"');
               }
@@ -5080,9 +5080,9 @@
               // Handle all variations: trailing, with punctuation, with extra spaces
               const labelBefore = label;
               // Remove Required/Mandatory at END (with optional trailing punctuation/spaces)
-              label = label.replace(/\\s+(Required|Mandatory)[\\s.,;:!?]*$/gi, '').trim();
+              label = label.replace(/\s+(Required|Mandatory)[\s.,;:!?]*$/gi, '').trim();
               // Remove if it's anywhere with word boundary  
-              label = label.replace(/\\s+(Required|Mandatory)\\b/gi, '').trim();
+              label = label.replace(/\s+(Required|Mandatory)\b/gi, '').trim();
               if (labelBefore !== label && (fieldId === 'summary' || labelBefore.includes('Required') || labelBefore.includes('Mandatory'))) {
                 console.log('[Label Clean] "' + labelBefore + '" -> "' + label + '"');
               }
