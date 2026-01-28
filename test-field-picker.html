@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Field Picker Test Form</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .form-container {
+      background: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 30px;
+    }
+    .field-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 600;
+      color: #34495e;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 100px;
+    }
+    .required-indicator {
+      color: #e74c3c;
+      margin-left: 5px;
+    }
+    .instructions {
+      background: #e8f4fd;
+      padding: 15px;
+      border-radius: 4px;
+      border-left: 4px solid #3498db;
+      margin-bottom: 30px;
+    }
+    .instructions h3 {
+      margin-top: 0;
+      color: #2980b9;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h1>🎯 Field Picker Test Form</h1>
+    
+    <div class="instructions">
+      <h3>How to Test Field Picker:</h3>
+      <ol>
+        <li>Open <strong>link-generator.html</strong> in another tab</li>
+        <li>Click the <strong>"🎯 Field Picker"</strong> button</li>
+        <li>Drag the bookmarklet to your bookmarks bar</li>
+        <li>Return to this tab and click the bookmarklet</li>
+        <li>Click any field below to inspect it!</li>
+      </ol>
+    </div>
+
+    <!-- Standard Text Field -->
+    <div class="field-group">
+      <label for="summary">Summary<span class="required-indicator">*</span></label>
+      <input type="text" id="summary" name="summary" required placeholder="Enter a summary">
+    </div>
+
+    <!-- Custom Field -->
+    <div class="field-group">
+      <label for="customfield_10050">Sprint</label>
+      <select id="customfield_10050" name="customfield_10050">
+        <option value="">-- Select Sprint --</option>
+        <option value="1">Sprint 1</option>
+        <option value="2">Sprint 2</option>
+        <option value="3">Sprint 3</option>
+      </select>
+    </div>
+
+    <!-- Small Dropdown (< 50 options) -->
+    <div class="field-group">
+      <label for="priority">Priority<span class="required-indicator">*</span></label>
+      <select id="priority" name="priority" required>
+        <option value="">-- Select Priority --</option>
+        <option value="1">Critical</option>
+        <option value="2">High</option>
+        <option value="3">Medium</option>
+        <option value="4">Low</option>
+      </select>
+    </div>
+
+    <!-- Large Dropdown (simulated) -->
+    <div class="field-group">
+      <label for="assignee">Assignee</label>
+      <select id="assignee" name="assignee">
+        <option value="">-- Select Assignee --</option>
+        <option value="user1" selected>John Doe (john.doe@company.com)</option>
+        <option value="user2">Jane Smith (jane.smith@company.com)</option>
+        <option value="user3">Bob Johnson (bob.johnson@company.com)</option>
+        <option value="user4">Alice Williams (alice.williams@company.com)</option>
+        <option value="user5">Charlie Brown (charlie.brown@company.com)</option>
+        <option value="user6">David Wilson (david.wilson@company.com)</option>
+        <option value="user7">Emily Davis (emily.davis@company.com)</option>
+        <option value="user8">Frank Miller (frank.miller@company.com)</option>
+        <option value="user9">Grace Lee (grace.lee@company.com)</option>
+        <option value="user10">Henry Martinez (henry.martinez@company.com)</option>
+        <!-- Simulate large list by having 50+ options -->
+        <option value="user11">User 11</option>
+        <option value="user12">User 12</option>
+        <option value="user13">User 13</option>
+        <option value="user14">User 14</option>
+        <option value="user15">User 15</option>
+        <option value="user16">User 16</option>
+        <option value="user17">User 17</option>
+        <option value="user18">User 18</option>
+        <option value="user19">User 19</option>
+        <option value="user20">User 20</option>
+        <option value="user21">User 21</option>
+        <option value="user22">User 22</option>
+        <option value="user23">User 23</option>
+        <option value="user24">User 24</option>
+        <option value="user25">User 25</option>
+        <option value="user26">User 26</option>
+        <option value="user27">User 27</option>
+        <option value="user28">User 28</option>
+        <option value="user29">User 29</option>
+        <option value="user30">User 30</option>
+        <option value="user31">User 31</option>
+        <option value="user32">User 32</option>
+        <option value="user33">User 33</option>
+        <option value="user34">User 34</option>
+        <option value="user35">User 35</option>
+        <option value="user36">User 36</option>
+        <option value="user37">User 37</option>
+        <option value="user38">User 38</option>
+        <option value="user39">User 39</option>
+        <option value="user40">User 40</option>
+        <option value="user41">User 41</option>
+        <option value="user42">User 42</option>
+        <option value="user43">User 43</option>
+        <option value="user44">User 44</option>
+        <option value="user45">User 45</option>
+        <option value="user46">User 46</option>
+        <option value="user47">User 47</option>
+        <option value="user48">User 48</option>
+        <option value="user49">User 49</option>
+        <option value="user50">User 50</option>
+      </select>
+    </div>
+
+    <!-- Textarea -->
+    <div class="field-group">
+      <label for="description">Description<span class="required-indicator">*</span></label>
+      <textarea id="description" name="description" required placeholder="Enter a detailed description"></textarea>
+    </div>
+
+    <!-- ServiceNow-style field with aria-labelledby -->
+    <div class="field-group">
+      <label id="label.change_request.risk" for="change_request.risk">Risk</label>
+      <select id="change_request.risk" name="change_request.risk" aria-labelledby="label.change_request.risk">
+        <option value="">-- Select Risk --</option>
+        <option value="1">Low</option>
+        <option value="2">Moderate</option>
+        <option value="3">High</option>
+        <option value="4">Very High</option>
+      </select>
+    </div>
+
+    <!-- Field with current value -->
+    <div class="field-group">
+      <label for="reporter">Reporter</label>
+      <input type="email" id="reporter" name="reporter" value="test.user@company.com" readonly>
+    </div>
+
+  </div>
+</body>
+</html>

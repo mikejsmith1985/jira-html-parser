@@ -107,6 +107,7 @@
       </select>
       <button type="button" onclick="openManagePresetsModal()" style="background: #3498db; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer;">Manage Presets</button>
       <button type="button" onclick="openFieldExtractorModal()" style="background: #9b59b6; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Extract fields from forms">🔍 Field Extractor</button>
+      <button type="button" onclick="openFieldPickerModal()" style="background: #e74c3c; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Inspect individual fields">🎯 Field Picker</button>
       <button type="button" onclick="openConfigManagementModal()" style="background: #34495e; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Manage your configurations">⚙️ Manage Configs</button>
       <button type="button" onclick="exportConfiguration()" style="background: #27ae60; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Export all configurations, fields, and dropdowns to a JSON file">Export Config</button>
       <button type="button" onclick="openImportModal()" style="background: #e67e22; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Import configurations from a JSON file">Import Config</button>
@@ -473,6 +474,43 @@
 
       <div style="margin-top:24px;text-align:right;">
         <button type="button" onclick="closeFieldExtractorModal()" style="background:#6c757d;color:#fff;border:none;border-radius:6px;padding:10px 24px;cursor:pointer;font-size:14px;font-weight:500;transition:background 0.2s;" onmouseover="this.style.background='#5a6268'" onmouseout="this.style.background='#6c757d'">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Field Picker Modal -->
+  <div id="fieldPickerModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;">
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:8px;padding:24px;max-width:700px;width:90vw;max-height:80vh;overflow-y:auto;box-shadow:0 4px 20px rgba(0,0,0,0.15);">
+      <h2 style="margin:0 0 16px 0;color:#2c3e50;">🎯 Field Picker</h2>
+      <p style="color:#666;margin:0 0 20px 0;line-height:1.5;">Click on individual fields to inspect their properties, IDs, and options.</p>
+      
+      <div style="background:#e8f4fd;padding:20px;border-radius:8px;border:2px solid #3498db;margin-bottom:20px;">
+        <h3 style="font-size:1em;margin:0 0 12px 0;color:#2980b9;font-weight:600;">📌 Step 1: Add Bookmarklet</h3>
+        <p style="font-size:0.9em;color:#555;margin:0 0 12px 0;">Drag the button below to your browser's bookmarks bar:</p>
+        <div style="text-align:center;padding:20px;background:white;border-radius:6px;">
+          <a id="fieldPickerBookmarklet" href="" style="display:inline-block;background:linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);color:white;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:600;font-size:14px;cursor:move;box-shadow:0 2px 8px rgba(231,76,60,0.4);transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">🎯 Field Picker</a>
+          <p style="margin:12px 0 0 0;font-size:0.85em;color:#999;font-style:italic;">← Drag this to your bookmarks bar</p>
+        </div>
+      </div>
+
+      <div style="background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px;border:1px solid #dee2e6;">
+        <h3 style="font-size:1em;margin:0 0 12px 0;color:#2c3e50;font-weight:600;">📖 Step 2: Use the Field Picker</h3>
+        <ol style="margin:0;padding-left:24px;line-height:2;color:#555;font-size:0.9em;">
+          <li>Navigate to a Jira or ServiceNow form page</li>
+          <li>Click the <strong>"🎯 Field Picker"</strong> bookmark you just added</li>
+          <li>A green banner appears - Field Picker is now active!</li>
+          <li>Click any form field (input, dropdown, textarea) to see its details</li>
+          <li>Copy the field ID, label, or full JSON definition</li>
+          <li>Click another field to inspect it, or press <strong>ESC</strong> to exit</li>
+        </ol>
+      </div>
+
+      <div style="background:#fff3cd;padding:16px;border-radius:8px;border-left:4px solid #ffc107;font-size:0.9em;color:#856404;line-height:1.6;">
+        <strong>💡 Pro Tip:</strong> Field Picker stays active until you press ESC, so you can inspect multiple fields without reactivating the bookmarklet!
+      </div>
+
+      <div style="margin-top:24px;text-align:right;">
+        <button type="button" onclick="closeFieldPickerModal()" style="background:#6c757d;color:#fff;border:none;border-radius:6px;padding:10px 24px;cursor:pointer;font-size:14px;font-weight:500;transition:background 0.2s;" onmouseover="this.style.background='#5a6268'" onmouseout="this.style.background='#6c757d'">Close</button>
       </div>
     </div>
   </div>
@@ -5220,6 +5258,33 @@
       const modal = document.getElementById('fieldExtractorModal');
       if (!modal) return;
       modal.style.display = 'none';
+    }
+
+    function openFieldPickerModal() {
+      const modal = document.getElementById('fieldPickerModal');
+      if (!modal) {
+        console.error('fieldPickerModal not found');
+        return;
+      }
+      
+      // Set the bookmarklet href dynamically
+      const bookmarkletLink = document.getElementById('fieldPickerBookmarklet');
+      if (bookmarkletLink) {
+        const bookmarkletCode = generateFieldPickerBookmarklet();
+        bookmarkletLink.href = 'javascript:' + encodeURIComponent(bookmarkletCode);
+      }
+      
+      modal.style.display = 'flex';
+    }
+
+    function closeFieldPickerModal() {
+      const modal = document.getElementById('fieldPickerModal');
+      if (!modal) return;
+      modal.style.display = 'none';
+    }
+
+    function generateFieldPickerBookmarklet() {
+      return `(function(){if(window.fieldPickerActive){alert('Field Picker is already active!');return;}window.fieldPickerActive=true;const escapeHtml=(text)=>{const div=document.createElement('div');div.textContent=text;return div.innerHTML;};let banner=document.createElement('div');banner.id='fpBanner';banner.style.cssText='position:fixed;top:0;left:50%;transform:translateX(-50%);background:#27ae60;color:white;padding:12px 24px;border-radius:0 0 8px 8px;z-index:999998;font-family:Arial,sans-serif;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.3);pointer-events:none;';banner.textContent='🎯 Field Picker Active - Click any field to inspect (ESC to exit)';document.body.appendChild(banner);document.body.style.cursor='crosshair';const handleClick=(e)=>{const field=e.target.matches('input,select,textarea')?e.target:e.target.closest('input,select,textarea');if(!field)return;e.preventDefault();e.stopPropagation();const fieldId=field.id||field.name;const fieldName=field.name;const currentValue=field.value;let label=fieldId;const ariaLabelledBy=field.getAttribute('aria-labelledby');if(ariaLabelledBy){const labelEl=document.getElementById(ariaLabelledBy);if(labelEl)label=labelEl.textContent.trim();}else{const labelFor=document.querySelector(\`label[for="\${field.id}"]\`);if(labelFor)label=labelFor.textContent.trim();}label=label.replace(/[*:]/g,'').trim();label=label.replace(/\\s+(Required|Mandatory)[\\s.,;:!?]*$/gi,'').trim();label=label.replace(/\\s+(Required|Mandatory)\\b/gi,'').trim();let fieldType='text';if(field.tagName==='SELECT')fieldType='combobox';else if(field.tagName==='TEXTAREA')fieldType='text';const isRequired=field.required||field.getAttribute('aria-required')==='true'||field.hasAttribute('required');let options=[];let optionCount=0;if(fieldType==='combobox'&&field.options){Array.from(field.options).forEach(opt=>{if(opt.value){options.push({label:opt.textContent.trim(),value:opt.value});}});optionCount=options.length;}showModal({id:fieldId,name:fieldName,label:label,fieldType:fieldType,required:isRequired,currentValue:currentValue,options:options,optionCount:optionCount});};const handleHover=(e)=>{const field=e.target.matches('input,select,textarea')?e.target:e.target.closest('input,select,textarea');if(field&&!field.closest('#fpModal')){field.style.outline='2px solid #3498db';}};const handleHoverOut=(e)=>{const field=e.target.matches('input,select,textarea')?e.target:e.target.closest('input,select,textarea');if(field){field.style.outline='';}};const handleEscape=(e)=>{if(e.key==='Escape'){deactivate();}};const showModal=(meta)=>{let modal=document.getElementById('fpModal');if(modal)modal.remove();let backdrop=document.getElementById('fpBackdrop');if(!backdrop){backdrop=document.createElement('div');backdrop.id='fpBackdrop';backdrop.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:999999;display:flex;align-items:center;justify-content:center;';document.body.appendChild(backdrop);}modal=document.createElement('div');modal.id='fpModal';modal.style.cssText='background:white;border-radius:12px;padding:24px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.3);font-family:Arial,sans-serif;position:relative;';const showAllOptions=meta.optionCount>0&&meta.optionCount<50;const hasLargeDropdown=meta.optionCount>=50;let html=\`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><h3 style="margin:0;color:#2c3e50;">🎯 Field Details</h3><button id="fpCloseBtn" style="background:none;border:none;font-size:24px;cursor:pointer;color:#95a5a6;">&times;</button></div><div style="margin-bottom:12px;"><strong>Field ID:</strong> <code style="background:#ecf0f1;padding:2px 6px;border-radius:3px;">\${escapeHtml(meta.id)}</code> <button class="fpCopyBtn" data-copy="\${escapeHtml(meta.id)}" style="margin-left:8px;background:#3498db;color:white;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px;">Copy</button></div><div style="margin-bottom:12px;"><strong>Label:</strong> \${escapeHtml(meta.label)} <button class="fpCopyBtn" data-copy="\${escapeHtml(meta.label)}" style="margin-left:8px;background:#3498db;color:white;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px;">Copy</button></div><div style="margin-bottom:12px;"><strong>Type:</strong> \${meta.fieldType}</div><div style="margin-bottom:12px;"><strong>Required:</strong> \${meta.required?'Yes ⚠️':'No'}</div>\`;if(meta.currentValue){html+=\`<div style="margin-bottom:12px;"><strong>Current Value:</strong> <span style="color:#27ae60;">\${escapeHtml(meta.currentValue)}</span></div>\`;}if(showAllOptions){html+=\`<div style="margin-bottom:12px;"><strong>Options (\${meta.optionCount}):</strong> <button class="fpCopyBtn" data-copy='\${JSON.stringify(meta.options)}' style="margin-left:8px;background:#3498db;color:white;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px;">Copy</button><ul style="margin:8px 0;padding-left:20px;max-height:200px;overflow-y:auto;">\`;meta.options.forEach(opt=>{html+=\`<li>\${escapeHtml(opt.label)} <span style="color:#7f8c8d;">(value: \${escapeHtml(opt.value)})</span></li>\`;});html+=\`</ul></div>\`;}else if(hasLargeDropdown){html+=\`<div style="margin-bottom:12px;padding:12px;background:#ecf0f1;border-radius:6px;"><p style="margin:0;color:#7f8c8d;font-size:13px;">ℹ️ This field has \${meta.optionCount.toLocaleString()} options. Current value shown above.</p></div>\`;}html+=\`<div style="text-align:center;margin-top:20px;"><button id="fpCopyJsonBtn" style="background:#27ae60;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;">Copy Field as JSON</button></div>\`;modal.innerHTML=html;backdrop.appendChild(modal);document.getElementById('fpCloseBtn').onclick=()=>{modal.remove();backdrop.style.display='none';backdrop.remove();};document.querySelectorAll('.fpCopyBtn').forEach(btn=>{btn.onclick=()=>{const text=btn.getAttribute('data-copy');if(navigator.clipboard){navigator.clipboard.writeText(text);}else{const textarea=document.createElement('textarea');textarea.value=text;document.body.appendChild(textarea);textarea.select();document.execCommand('copy');document.body.removeChild(textarea);}const originalText=btn.textContent;btn.textContent='✓ Copied!';btn.style.background='#27ae60';setTimeout(()=>{btn.textContent=originalText;btn.style.background='#3498db';},1000);};});document.getElementById('fpCopyJsonBtn').onclick=()=>{const json={id:meta.id,label:meta.label,fieldType:meta.fieldType,required:meta.required};if(meta.options.length>0&&meta.options.length<50){json.options=meta.options;}const jsonStr=JSON.stringify(json,null,2);if(navigator.clipboard){navigator.clipboard.writeText(jsonStr);}else{const textarea=document.createElement('textarea');textarea.value=jsonStr;document.body.appendChild(textarea);textarea.select();document.execCommand('copy');document.body.removeChild(textarea);}const btn=document.getElementById('fpCopyJsonBtn');const originalText=btn.textContent;btn.textContent='✓ Copied!';btn.style.background='#27ae60';setTimeout(()=>{btn.textContent=originalText;btn.style.background='#27ae60';},1000);};backdrop.style.display='flex';};const deactivate=()=>{window.fieldPickerActive=false;if(banner)banner.remove();const modal=document.getElementById('fpModal');if(modal)modal.remove();const backdrop=document.getElementById('fpBackdrop');if(backdrop)backdrop.remove();document.body.style.cursor='';document.removeEventListener('click',handleClick,true);document.removeEventListener('keydown',handleEscape,true);document.removeEventListener('mouseover',handleHover,true);document.removeEventListener('mouseout',handleHoverOut,true);};document.addEventListener('click',handleClick,true);document.addEventListener('keydown',handleEscape,true);document.addEventListener('mouseover',handleHover,true);document.addEventListener('mouseout',handleHoverOut,true);})();`;
     }
 
     // Initialize dropdowns and restore state on page load
