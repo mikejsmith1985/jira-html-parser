@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Field Optimizer - Issue #14</title>
+</head>
+<body>
+    <h2>Test Field Optimizer - Issue #14</h2>
+    <button onclick="runTest()">Run Test</button>
+    <pre id="output"></pre>
+    
+    <script>
+    function runTest() {
+        const output = document.getElementById('output');
+        output.textContent = 'Running test...\n\n';
+        
+        // Simulate the config from issue #14
+        const fieldDefinitions = [
+            {id: "summary", label: "Summary", issueTypeId: "10000", issueTypeLabel: "Task", baseUrlId: "jira.express-scripts.com"},
+            {id: "description", label: "Description", issueTypeId: "10000", issueTypeLabel: "Task", baseUrlId: "jira.express-scripts.com"},
+            {id: "customfield_11800", label: "Acceptance Criteria", issueTypeId: "10000", issueTypeLabel: "Task", baseUrlId: "jira.express-scripts.com"},
+            {id: "fixVersions", label: "Fixversions", issueTypeId: "10202", issueTypeLabel: "Story", baseUrlId: "jira.express-scripts.com"},
+            {id: "customfield_15105", label: "Baseline Due Date", issueTypeId: "10202", issueTypeLabel: "Story", baseUrlId: "jira.express-scripts.com"},
+            {id: "customfield_33900", label: "Defect Environment", issueTypeId: "18501", issueTypeLabel: "Defect", baseUrlId: "jira.express-scripts.com"},
+            {id: "customfield_10107", label: "Defect Root Cause", issueTypeId: "18501", issueTypeLabel: "Defect", baseUrlId: "jira.express-scripts.com"},
+        ];
+        
+        output.textContent += 'Total fields: ' + fieldDefinitions.length + '\n\n';
+        
+        // Group by field ID
+        const fieldGroups = new Map();
+        fieldDefinitions.forEach(field => {
+            if (!fieldGroups.has(field.id)) {
+                fieldGroups.set(field.id, []);
+            }
+            fieldGroups.get(field.id).push(field);
+        });
+        
+        output.textContent += 'Unique field IDs: ' + fieldGroups.size + '\n\n';
+        
+        // Check for duplicates
+        const duplicates = [];
+        fieldGroups.forEach((instances, fieldId) => {
+            if (instances.length > 1) {
+                const issueTypes = new Set();
+                instances.forEach(inst => {
+                    if (inst.issueTypeId) {
+                        issueTypes.add(inst.issueTypeId);
+                    }
+                });
+                
+                if (issueTypes.size >= 2) {
+                    duplicates.push({
+                        fieldId: fieldId,
+                        instanceCount: instances.length,
+                        issueTypes: Array.from(issueTypes),
+                        issueTypeLabels: instances.map(i => i.issueTypeLabel)
+                    });
+                }
+            }
+        });
+        
+        output.textContent += 'Duplicates found: ' + duplicates.length + '\n\n';
+        
+        if (duplicates.length === 0) {
+            output.textContent += '❌ NO DUPLICATES DETECTED (This is the bug!)\n\n';
+            output.textContent += 'Each field ID appears only once with a unique issueTypeId.\n';
+            output.textContent += 'This means fields were imported separately for each issue type,\n';
+            output.textContent += 'rather than having shared fields across issue types.\n';
+        } else {
+            output.textContent += '✅ Duplicates detected:\n';
+            duplicates.forEach(d => {
+                output.textContent += `  ${d.fieldId}: ${d.instanceCount} instances across ${d.issueTypeLabels.join(', ')}\n`;
+            });
+        }
+        
+        output.textContent += '\n==================\n\n';
+        output.textContent += 'Field breakdown by issue type:\n\n';
+        
+        const byIssueType = {};
+        fieldDefinitions.forEach(f => {
+            if (!byIssueType[f.issueTypeLabel]) {
+                byIssueType[f.issueTypeLabel] = [];
+            }
+            byIssueType[f.issueTypeLabel].push(f.id);
+        });
+        
+        Object.entries(byIssueType).forEach(([issueType, fields]) => {
+            output.textContent += `${issueType} (${fields.length} fields):\n`;
+            fields.forEach(f => output.textContent += `  - ${f}\n`);
+            output.textContent += '\n';
+        });
+    }
+    </script>
+</body>
+</html>

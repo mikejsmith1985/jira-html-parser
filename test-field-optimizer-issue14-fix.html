@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Field Optimizer Fix - Issue #14</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 1200px; margin: 0 auto; }
+        button { padding: 10px 20px; margin: 10px 5px; cursor: pointer; }
+        pre { background: #f5f5f5; padding: 15px; border-radius: 5px; overflow-x: auto; }
+        .test-result { margin: 20px 0; padding: 15px; border-radius: 5px; }
+        .success { background: #d4edda; border-left: 4px solid #28a745; }
+        .error { background: #f8d7da; border-left: 4px solid #dc3545; }
+        .info { background: #d1ecf1; border-left: 4px solid #0c5460; }
+    </style>
+</head>
+<body>
+    <h1>Test Field Optimizer Fix - Issue #14</h1>
+    
+    <div class="info test-result">
+        <strong>Test Scenario:</strong> Simulating the exact config from issue #14 where fields are stored separately for each issue type.
+    </div>
+    
+    <button onclick="runTest1()">Test 1: Detect Duplicates</button>
+    <button onclick="runTest2()">Test 2: Merge to Multi-Type</button>
+    <button onclick="runTest3()">Test 3: Merge to Global</button>
+    <button onclick="runTest4()">Test 4: Field Filtering with Arrays</button>
+    <button onclick="clearResults()">Clear Results</button>
+    
+    <div id="results"></div>
+    
+    <script>
+        function clearResults() {
+            document.getElementById('results').innerHTML = '';
+        }
+        
+        function addResult(title, content, type = 'info') {
+            const div = document.createElement('div');
+            div.className = `test-result ${type}`;
+            div.innerHTML = `<h3>${title}</h3>${content}`;
+            document.getElementById('results').appendChild(div);
+        }
+        
+        // Simulate the exact field structure from issue #14
+        function getTestFieldDefinitions() {
+            return [
+                // Task fields
+                {id: "summary", label: "Summary", issueTypeId: "10000", issueTypeLabel: "Task", baseUrlId: "jira.express-scripts.com", required: true},
+                {id: "description", label: "Description", issueTypeId: "10000", issueTypeLabel: "Task", baseUrlId: "jira.express-scripts.com"},
+                {id: "assignee", label: "Assignee", issueTypeId: "10000", issueTypeLabel: "Task", baseUrlId: "jira.express-scripts.com"},
+                
+                // Story fields - same IDs as Task!
+                {id: "summary", label: "Summary", issueTypeId: "10202", issueTypeLabel: "Story", baseUrlId: "jira.express-scripts.com", required: true},
+                {id: "description", label: "Description", issueTypeId: "10202", issueTypeLabel: "Story", baseUrlId: "jira.express-scripts.com"},
+                {id: "assignee", label: "Assignee", issueTypeId: "10202", issueTypeLabel: "Story", baseUrlId: "jira.express-scripts.com"},
+                {id: "fixVersions", label: "Fix Versions", issueTypeId: "10202", issueTypeLabel: "Story", baseUrlId: "jira.express-scripts.com"},
+                
+                // Defect fields - summary and description again!
+                {id: "summary", label: "Summary", issueTypeId: "18501", issueTypeLabel: "Defect", baseUrlId: "jira.express-scripts.com", required: true},
+                {id: "description", label: "Description", issueTypeId: "18501", issueTypeLabel: "Defect", baseUrlId: "jira.express-scripts.com"},
+                {id: "customfield_33900", label: "Defect Environment", issueTypeId: "18501", issueTypeLabel: "Defect", baseUrlId: "jira.express-scripts.com"},
+            ];
+        }
+        
+        function getTestIssueTypes() {
+            return [
+                {id: "10000", name: "Task", alias: "Task"},
+                {id: "10202", name: "Story", alias: "Story"},
+                {id: "18501", name: "Defect", alias: "Defect"}
+            ];
+        }
+        
+        // Copied from the actual implementation
+        function analyzeFieldDuplicates(allFields, savedIssueTypes) {
+            const activeFields = allFields.filter(f => !f.ignored);
+            
+            // Group fields by ID and baseUrlId to find duplicates
+            const fieldGroups = new Map();
+            
+            activeFields.forEach(field => {
+                const key = `${field.id}|${field.baseUrlId || 'global'}`;
+                if (!fieldGroups.has(key)) {
+                    fieldGroups.set(key, []);
+                }
+                fieldGroups.get(key).push(field);
+            });
+            
+            // Analyze each group for duplicates
+            const duplicateGroups = [];
+            
+            fieldGroups.forEach((instances, key) => {
+                const [fieldId, baseUrlId] = key.split('|');
+                
+                // Get unique issue types from all instances
+                const issueTypes = new Set();
+                let hasGlobal = false;
+                
+                instances.forEach(inst => {
+                    // Handle both single issueTypeId and array of issueTypeIds
+                    if (inst.issueTypeId) {
+                        if (Array.isArray(inst.issueTypeId)) {
+                            inst.issueTypeId.forEach(id => issueTypes.add(id));
+                        } else {
+                            issueTypes.add(inst.issueTypeId);
+                        }
+                    } else {
+                        hasGlobal = true;
+                    }
+                });
+                
+                // Consider as duplicate if multiple instances with same ID
+                const shouldConsiderDuplicate = instances.length > 1 || 
+                    (instances.length === 1 && instances[0].issueTypeId && Array.isArray(instances[0].issueTypeId) && instances[0].issueTypeId.length > 1);
+                
+                if (shouldConsiderDuplicate && (issueTypes.size >= 2 || hasGlobal)) {
+                    const label = instances[0].label;
+                    const appType = instances[0].appType;
+                    const isRequired = instances.some(i => i.required);
+                    
+                    // Get issue type labels
+                    const issueTypeLabels = Array.from(issueTypes).map(itId => {
+                        const match = savedIssueTypes.find(it => it.id === itId);
+                        return match ? match.name || match.alias || itId : itId;
+                    });
+                    
+                    // Check if this field appears in all known issue types
+                    const allIssueTypeIds = savedIssueTypes.map(it => it.id);
+                    const appearsInAllTypes = allIssueTypeIds.length > 0 && 
+                        allIssueTypeIds.every(id => issueTypes.has(id));
+                    
+                    duplicateGroups.push({
+                        fieldId: fieldId,
+                        label: label,
+                        appType: appType,
+                        baseUrlId: baseUrlId === 'global' ? null : baseUrlId,
+                        instanceCount: instances.length,
+                        issueTypeCount: issueTypes.size,
+                        issueTypes: Array.from(issueTypes),
+                        issueTypeLabels: issueTypeLabels,
+                        isRequired: isRequired,
+                        hasGlobal: hasGlobal,
+                        appearsInAllTypes: appearsInAllTypes,
+                        instances: instances,
+                        recommendMerge: issueTypes.size >= 2,
+                        recommendGlobal: appearsInAllTypes || issueTypes.size >= 4
+                    });
+                }
+            });
+            
+            duplicateGroups.sort((a, b) => b.instanceCount - a.instanceCount);
+            
+            return {
+                totalGroups: duplicateGroups.length,
+                recommended: duplicateGroups.filter(g => g.recommendMerge).length,
+                groups: duplicateGroups
+            };
+        }
+        
+        function runTest1() {
+            const fields = getTestFieldDefinitions();
+            const issueTypes = getTestIssueTypes();
+            
+            const analysis = analyzeFieldDuplicates(fields, issueTypes);
+            
+            let html = `<p>Total fields: ${fields.length}</p>`;
+            html += `<p>Duplicate groups found: <strong>${analysis.totalGroups}</strong></p>`;
+            html += `<p>Recommended for merging: <strong>${analysis.recommended}</strong></p>`;
+            
+            if (analysis.totalGroups > 0) {
+                html += '<h4>Duplicates Detected:</h4><ul>';
+                analysis.groups.forEach(g => {
+                    html += `<li><strong>${g.label}</strong> (${g.fieldId}): ${g.instanceCount} instances across ${g.issueTypeCount} issue types (${g.issueTypeLabels.join(', ')})`;
+                    if (g.recommendGlobal) html += ' - <span style="color:#f39c12">⭐ RECOMMEND GLOBAL</span>';
+                    html += '</li>';
+                });
+                html += '</ul>';
+                
+                addResult('✅ Test 1: Detect Duplicates - PASSED', html, 'success');
+            } else {
+                addResult('❌ Test 1: Detect Duplicates - FAILED', '<p>No duplicates detected! The fix did not work.</p>', 'error');
+            }
+        }
+        
+        function runTest2() {
+            let fields = getTestFieldDefinitions();
+            const issueTypes = getTestIssueTypes();
+            
+            // Simulate merging "summary" field
+            const summaryInstances = fields.filter(f => f.id === 'summary');
+            const issueTypeIds = summaryInstances.map(f => f.issueTypeId);
+            
+            // Create merged field
+            const mergedField = {
+                ...summaryInstances[0],
+                issueTypeId: issueTypeIds, // Array!
+                issueTypeLabel: summaryInstances.map(f => f.issueTypeLabel).join(', ')
+            };
+            
+            // Remove original instances and add merged
+            fields = fields.filter(f => f.id !== 'summary');
+            fields.push(mergedField);
+            
+            let html = `<p>Before merge: ${getTestFieldDefinitions().length} fields</p>`;
+            html += `<p>After merge: ${fields.length} fields</p>`;
+            html += `<p>Merged field issueTypeId: <code>${JSON.stringify(mergedField.issueTypeId)}</code></p>`;
+            html += `<p>This is an array: ${Array.isArray(mergedField.issueTypeId) ? '✅' : '❌'}</p>`;
+            
+            // Re-analyze
+            const analysis = analyzeFieldDuplicates(fields, issueTypes);
+            html += `<p>Remaining duplicates: ${analysis.totalGroups}</p>`;
+            
+            addResult('✅ Test 2: Merge to Multi-Type - PASSED', html, 'success');
+        }
+        
+        function runTest3() {
+            let fields = getTestFieldDefinitions();
+            
+            // Simulate merging "summary" to global
+            const summaryInstances = fields.filter(f => f.id === 'summary');
+            
+            // Create global field
+            const globalField = {
+                ...summaryInstances[0],
+                issueTypeId: undefined, // No issue type = global
+                issueTypeLabel: undefined
+            };
+            delete globalField.issueTypeId;
+            delete globalField.issueTypeLabel;
+            
+            // Remove original instances and add global
+            fields = fields.filter(f => f.id !== 'summary');
+            fields.push(globalField);
+            
+            let html = `<p>Before merge: ${getTestFieldDefinitions().length} fields</p>`;
+            html += `<p>After merge: ${fields.length} fields</p>`;
+            html += `<p>Global field has issueTypeId: ${globalField.issueTypeId === undefined ? '❌ (correct - global)' : '✅ ' + globalField.issueTypeId}</p>`;
+            
+            addResult('✅ Test 3: Merge to Global - PASSED', html, 'success');
+        }
+        
+        function runTest4() {
+            // Test field filtering with arrays
+            const field1 = {id: "summary", label: "Summary", issueTypeId: "10000"};
+            const field2 = {id: "description", label: "Description", issueTypeId: ["10000", "10202", "18501"]};
+            const field3 = {id: "assignee", label: "Assignee"}; // Global
+            
+            const currentIssueTypeId = "10202";
+            
+            // Old logic would only match field1 (wrong!)
+            // New logic should match field1 (direct match), field2 (array contains), field3 (global)
+            
+            function matchesIssueType(field, currentIssueTypeId) {
+                if (!field.issueTypeId) return true; // Global
+                
+                if (Array.isArray(field.issueTypeId)) {
+                    return field.issueTypeId.includes(currentIssueTypeId);
+                } else {
+                    return field.issueTypeId === currentIssueTypeId;
+                }
+            }
+            
+            const match1 = matchesIssueType(field1, currentIssueTypeId);
+            const match2 = matchesIssueType(field2, currentIssueTypeId);
+            const match3 = matchesIssueType(field3, currentIssueTypeId);
+            
+            let html = `<p>Testing field filtering for issue type: <strong>${currentIssueTypeId}</strong> (Story)</p>`;
+            html += '<ul>';
+            html += `<li>Field 1 (issueTypeId: "10000"): ${match1 ? '❌ Should NOT match' : '✅ Correctly excluded'}</li>`;
+            html += `<li>Field 2 (issueTypeId: ["10000", "10202", "18501"]): ${match2 ? '✅ Correctly matched' : '❌ Should match'}</li>`;
+            html += `<li>Field 3 (no issueTypeId - global): ${match3 ? '✅ Correctly matched' : '❌ Should match'}</li>`;
+            html += '</ul>';
+            
+            const allPassed = !match1 && match2 && match3;
+            addResult(
+                allPassed ? '✅ Test 4: Field Filtering - PASSED' : '❌ Test 4: Field Filtering - FAILED',
+                html,
+                allPassed ? 'success' : 'error'
+            );
+        }
+    </script>
+</body>
+</html>

@@ -284,12 +284,13 @@
       
       <!-- Bulk Actions -->
       <div style="display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap;">
-        <button type="button" onclick="mergeSelectedToGlobal()" style="background:#27ae60;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-size:0.9em;">Merge Selected</button>
-        <button type="button" onclick="undoLastOptimization()" style="background:#e67e22;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-size:0.9em;">Undo Last Optimization</button>
+        <button type="button" onclick="mergeSelectedToMultiType()" style="background:#9b59b6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-size:0.9em;">Merge Selected</button>
+        <button type="button" onclick="mergeSelectedToGlobal()" style="background:#f39c12;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-size:0.9em;">⭐ Global Selected</button>
+        <button type="button" onclick="undoLastOptimization()" style="background:#e67e22;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-size:0.9em;">Undo Last</button>
       </div>
       
       <div style="background:#fff3cd;padding:12px;border-radius:8px;border-left:4px solid #ffc107;margin-bottom:16px;font-size:0.85em;">
-        <strong>💡 Tip:</strong> Fields with 3+ issue types are auto-selected. Global fields will auto-populate for ALL issue types.
+        <strong>💡 Tip:</strong> <strong>Merge</strong> = combine into one field with multiple issue types. <strong>Global</strong> = available for ALL issue types. Fields appearing in all types are auto-recommended for global.
       </div>
       
       <div style="text-align:right;">
@@ -749,7 +750,19 @@
         // AND (no issueTypeId OR matches current Issue Type)
         // AND matches current app type
         const matchesBaseUrl = !def.baseUrlId || def.baseUrlId === currentBaseUrlId;
-        const matchesIssueType = !def.issueTypeId && !def.tableNameId || def.issueTypeId === currentIssueTypeId || def.tableNameId === currentIssueTypeId;
+        
+        // Handle both single issueTypeId and array of issueTypeIds
+        let matchesIssueType = !def.issueTypeId && !def.tableNameId;
+        if (!matchesIssueType && def.issueTypeId) {
+          if (Array.isArray(def.issueTypeId)) {
+            matchesIssueType = def.issueTypeId.includes(currentIssueTypeId);
+          } else {
+            matchesIssueType = def.issueTypeId === currentIssueTypeId;
+          }
+        }
+        if (!matchesIssueType && def.tableNameId) {
+          matchesIssueType = def.tableNameId === currentIssueTypeId;
+        }
         
         // Filter by app type
         let matchesAppType = true;
@@ -1537,64 +1550,79 @@
       const allFields = loadAllFieldDefinitions();
       const activeFields = allFields.filter(f => !f.ignored);
       
-      // Group fields by ID
+      // Group fields by ID and baseUrlId to find duplicates
       const fieldGroups = new Map();
       
       activeFields.forEach(field => {
-        if (!fieldGroups.has(field.id)) {
-          fieldGroups.set(field.id, []);
+        const key = `${field.id}|${field.baseUrlId || 'global'}`;
+        if (!fieldGroups.has(key)) {
+          fieldGroups.set(key, []);
         }
-        fieldGroups.get(field.id).push(field);
+        fieldGroups.get(key).push(field);
       });
       
       // Analyze each group for duplicates
       const duplicateGroups = [];
+      const savedIssueTypes = loadItems(getStorageKey('issueTypes')) || [];
       
-      fieldGroups.forEach((instances, fieldId) => {
-        if (instances.length > 1) {
-          // Get unique issue types
-          const issueTypes = new Set();
-          const baseUrls = new Set();
-          let isGlobal = false;
-          
-          instances.forEach(inst => {
-            if (inst.issueTypeId) {
-              issueTypes.add(inst.issueTypeId);
+      fieldGroups.forEach((instances, key) => {
+        const [fieldId, baseUrlId] = key.split('|');
+        
+        // Get unique issue types from all instances
+        const issueTypes = new Set();
+        let hasGlobal = false;
+        
+        instances.forEach(inst => {
+          // Handle both single issueTypeId and array of issueTypeIds
+          if (inst.issueTypeId) {
+            if (Array.isArray(inst.issueTypeId)) {
+              inst.issueTypeId.forEach(id => issueTypes.add(id));
             } else {
-              isGlobal = true;
+              issueTypes.add(inst.issueTypeId);
             }
-            if (inst.baseUrlId) {
-              baseUrls.add(inst.baseUrlId);
-            }
+          } else {
+            hasGlobal = true;
+          }
+        });
+        
+        // Consider as duplicate if:
+        // 1. Multiple instances with same ID (regardless of issue type)
+        // 2. OR single instance but has multiple issue types in array
+        const shouldConsiderDuplicate = instances.length > 1 || 
+          (instances.length === 1 && instances[0].issueTypeId && Array.isArray(instances[0].issueTypeId) && instances[0].issueTypeId.length > 1);
+        
+        if (shouldConsiderDuplicate && (issueTypes.size >= 2 || hasGlobal)) {
+          const label = instances[0].label;
+          const appType = instances[0].appType;
+          const isRequired = instances.some(i => i.required);
+          
+          // Get issue type labels
+          const issueTypeLabels = Array.from(issueTypes).map(itId => {
+            const match = savedIssueTypes.find(it => it.id === itId);
+            return match ? match.name || match.alias || itId : itId;
           });
           
-          // Only consider as duplicate if multiple issue types (not just multiple base URLs)
-          if (issueTypes.size >= 2 || (issueTypes.size >= 1 && isGlobal)) {
-            const label = instances[0].label;
-            const appType = instances[0].appType;
-            const isRequired = instances.some(i => i.required);
-            
-            // Load issue types to get labels
-            const savedIssueTypes = loadItems(getStorageKey('issueTypes')) || [];
-            const issueTypeLabels = Array.from(issueTypes).map(itId => {
-              const match = savedIssueTypes.find(it => it.id === itId);
-              return match ? match.name || match.alias || itId : itId;
-            });
-            
-            duplicateGroups.push({
-              fieldId: fieldId,
-              label: label,
-              appType: appType,
-              instanceCount: instances.length,
-              issueTypeCount: issueTypes.size,
-              issueTypes: Array.from(issueTypes),
-              issueTypeLabels: issueTypeLabels,
-              isRequired: isRequired,
-              isGlobal: isGlobal,
-              instances: instances,
-              recommendMerge: issueTypes.size >= 3 // Recommend if 3+ issue types
-            });
-          }
+          // Check if this field appears in all known issue types (recommend global)
+          const allIssueTypeIds = savedIssueTypes.map(it => it.id);
+          const appearsInAllTypes = allIssueTypeIds.length > 0 && 
+            allIssueTypeIds.every(id => issueTypes.has(id));
+          
+          duplicateGroups.push({
+            fieldId: fieldId,
+            label: label,
+            appType: appType,
+            baseUrlId: baseUrlId === 'global' ? null : baseUrlId,
+            instanceCount: instances.length,
+            issueTypeCount: issueTypes.size,
+            issueTypes: Array.from(issueTypes),
+            issueTypeLabels: issueTypeLabels,
+            isRequired: isRequired,
+            hasGlobal: hasGlobal,
+            appearsInAllTypes: appearsInAllTypes,
+            instances: instances,
+            recommendMerge: issueTypes.size >= 2,
+            recommendGlobal: appearsInAllTypes || issueTypes.size >= 4
+          });
         }
       });
       
@@ -1669,6 +1697,11 @@
           badges += `<span style="font-size:0.75em;background:#27ae60;color:#fff;padding:2px 6px;border-radius:3px;margin-left:4px;">✓ RECOMMENDED</span>`;
         }
         
+        // Add recommendation badge if this should be global
+        if (group.recommendGlobal) {
+          badges += `<span style="font-size:0.75em;background:#f39c12;color:#fff;padding:2px 6px;border-radius:3px;margin-left:4px;">⭐ SUGGEST GLOBAL</span>`;
+        }
+        
         info.innerHTML = `
           <div style="display:flex;align-items:center;margin-bottom:8px;">
             ${escapeHtml(group.label)}${badges}
@@ -1680,19 +1713,36 @@
           </div>
         `;
         
+        // Merge buttons container
+        const btnContainer = document.createElement('div');
+        btnContainer.style.cssText = 'display:flex;gap:8px;margin-left:12px;';
+        
+        // Merge to Multi-Type button
+        const mergeMultiBtn = document.createElement('button');
+        mergeMultiBtn.textContent = 'Merge';
+        mergeMultiBtn.title = 'Merge into one field with multiple issue types';
+        mergeMultiBtn.style.cssText = 'background:#9b59b6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-size:0.9em;';
+        mergeMultiBtn.onclick = function() {
+          mergeToMultiType([group]);
+        };
+        
         // Make Global button
         const makeGlobalBtn = document.createElement('button');
-        makeGlobalBtn.textContent = 'Make Global';
-        makeGlobalBtn.style.cssText = 'background:#3498db;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-size:0.9em;margin-left:12px;';
+        makeGlobalBtn.textContent = group.recommendGlobal ? '⭐ Global' : 'Global';
+        makeGlobalBtn.title = 'Merge into one global field (all issue types)';
+        makeGlobalBtn.style.cssText = `background:${group.recommendGlobal ? '#f39c12' : '#3498db'};color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-size:0.9em;`;
         makeGlobalBtn.onclick = function() {
           mergeToGlobal([group]);
         };
+        
+        btnContainer.appendChild(mergeMultiBtn);
+        btnContainer.appendChild(makeGlobalBtn);
         
         const container = document.createElement('div');
         container.style.cssText = 'display:flex;align-items:center;';
         container.appendChild(checkbox);
         container.appendChild(info);
-        container.appendChild(makeGlobalBtn);
+        container.appendChild(btnContainer);
         
         row.appendChild(container);
         list.appendChild(row);
@@ -1756,6 +1806,85 @@
       refreshFieldsList();
     }
     
+    function mergeToMultiType(groups) {
+      if (groups.length === 0) return;
+      
+      const fieldNames = groups.map(g => g.label).join(', ');
+      const totalInstances = groups.reduce((sum, g) => sum + g.instanceCount, 0);
+      
+      if (!confirm(`Merge ${groups.length} field(s) (${fieldNames}) to multi-issue-type?\n\nThis will keep 1 instance with multiple issue types and remove ${totalInstances - groups.length} duplicates.`)) {
+        return;
+      }
+      
+      // Create backup
+      const allFields = loadAllFieldDefinitions();
+      localStorage.setItem('lastFieldOptimizationBackup', JSON.stringify(allFields));
+      
+      let mergedCount = 0;
+      
+      groups.forEach(group => {
+        // Create merged field with array of issue type IDs
+        const mergedField = {
+          ...group.instances[0],
+          issueTypeId: group.issueTypes, // Array of all issue type IDs
+          issueTypeLabel: group.issueTypeLabels.join(', ') // Combined labels for display
+        };
+        
+        // Keep the most permissive settings
+        mergedField.required = group.instances.some(i => i.required);
+        
+        // Merge options if it's a combobox field
+        if (mergedField.fieldType === 'combobox') {
+          const allOptions = [];
+          const optionKeys = new Set();
+          
+          group.instances.forEach(inst => {
+            if (inst.options && Array.isArray(inst.options)) {
+              inst.options.forEach(opt => {
+                const key = `${opt.value}|${opt.label}`;
+                if (!optionKeys.has(key)) {
+                  optionKeys.add(key);
+                  allOptions.push(opt);
+                }
+              });
+            }
+          });
+          
+          if (allOptions.length > 0) {
+            mergedField.options = allOptions;
+          }
+        }
+        
+        // Remove all instances of this field with matching baseUrlId
+        const filtered = allFields.filter(f => {
+          if (f.id !== group.fieldId) return true;
+          if (group.baseUrlId && f.baseUrlId !== group.baseUrlId) return true;
+          return false;
+        });
+        
+        // Add back the single merged instance
+        filtered.push(mergedField);
+        
+        // Save
+        localStorage.setItem('snowFieldDefinitions', JSON.stringify(filtered));
+        
+        mergedCount += group.instanceCount - 1;
+      });
+      
+      showNotification(`✓ Merged ${groups.length} field(s) to multi-type, removed ${mergedCount} duplicates`, 'success');
+      
+      // Refresh the analysis
+      const newAnalysis = analyzeFieldDuplicates();
+      refreshOptimizationList(newAnalysis);
+      
+      // Update stats
+      document.getElementById('optimizationStats').textContent = 
+        `Found ${newAnalysis.totalGroups} duplicate groups, ${newAnalysis.recommended} recommended for merging`;
+      
+      // Refresh field manager if open
+      refreshFieldsList();
+    }
+    
     function mergeSelectedToGlobal() {
       if (!window.currentOptimizationAnalysis) return;
       
@@ -1772,6 +1901,24 @@
       });
       
       mergeToGlobal(selectedGroups);
+    }
+    
+    function mergeSelectedToMultiType() {
+      if (!window.currentOptimizationAnalysis) return;
+      
+      const checkboxes = document.querySelectorAll('.optimization-checkbox:checked');
+      if (checkboxes.length === 0) {
+        alert('Please select fields to merge.');
+        return;
+      }
+      
+      const selectedGroups = [];
+      checkboxes.forEach(cb => {
+        const index = parseInt(cb.dataset.groupIndex);
+        selectedGroups.push(window.currentOptimizationAnalysis.groups[index]);
+      });
+      
+      mergeToMultiType(selectedGroups);
     }
     
     function undoLastOptimization() {
@@ -2077,15 +2224,28 @@
           }
         }
         
-        // Issue Type badge
+        // Issue Type badge - handle both single and array of issue types
         const defIssueTypeId = def.issueTypeId || def.tableNameId;
         if (defIssueTypeId) {
-          const issueType = issueTypes.find(t => t.value === defIssueTypeId);
-          if (issueType) {
-             badges += `<span style="font-size:0.75em;background:#f0f4c3;color:#827717;padding:2px 6px;border-radius:4px;margin-left:4px;">${escapeHtml(issueType.alias)}</span>`;
+          if (Array.isArray(defIssueTypeId)) {
+            // Multiple issue types
+            const issueTypeLabels = defIssueTypeId.map(itId => {
+              const issueType = issueTypes.find(t => t.value === itId || t.id === itId);
+              return issueType ? issueType.alias || issueType.name : itId;
+            });
+            badges += `<span style="font-size:0.75em;background:#f0f4c3;color:#827717;padding:2px 6px;border-radius:4px;margin-left:4px;" title="${escapeHtml(issueTypeLabels.join(', '))}">📋 ${defIssueTypeId.length} Types</span>`;
           } else {
-             badges += `<span style="font-size:0.75em;background:#f0f4c3;color:#827717;padding:2px 6px;border-radius:4px;margin-left:4px;">${escapeHtml(defIssueTypeId)}</span>`;
+            // Single issue type
+            const issueType = issueTypes.find(t => t.value === defIssueTypeId || t.id === defIssueTypeId);
+            if (issueType) {
+               badges += `<span style="font-size:0.75em;background:#f0f4c3;color:#827717;padding:2px 6px;border-radius:4px;margin-left:4px;">${escapeHtml(issueType.alias || issueType.name)}</span>`;
+            } else {
+               badges += `<span style="font-size:0.75em;background:#f0f4c3;color:#827717;padding:2px 6px;border-radius:4px;margin-left:4px;">${escapeHtml(defIssueTypeId)}</span>`;
+            }
           }
+        } else {
+          // Global field (no issue type restriction)
+          badges += `<span style="font-size:0.75em;background:#95a5a6;color:#fff;padding:2px 6px;border-radius:4px;margin-left:4px;">🌐 GLOBAL</span>`;
         }
 
         info.innerHTML = `<div style="font-weight:500;">${escapeHtml(def.label)}${badges}</div><div style="font-size:0.85em;color:#666;">${escapeHtml(def.id)}</div>`;
