@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Label Cleaning Test - v0.11.6</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+        }
+        .test-case {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        .pass { background: #e8f5e9; border-color: #4caf50; }
+        .fail { background: #ffebee; border-color: #f44336; }
+        .label { font-weight: bold; color: #333; }
+        .result { margin-top: 10px; padding: 10px; background: #f5f5f5; border-radius: 3px; }
+        code { background: #e0e0e0; padding: 2px 6px; border-radius: 3px; }
+    </style>
+</head>
+<body>
+    <h1>Label Cleaning Test - v0.11.6</h1>
+    <p>Testing the exact label cleaning code from link-generator.html</p>
+    
+    <div id="results"></div>
+
+    <script>
+        // EXACT code from link-generator.html v0.11.6 (lines 4397-4410)
+        function cleanLabel(originalLabel) {
+            let label = originalLabel;
+            
+            // Step 1: Remove * and :
+            label = label.replace(/\*/g, '').replace(/:/g, '').trim();
+            
+            // Step 2: Remove 'Required' or 'Mandatory' from end with optional punctuation
+            label = label.replace(/\s+(Required|Mandatory)[\s.,;:!?]*$/gi, '').trim();
+            
+            // Step 3: Remove 'Required' or 'Mandatory' from middle/beginning
+            label = label.replace(/\s+(Required|Mandatory)\b/gi, '').trim();
+            
+            // Step 4: Capitalize first letter of each word
+            label = label.split(' ').map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+            ).join(' ');
+            
+            return label;
+        }
+
+        const testCases = [
+            { input: 'Summary Required', expected: 'Summary', description: 'Basic trailing Required' },
+            { input: 'Summary Mandatory', expected: 'Summary', description: 'Basic trailing Mandatory' },
+            { input: 'Summary Required.', expected: 'Summary', description: 'Required with period' },
+            { input: 'Summary Required:', expected: 'Summary', description: 'Required with colon' },
+            { input: 'Summary Required  ', expected: 'Summary', description: 'Required with spaces' },
+            { input: 'Summary*', expected: 'Summary', description: 'Asterisk only' },
+            { input: 'Summary*Required', expected: 'Summary', description: 'Asterisk and Required' },
+            { input: 'Reporter Required', expected: 'Reporter', description: 'Reporter Required' },
+            { input: 'Due Date Required', expected: 'Due Date', description: 'Multi-word with Required' },
+            { input: 'summary required', expected: 'Summary', description: 'Lowercase input' },
+            { input: 'SUMMARY REQUIRED', expected: 'Summary', description: 'Uppercase input' },
+            { input: 'Priority', expected: 'Priority', description: 'No Required suffix' }
+        ];
+
+        const resultsDiv = document.getElementById('results');
+        let passed = 0;
+        let failed = 0;
+
+        testCases.forEach((test, index) => {
+            const result = cleanLabel(test.input);
+            const pass = result === test.expected;
+            
+            if (pass) passed++;
+            else failed++;
+
+            const div = document.createElement('div');
+            div.className = `test-case ${pass ? 'pass' : 'fail'}`;
+            div.innerHTML = `
+                <div class="label">Test ${index + 1}: ${test.description}</div>
+                <div class="result">
+                    <strong>Input:</strong> <code>"${test.input}"</code><br>
+                    <strong>Expected:</strong> <code>"${test.expected}"</code><br>
+                    <strong>Got:</strong> <code>"${result}"</code><br>
+                    <strong>Status:</strong> ${pass ? '✅ PASS' : '❌ FAIL'}
+                </div>
+            `;
+            resultsDiv.appendChild(div);
+        });
+
+        // Summary
+        const summary = document.createElement('div');
+        summary.style.cssText = 'margin-top: 30px; padding: 20px; background: #2196f3; color: white; border-radius: 5px; text-align: center; font-size: 18px;';
+        summary.innerHTML = `
+            <strong>Results:</strong> ${passed} passed, ${failed} failed out of ${testCases.length} tests
+        `;
+        resultsDiv.appendChild(summary);
+
+        // Log to console for debugging
+        console.log('=== LABEL CLEANING TEST RESULTS ===');
+        testCases.forEach((test, index) => {
+            const result = cleanLabel(test.input);
+            console.log(`Test ${index + 1}: "${test.input}" → "${result}" (expected: "${test.expected}") ${result === test.expected ? '✅' : '❌'}`);
+        });
+        console.log(`\nSummary: ${passed}/${testCases.length} passed`);
+    </script>
+</body>
+</html>

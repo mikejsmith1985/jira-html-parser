@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Label Cleaning Visual Test - v0.11.6</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 900px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 4px 15px rgba(102,126,234,0.3);
+        }
+        .instructions {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .test-area {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .field-group {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 8px;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        #results {
+            margin-top: 30px;
+            padding: 20px;
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+            border-radius: 8px;
+            display: none;
+        }
+        .result-item {
+            margin: 10px 0;
+            padding: 10px;
+            background: white;
+            border-radius: 4px;
+        }
+        .pass { color: #4caf50; font-weight: bold; }
+        .fail { color: #f44336; font-weight: bold; }
+        code { background: #f5f5f5; padding: 2px 6px; border-radius: 3px; }
+        .bookmarklet-link {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(102,126,234,0.4);
+            margin: 20px 0;
+        }
+        .success {
+            background: #4caf50;
+            color: white;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+            text-align: center;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔍 Field Extractor Label Cleaning Test</h1>
+        <p style="margin: 10px 0 0 0; opacity: 0.9;">Version 0.11.6 - Visual Validation</p>
+    </div>
+
+    <div class="instructions">
+        <h2>Instructions:</h2>
+        <ol>
+            <li>Go to <a href="file:///C:/projectswin/jira-html-parser/link-generator.html" target="_blank">link-generator.html</a></li>
+            <li>Click "🔍 Field Extractor" button</li>
+            <li>Drag the bookmarklet to your bookmarks bar</li>
+            <li>Come back to this page</li>
+            <li>Click the bookmarklet from your bookmarks</li>
+            <li>Verify that labels are cleaned correctly (no "Required" suffix)</li>
+        </ol>
+    </div>
+
+    <div class="test-area">
+        <h2>Mock Jira Form Fields</h2>
+        <p>These fields have "Required" in their labels. The bookmarklet should remove it.</p>
+
+        <form>
+            <div class="field-group">
+                <label for="summary">Summary Required</label>
+                <input type="text" id="summary" name="summary" />
+            </div>
+
+            <div class="field-group">
+                <label for="reporter">Reporter Required</label>
+                <input type="text" id="reporter" name="reporter" />
+            </div>
+
+            <div class="field-group">
+                <label for="priority">Priority Required</label>
+                <select id="priority" name="priority">
+                    <option value="">Select...</option>
+                    <option value="high">High</option>
+                    <option value="medium">Medium</option>
+                    <option value="low">Low</option>
+                </select>
+            </div>
+
+            <div class="field-group">
+                <label for="duedate">Due Date Mandatory</label>
+                <input type="date" id="duedate" name="duedate" />
+            </div>
+
+            <div class="field-group">
+                <label for="description">Description</label>
+                <input type="text" id="description" name="description" />
+            </div>
+        </form>
+    </div>
+
+    <div id="results">
+        <h3>✅ Expected Results in Extracted JSON:</h3>
+        <div class="result-item">
+            <strong>summary:</strong> Label should be <code>"Summary"</code> (not "Summary Required")
+        </div>
+        <div class="result-item">
+            <strong>reporter:</strong> Label should be <code>"Reporter"</code> (not "Reporter Required")
+        </div>
+        <div class="result-item">
+            <strong>priority:</strong> Label should be <code>"Priority"</code> (not "Priority Required")
+        </div>
+        <div class="result-item">
+            <strong>duedate:</strong> Label should be <code>"Due Date"</code> (not "Due Date Mandatory")
+        </div>
+        <div class="result-item">
+            <strong>description:</strong> Label should be <code>"Description"</code> (no change)
+        </div>
+    </div>
+
+    <script>
+        // Automatically show expected results after 2 seconds
+        setTimeout(() => {
+            document.getElementById('results').style.display = 'block';
+        }, 2000);
+
+        // Update URL to make it look like a Jira page (for bookmarklet detection)
+        if (!window.location.href.includes('browse')) {
+            // This won't actually change the URL, but we'll add a data attribute for detection
+            document.body.setAttribute('data-test-mode', 'jira');
+        }
+    </script>
+</body>
+</html>
