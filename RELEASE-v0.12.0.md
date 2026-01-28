@@ -1,4 +1,4 @@
-# Release v0.11.8
+# Release v0.12.0
 
 ## 🎯 Major Improvements
 
