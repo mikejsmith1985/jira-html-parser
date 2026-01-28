@@ -1,81 +1,511 @@
-# User Guide: Unified Link Generator (v0.12.4)
+# User Guide: Unified Link Generator
 
-This comprehensive guide explains how to use the **Unified Link Generator** for both Jira and ServiceNow. Create pre-filled URL links, manage field definitions, optimize duplicates, and share configurations with your team.
+Create pre-filled URL links for Jira issues and ServiceNow records. This guide shows you how to use the tool effectively.
 
 ## Table of Contents
-1. [Introduction](#introduction)
-2. [Getting Started](#getting-started)
-3. [App Type Switching](#app-type-switching)
-4. [Working with Jira](#working-with-jira)
-5. [Working with ServiceNow](#working-with-servicenow)
-6. [Field Extractor Bookmarklet](#field-extractor-bookmarklet)
-7. [Multi-File Import](#multi-file-import)
-8. [Field Management](#field-management)
-9. [Field Optimizer](#field-optimizer)
-10. [Configuration Presets](#configuration-presets)
-11. [Export & Import](#export--import)
-12. [Troubleshooting](#troubleshooting)
+1. [Getting Started](#getting-started)
+2. [Switching Between Jira and ServiceNow](#switching-between-jira-and-servicenow)
+3. [Creating Your First Link](#creating-your-first-link)
+4. [Extracting Fields from Forms](#extracting-fields-from-forms)
+5. [Managing Your Fields](#managing-your-fields)
+6. [Optimizing Duplicate Fields](#optimizing-duplicate-fields)
+7. [Importing Multiple Configurations](#importing-multiple-configurations)
+8. [Using Presets](#using-presets)
+9. [Sharing Configurations](#sharing-configurations)
+10. [Tips & Tricks](#tips--tricks)
+11. [Troubleshooting](#troubleshooting)
 
 ---
-
-## Introduction
-
-The **Unified Link Generator** is a single-file application that works with both Jira and ServiceNow:
-
-*   **Unified Interface**: One HTML file (`link-generator.html`) handles both Jira and ServiceNow
-*   **App Type Switching**: Toggle between Jira and ServiceNow modes with a single click
-*   **Offline Capable**: Runs entirely in your browser - no server required
-*   **Persistent Storage**: Settings are saved to browser localStorage with complete app isolation
-*   **Cross-App Isolation**: Jira and ServiceNow fields are kept completely separate
-*   **Field Optimizer**: Detect and merge duplicate field definitions across multiple issue types
-*   **Multi-File Import**: Import multiple JSON field extractions at once
-*   **Shareable**: Export/import configurations as JSON files
 
 ## Getting Started
 
-1.  **Download**: Get the latest `link-generator.html` from the [Releases page](https://github.com/mikejsmith1985/jira-html-parser/releases)
-2.  **Open**: Double-click the file to open it in any modern web browser (Chrome, Edge, Firefox, Safari)
-3.  **Choose App Type**: Click the toggle button to select Jira or ServiceNow mode
-4.  **No Installation Required**: Works entirely offline in your browser
+### What You Need
+
+*   The `link-generator.html` file (download from [Releases](https://github.com/mikejsmith1985/jira-html-parser/releases))
+*   A modern web browser (Chrome, Edge, Firefox, or Safari)
+*   Access to your Jira or ServiceNow instance
+
+### Opening the Tool
+
+1.  Download `link-generator.html` to your computer
+2.  Double-click the file to open it in your browser
+3.  That's it! The tool runs entirely in your browser - no installation needed
+
+### Your Data is Saved Locally
+
+Everything you configure (base URLs, fields, presets) is saved automatically in your browser's local storage. Your data stays on your computer and works offline.
 
 ---
 
-## App Type Switching
+## Switching Between Jira and ServiceNow
 
-The application supports both Jira and ServiceNow with complete data isolation.
+The tool supports both Jira and ServiceNow in a single interface.
 
 ### How to Switch
 
-*   **Toggle Button**: Click the **"Switch to [App]"** button in the top-right corner
-*   **Jira Mode**: Blue theme, shows Jira-specific fields (Project ID, Issue Type)
-*   **ServiceNow Mode**: Purple theme, shows ServiceNow-specific fields (Table Name)
+Look for the toggle button in the top-right corner:
+*   **Switch to Jira**: Changes to blue theme, shows Jira-specific options
+*   **Switch to ServiceNow**: Changes to purple theme, shows ServiceNow-specific options
 
-### Data Isolation
+### What Changes When You Switch
 
-*   **Separate Storage**: Jira and ServiceNow use completely separate localStorage keys
-*   **No Cross-Contamination**: Fields, Base URLs, Issue Types, and Presets are app-specific
-*   **Field Optimizer**: Respects app boundaries - will NOT merge Jira and ServiceNow fields
-*   **Switching Clears Form**: When you switch apps, field selections are cleared if they don't match the new app type
+*   The color theme updates
+*   Form fields change (Project ID vs Table Name)
+*   Your saved fields, base URLs, and presets change to match the app type
+*   Any selected fields are cleared if they don't match the new app type
 
-### Storage Keys
-
-The application uses these localStorage keys:
-
-**Jira:**
-- `linkGenJiraBaseUrls`
-- `linkGenJiraIssueTypes` (formerly Project IDs)
-- `linkGenJiraFieldDefinitions`
-- `linkGenJiraPresets`
-
-**ServiceNow:**
-- `linkGenSnowBaseUrls`
-- `linkGenSnowIssueTypes` (formerly Table Names)
-- `linkGenSnowFieldDefinitions`
-- `linkGenSnowPresets`
+**Important**: Jira and ServiceNow configurations are completely separate. Fields you save for Jira won't appear in ServiceNow mode, and vice versa.
 
 ---
 
-## Working with Jira
+## Creating Your First Link
+
+Let's create a pre-filled Jira issue link as an example.
+
+### Step 1: Set Up Base Configuration
+
+1.  **Switch to Jira Mode** (if not already there)
+2.  **Add a Base URL**:
+    *   Click **"Manage"** next to Base URL
+    *   Click **"Add Base URL"**
+    *   Enter your Jira URL (e.g., `https://company.atlassian.net`)
+    *   Click **"Save"**
+    *   Close the modal
+3.  **Add an Issue Type**:
+    *   Click **"Manage"** next to Issue Type
+    *   Click **"Add Issue Type"**
+    *   Enter the name (e.g., "Bug") and ID (e.g., `10001`)
+    *   Click **"Save"**
+    *   Close the modal
+
+### Step 2: Add Fields
+
+1.  Select your Base URL from the dropdown
+2.  Select your Issue Type from the dropdown
+3.  Click **"+ Add Field"**
+4.  Select "Summary" from the dropdown
+5.  Enter a value like "Login button not working"
+6.  Click **"+ Add Field"** again
+7.  Select "Description"
+8.  Enter details about the issue
+
+### Step 3: Generate and Use the Link
+
+1.  Click **"Generate Link"**
+2.  The URL appears in the output box
+3.  Click **"Copy"** to copy it to your clipboard
+4.  Paste the link anywhere (email, Slack, documentation)
+5.  When someone clicks the link, Jira opens with all fields pre-filled!
+
+**ServiceNow**: Follow the same steps but select "Table Name" instead of "Issue Type" (e.g., `incident` or `change_request`).
+
+---
+
+## Extracting Fields from Forms
+
+Instead of manually adding fields one by one, use the Field Extractor to automatically discover all fields on a form.
+
+### Setting Up the Bookmarklet
+
+1.  Click the **"🔍 Generate Field Extractor"** button
+2.  A bookmarklet appears on the page
+3.  Drag this button to your browser's bookmarks bar
+4.  You now have a bookmarklet you can use on any Jira or ServiceNow form
+
+### Using the Field Extractor
+
+1.  **Navigate** to a Jira issue creation page or ServiceNow form
+2.  **Click** the bookmarklet from your bookmarks bar
+3.  **Wait** a moment while it scans the page
+4.  **Review** the results in the popup:
+    *   Number of fields found
+    *   Which fields are required (marked with ⚠️)
+    *   How many dropdown fields have options
+5.  **Download** the JSON file by clicking "Download JSON"
+
+### Importing Extracted Fields
+
+1.  Return to the link generator
+2.  Click **"Import Config"** (orange button)
+3.  Select the JSON file you just downloaded
+4.  All fields are now available in your field dropdown!
+
+### What Gets Extracted
+
+*   **Field IDs**: The internal system names
+*   **Labels**: Clean, readable names (with "Required" and "Mandatory" removed)
+*   **Required Status**: Which fields are mandatory
+*   **Dropdown Options**: For combobox fields, all available choices
+*   **Base URL and Issue Type**: Automatically detected
+
+---
+
+## Managing Your Fields
+
+The Field Manager lets you view, add, edit, and organize your field definitions.
+
+### Opening Field Manager
+
+1.  Click **"Manage Fields"** (or click **"Manage Fields"** button in any field row)
+2.  The Field Manager modal opens showing all your saved fields
+
+### Viewing Fields
+
+*   **Search**: Type in the search box to filter fields by name
+*   **Filter by Issue Type**: Check the box and select an issue type to see only fields for that type
+*   **Ignored Fields**: Hidden fields appear with a strikethrough
+
+### Adding a Custom Field
+
+1.  Click **"Add Field"**
+2.  Fill in the details:
+    *   **ID**: The internal field name (e.g., `customfield_10050` for Jira, `u_root_cause` for ServiceNow)
+    *   **Label**: The display name (e.g., "Root Cause")
+    *   **Category**: Usually "custom"
+    *   **Field Type**: Choose "text" or "combobox"
+    *   **Base URL**: (Optional) Link to specific base URL
+    *   **Issue Type**: (Optional) Link to specific issue type
+    *   **Required**: Check if this field is mandatory
+3.  For **combobox** fields, add options:
+    *   Click **"Add Option"**
+    *   Enter label and value for each choice
+4.  Click **"Save Field"**
+
+### Editing a Field
+
+1.  Find the field in the list
+2.  Click **"Edit"**
+3.  Modify any properties
+4.  Click **"Update Field"**
+
+### Hiding vs. Deleting Fields
+
+*   **Toggle Ignored**: Hides the field from dropdowns but keeps the definition
+*   **Delete**: Permanently removes the field (requires confirmation)
+
+**Tip**: Use "Ignore" instead of "Delete" if you might need the field later.
+
+### Finding Field IDs
+
+**For ServiceNow:**
+1.  Open a ServiceNow form
+2.  Right-click on the field → "Inspect Element"
+3.  Look for `id` or `name` attribute (e.g., `change_request.risk`)
+
+**For Jira:**
+1.  Open a Jira issue creation form
+2.  Right-click on the field → "Inspect Element"
+3.  Look for `id` attribute (e.g., `customfield_10050`)
+
+**Easier Method**: Use the Field Extractor bookmarklet to discover all fields automatically!
+
+---
+
+## Optimizing Duplicate Fields
+
+If you've imported fields from multiple issue types (Bug, Story, Task, etc.), you'll have duplicate field definitions. The Field Optimizer helps consolidate them.
+
+### Why Optimize?
+
+*   **Reduce Clutter**: One "Summary" field instead of seven copies
+*   **Easier Management**: Edit one field instead of multiple
+*   **Still Flexible**: Can keep issue-specific fields separate
+
+### How to Optimize
+
+1.  Open **Field Manager**
+2.  Click **"Optimize Fields"**
+3.  Review the duplicate groups:
+    *   Fields are sorted by number of duplicates
+    *   Example: "Summary appears in 7 issue types"
+4.  For each field group, choose an action:
+    *   **Merge to Global**: Creates one field for ALL issue types
+    *   **Merge to Multi-Type**: Creates one field for SOME issue types
+    *   **Skip**: Leave as-is
+
+### When to Use Global Merge
+
+Use for fields that appear in **all** or **most** issue types:
+*   Summary
+*   Description
+*   Priority
+*   Assignee
+*   Reporter
+
+### When to Use Multi-Type Merge
+
+Use for fields that appear in **some** issue types:
+*   Story Points (Stories and Epics only)
+*   Bug Severity (Bugs only)
+*   Epic Link (Stories, Tasks, Bugs - but not Epics)
+
+### Safety Features
+
+*   A backup is created before any merge
+*   You must confirm before changes are made
+*   You can see exactly how many duplicates will be removed
+
+---
+
+## Importing Multiple Configurations
+
+If you've extracted fields from multiple forms (e.g., Bug, Story, Task), you can import them all at once.
+
+### Why Use Multi-Import?
+
+*   Import fields from 5+ issue types in one step
+*   See a preview of duplicates before importing
+*   Automatically merges metadata (base URLs, issue types)
+
+### Step-by-Step
+
+1.  **Extract fields** from each form using the Field Extractor:
+    *   Bug form → Download bug-fields.json
+    *   Story form → Download story-fields.json
+    *   Task form → Download task-fields.json
+    *   (Repeat for all issue types)
+
+2.  **Multi-Import**:
+    *   Click **"📁 Import Multiple Configurations"**
+    *   Select all JSON files at once (Ctrl+Click or Shift+Click)
+    *   Click "Open"
+
+3.  **Review Preview**:
+    *   Shows total fields being imported
+    *   Lists fields that appear in multiple files (duplicates)
+    *   Example: "Summary: Appears in 7 issue types"
+
+4.  **Confirm Import**:
+    *   Click **"Confirm Import"**
+    *   All fields are saved
+    *   Duplicates are preserved (each issue type gets its own copy)
+
+5.  **Optimize** (Recommended):
+    *   Open Field Manager → Click "Optimize Fields"
+    *   Merge duplicates as desired
+
+### What Gets Imported
+
+*   All field definitions from all files
+*   Base URLs from all files (merged)
+*   Issue types from all files (merged)
+*   Presets (if included in files)
+
+---
+
+## Using Presets
+
+Presets let you save form configurations for quick reuse.
+
+### Saving a Preset
+
+1.  Set up your form exactly how you want it:
+    *   Select base URL and issue type
+    *   Add fields
+    *   Fill in values
+2.  Click **"Save as Preset"**
+3.  Enter a name (e.g., "Standard Bug Report")
+4.  Optionally add a description
+5.  **Lock Options**:
+    *   Check "Lock Base URL" to always use this base URL
+    *   Check "Lock Issue Type" to always use this issue type
+6.  Click **"Save"**
+
+### Loading a Preset
+
+1.  Select a preset from the **"Load Preset"** dropdown
+2.  Your form instantly populates with all the saved fields and values
+3.  Base URL and Issue Type are set (if locked)
+4.  Make any adjustments needed
+5.  Click "Generate Link"
+
+### Managing Presets
+
+*   Click **"Manage Presets"** to view all saved presets
+*   **Edit**: Change name, description, or fields
+*   **Delete**: Remove presets you no longer need
+*   **Load**: Apply preset to form
+
+### Preset Tips
+
+*   Create presets for common scenarios (Bug Report, Feature Request, Incident)
+*   Lock base URL and issue type for consistency
+*   Include default values to save time
+*   Share presets with your team via Export/Import
+
+---
+
+## Sharing Configurations
+
+Export your complete setup (base URLs, fields, presets) to share with your team.
+
+### Exporting
+
+1.  Click **"Export Config"** (green button)
+2.  A JSON file downloads to your computer
+    *   Jira: `jira-config-2026-01-28.json`
+    *   ServiceNow: `servicenow-config-2026-01-28.json`
+3.  Share this file with teammates via email, Slack, or SharePoint
+
+### Importing
+
+1.  Click **"Import Config"** (orange button)
+2.  Select the JSON file
+3.  Click "Open"
+4.  Your existing configuration is **merged** with the imported one:
+    *   New items are added
+    *   Matching items are updated
+    *   Your unique items are preserved
+
+### Team Workflow
+
+**Admin Setup:**
+1.  Extract fields from all issue types
+2.  Optimize duplicates
+3.  Create useful presets
+4.  Export configuration
+5.  Share JSON file with team
+
+**Team Members:**
+1.  Download `link-generator.html`
+2.  Import the JSON configuration file
+3.  Start creating pre-filled links immediately!
+
+**Updates:**
+*   When fields change, admin re-extracts and exports
+*   Team members re-import (merges with existing setup)
+
+---
+
+## Tips & Tricks
+
+### Workflow Best Practices
+
+1.  **Start with Field Extraction**
+    *   Use the bookmarklet on each form type
+    *   Download all JSON files
+    *   Multi-import everything at once
+
+2.  **Optimize After Import**
+    *   Run Field Optimizer
+    *   Merge common fields to Global
+    *   Keep issue-specific fields separate
+
+3.  **Create Presets**
+    *   Save presets for frequent use cases
+    *   Lock base URL and issue type for consistency
+    *   Share presets via export
+
+4.  **Export Regularly**
+    *   Keep backup copies of your configuration
+    *   Export after major changes
+    *   Share with new team members
+
+### Field Organization
+
+*   **Global Fields**: Summary, Description, Priority (appear everywhere)
+*   **Issue-Specific**: Story Points, Bug Severity (only for certain types)
+*   **Clear Labels**: Use descriptive names for custom fields
+*   **Required Fields**: Mark appropriately so they show ⚠️ indicator
+
+### Rich Text Formatting
+
+The text editor supports:
+*   **Bold** and *Italic*
+*   Bullet lists and numbered lists
+*   Links
+*   Basic formatting
+
+These convert to appropriate format for Jira/ServiceNow.
+
+### Keyboard Shortcuts
+
+*   **Ctrl+Enter**: Generate link (when focused in a field)
+*   **Esc**: Close open modals
+
+---
+
+## Troubleshooting
+
+### Fields Don't Appear in the Dropdown
+
+**Check these things:**
+1.  Are you in the correct mode? (Jira vs ServiceNow)
+2.  Have you selected a base URL?
+3.  Have you selected an issue type?
+4.  Is the field associated with a different base URL or issue type?
+
+**Try this:**
+*   Switch to the correct app type (Jira or ServiceNow)
+*   Change base URL or issue type selection
+*   Open Field Manager → Check if field is marked as "Ignored"
+*   Look at field's associations (base URL and issue type)
+
+### Field Optimizer Shows "No Duplicates Found"
+
+This is normal if:
+*   You've already optimized your fields
+*   Each field has unique issue type combinations
+*   You haven't imported multiple JSON files yet
+
+**To create duplicates for optimization:**
+*   Extract fields from multiple issue types (Bug, Story, Task, etc.)
+*   Import all JSON files
+*   Then run Field Optimizer
+
+### "414 Request-URI Too Large" Error
+
+The generated URL is too long.
+
+**Solutions:**
+*   Reduce the length of description fields
+*   Remove unnecessary formatting
+*   Split content across multiple fields
+*   Look for the character count warning (appears at 8,200 characters for ServiceNow)
+
+### Import Shows 0 Fields
+
+**Check:**
+1.  Are you in the correct mode? (Jira JSON needs Jira mode, ServiceNow JSON needs ServiceNow mode)
+2.  Is the JSON file empty or corrupted?
+3.  Does the file actually contain field definitions?
+
+**Try:**
+*   Switch to the correct app type before importing
+*   Open the JSON file in a text editor to verify it's valid
+*   Re-download the file if it might be corrupted
+
+### Can't Find a Field ID
+
+**Easiest Method:**
+*   Use the Field Extractor bookmarklet - it finds all field IDs automatically
+
+**Manual Method:**
+1.  Open the form in your browser
+2.  Right-click on the field → "Inspect Element"
+3.  Look for `id` or `name` attribute in the HTML
+4.  For ServiceNow, field IDs often use `table.field` format (e.g., `change_request.risk`)
+5.  For Jira, custom fields use `customfield_` prefix (e.g., `customfield_10050`)
+
+### Jira/ServiceNow Fields Are Mixed Up
+
+Make sure you're in the correct mode:
+*   Jira mode (blue theme) for Jira fields
+*   ServiceNow mode (purple theme) for ServiceNow fields
+
+The tool keeps Jira and ServiceNow completely separate. Switching modes automatically filters fields.
+
+---
+
+## Getting Help
+
+*   **Issues or Questions**: [GitHub Issues](https://github.com/mikejsmith1985/jira-html-parser/issues)
+*   **Latest Version**: [Releases Page](https://github.com/mikejsmith1985/jira-html-parser/releases)
+*   **Documentation**: README.md in the repository
+
+---
+
+*This guide covers the unified Link Generator tool for both Jira and ServiceNow.*
 
 ### Basic Setup
 
