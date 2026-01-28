@@ -1,4 +1,4 @@
-# Release v0.12.5 - Field Picker Bug Fix
+# Release v0.12.6 - Field Picker Bug Fix
 
 **Release Date:** January 28, 2026
 
@@ -48,4 +48,4 @@ This prevents errors when clicking on non-Element nodes in complex ServiceNow fo
 
 ---
 
-**Full Changelog:** https://github.com/mikejsmith1985/jira-html-parser/compare/v0.12.4...v0.12.5
+**Full Changelog:** https://github.com/mikejsmith1985/jira-html-parser/compare/v0.12.5...v0.12.6
