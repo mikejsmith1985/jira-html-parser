@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Label Cleaning Test - Reproduce Issue</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    table { border-collapse: collapse; width: 100%; margin: 20px 0; }
+    th, td { border: 1px solid #ddd; padding: 12px; text-align: left; }
+    th { background-color: #4CAF50; color: white; }
+    .pass { background-color: #d4edda; }
+    .fail { background-color: #f8d7da; }
+    .code { background: #f5f5f5; padding: 2px 6px; font-family: monospace; }
+    h1 { color: #333; }
+    .test-section { margin: 30px 0; padding: 20px; border: 2px solid #ddd; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <h1>🔬 Label Cleaning Regression Test</h1>
+  
+  <div class="test-section">
+    <h2>Current Code (v0.11.3/v0.11.4)</h2>
+    <pre class="code">label = label.replace(/\s*(Required|Mandatory)[\s.,;:!?]*$/i, '').trim();
+label = label.replace(/^(.+?)\s+(Required|Mandatory)$/i, '$1').trim();</pre>
+  </div>
+
+  <div id="results"></div>
+  
+  <script>
+    // Exact test case from user's extraction
+    const testCases = [
+      { input: 'Summary Required', expected: 'Summary', description: 'User reported case' },
+      { input: 'Description Mandatory', expected: 'Description', description: 'Basic test' },
+      { input: 'Reporter Required.', expected: 'Reporter', description: 'With punctuation' },
+      { input: 'Assignee Required  ', expected: 'Assignee', description: 'With trailing spaces' },
+      { input: 'Summary  Required', expected: 'Summary', description: 'With double space' },
+      { input: 'Priority Mandatory!', expected: 'Priority', description: 'With exclamation' },
+      { input: 'Status Required:', expected: 'Status', description: 'With colon' },
+      { input: 'Summary', expected: 'Summary', description: 'No Required keyword' },
+    ];
+
+    function testCurrentCode(label) {
+      // EXACT code from link-generator.html v0.11.4
+      label = label.replace(/\s*(Required|Mandatory)[\s.,;:!?]*$/i, '').trim();
+      label = label.replace(/^(.+?)\s+(Required|Mandatory)$/i, '$1').trim();
+      return label;
+    }
+
+    function testWithCapitalization(label) {
+      // Simulating the FULL flow including capitalization
+      label = label.replace(/\s*(Required|Mandatory)[\s.,;:!?]*$/i, '').trim();
+      label = label.replace(/^(.+?)\s+(Required|Mandatory)$/i, '$1').trim();
+      
+      // Capitalize (THIS might be reintroducing the problem!)
+      if (label && label.length > 0) {
+        label = label.split(' ').map(word => 
+          word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+        ).join(' ');
+      }
+      
+      return label;
+    }
+
+    function runTests() {
+      let html = '<div class="test-section">';
+      html += '<h2>Test Results</h2>';
+      html += '<table><tr><th>Input</th><th>Expected</th><th>Current Code</th><th>With Capitalize</th><th>Status</th><th>Description</th></tr>';
+
+      let allPass = true;
+      
+      testCases.forEach(test => {
+        const result1 = testCurrentCode(test.input);
+        const result2 = testWithCapitalization(test.input);
+        const pass1 = result1 === test.expected;
+        const pass2 = result2 === test.expected;
+        
+        if (!pass1 || !pass2) allPass = false;
+        
+        const rowClass = (pass1 && pass2) ? 'pass' : 'fail';
+        html += `<tr class="${rowClass}">
+          <td>"${test.input}"</td>
+          <td><strong>"${test.expected}"</strong></td>
+          <td>"${result1}" ${pass1 ? '✅' : '❌'}</td>
+          <td>"${result2}" ${pass2 ? '✅' : '❌'}</td>
+          <td>${(pass1 && pass2) ? 'PASS ✅' : 'FAIL ❌'}</td>
+          <td>${test.description}</td>
+        </tr>`;
+      });
+
+      html += '</table>';
+      html += `<h3>${allPass ? '✅ All Tests Passed!' : '❌ Some Tests Failed'}</h3>`;
+      html += '</div>';
+
+      // Debug the user's specific case
+      html += '<div class="test-section">';
+      html += '<h2>🔍 Detailed Analysis: "Summary Required"</h2>';
+      
+      const testLabel = 'Summary Required';
+      html += `<p><strong>Original:</strong> "${testLabel}"</p>`;
+      
+      const step1 = testLabel.replace(/\s*(Required|Mandatory)[\s.,;:!?]*$/i, '');
+      html += `<p><strong>After Regex 1:</strong> "${step1}"</p>`;
+      
+      const step2 = step1.replace(/^(.+?)\s+(Required|Mandatory)$/i, '$1');
+      html += `<p><strong>After Regex 2:</strong> "${step2}"</p>`;
+      
+      const step3 = step2.trim();
+      html += `<p><strong>After trim:</strong> "${step3}"</p>`;
+      
+      // Try individual regex tests
+      html += '<h3>Individual Regex Tests:</h3>';
+      html += `<p>Does /\\s*(Required|Mandatory)[\\s.,;:!?]*$/i match? <strong>${/\s*(Required|Mandatory)[\s.,;:!?]*$/i.test(testLabel) ? 'YES ✅' : 'NO ❌'}</strong></p>`;
+      html += `<p>Does /^(.+?)\\s+(Required|Mandatory)$/i match? <strong>${/^(.+?)\s+(Required|Mandatory)$/i.test(testLabel) ? 'YES ✅' : 'NO ❌'}</strong></p>`;
+      
+      html += '</div>';
+
+      document.getElementById('results').innerHTML = html;
+    }
+
+    // Run tests on load
+    runTests();
+  </script>
+</body>
+</html>

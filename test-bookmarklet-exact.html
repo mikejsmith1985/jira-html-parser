@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Exact Bookmarklet Code Test</title>
+  <style>
+    body { font-family: Arial; margin: 20px; background: #f5f5f5; }
+    .container { background: white; padding: 30px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+    h1 { color: #2c3e50; }
+    .test { margin: 20px 0; padding: 15px; background: #ecf0f1; border-left: 4px solid #3498db; }
+    .pass { border-left-color: #27ae60; background: #d5f4e6; }
+    .fail { border-left-color: #e74c3c; background: #fadbd8; }
+    code { background: #34495e; color: #ecf0f1; padding: 2px 6px; border-radius: 3px; }
+    pre { background: #2c3e50; color: #ecf0f1; padding: 15px; border-radius: 5px; overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔬 Exact Bookmarklet Code Reproduction</h1>
+    
+    <div id="mock-jira">
+      <!-- Mock Jira HTML -->
+      <label for="summary">Summary Required</label>
+      <input type="text" id="summary" name="summary" required />
+    </div>
+
+    <div id="results"></div>
+  </div>
+
+  <script>
+    // EXACT code from link-generator.html line 4373-4445
+    function extractFields() {
+      const fields = document.querySelectorAll('input[id], input[name], select[id], select[name], textarea[id], textarea[name]');
+      const extracted = [];
+      const requiredFieldIds = new Set();
+
+      // SIMPLIFIED: Just focusing on the label cleaning part
+      fields.forEach(field => {
+        if (!field.id && !field.name) return;
+        const fieldId = field.id || field.name;
+        if (extracted.some(f => f.id === fieldId)) return;
+
+        let label = fieldId;
+        const closestLabel = field.closest('label');
+        if (closestLabel && closestLabel.textContent) {
+          label = closestLabel.textContent.trim();
+        } else {
+          const labelFor = document.querySelector("label[for='" + field.id + "']");
+          if (labelFor && labelFor.textContent) {
+            label = labelFor.textContent.trim();
+          }
+        }
+
+        console.log('[STEP 1] Raw label from DOM:', label);
+
+        label = label.replace(/[*:]/g, '').trim();
+        console.log('[STEP 2] After removing * and ::', label);
+
+        // Skip validation fields BEFORE cleaning
+        if (fieldId.endsWith('-field') && label.match(/Required|Mandatory/i)) {
+          console.log('[STEP 3] Skipping validation field');
+          return;
+        }
+
+        // The cleaning that should work
+        const labelBefore = label;
+        label = label.replace(/\s*(Required|Mandatory)[\s.,;:!?]*$/i, '').trim();
+        console.log('[STEP 4] After first regex:', label);
+        
+        label = label.replace(/^(.+?)\s+(Required|Mandatory)$/i, '$1').trim();
+        console.log('[STEP 5] After second regex:', label);
+
+        // Capitalize
+        if (label && label.length > 0) {
+          label = label.split(' ').map(word => 
+            word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+          ).join(' ');
+        }
+        console.log('[STEP 6] After capitalize:', label);
+
+        extracted.push({
+          id: fieldId,
+          label: label
+        });
+      });
+
+      return extracted;
+    }
+
+    // Run the test
+    console.log('=== STARTING EXTRACTION ===');
+    const result = extractFields();
+    console.log('=== FINAL RESULT ===', result);
+
+    // Display results
+    const summaryField = result.find(f => f.id === 'summary');
+    let html = '<h2>Results</h2>';
+    
+    if (summaryField) {
+      const expected = 'Summary';
+      const pass = summaryField.label === expected;
+      
+      html += `<div class="test ${pass ? 'pass' : 'fail'}">`;
+      html += `<h3>${pass ? '✅ PASS' : '❌ FAIL'}</h3>`;
+      html += `<p><strong>Expected:</strong> <code>${expected}</code></p>`;
+      html += `<p><strong>Actual:</strong> <code>${summaryField.label}</code></p>`;
+      html += `</div>`;
+    }
+
+    html += '<h3>Check Console for Detailed Steps</h3>';
+    html += '<p>Open Developer Console (F12) to see each transformation step.</p>';
+
+    document.getElementById('results').innerHTML = html;
+  </script>
+</body>
+</html>
