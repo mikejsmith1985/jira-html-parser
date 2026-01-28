@@ -2,18 +2,21 @@
 
 ## 🎯 Major Improvements
 
-### 1. **Multi-File Import** 
+### 1. **Multi-File Import** ✨
 You can now select multiple JSON configuration files at once when importing. The tool will:
 - Automatically merge all configurations
 - Intelligently deduplicate base URLs, issue types, and project IDs
+- **Properly assign `baseUrlId` and `issueTypeId` to each field BEFORE merging**
 - Preserve field duplicates across different issue types (so the optimizer can find them!)
 - Show you a unified preview with duplicate detection before importing
 
 **How to use:**
 1. Click "Import Config"
-2. Select multiple JSON files at once (Ctrl/Cmd+Click)
+2. Select multiple JSON files at once (Ctrl/Cmd+Click to multi-select)
 3. Review the merged preview showing duplicate detection
 4. Import all at once
+
+**Example:** Import 7 JSON field extractions from different Jira issue types (Task, Story, Defect, etc.) all at once. The preview will show you "Summary appears in 7 issue types" before you import.
 
 ### 2. **Fixed Field Optimizer Bug** 🐛
 The optimizer was unable to detect duplicate fields because the `saveFieldDefinitions()` function was deduplicating fields by ID only during save. This meant fields with the same ID across different issue types (e.g., "Summary" in Task, Story, and Defect) were being removed before the optimizer could see them.
@@ -23,7 +26,21 @@ The optimizer was unable to detect duplicate fields because the `saveFieldDefini
 - Now preserves fields across multiple issue types
 - Optimizer can now correctly detect and merge duplicates
 
-### 3. **GitHub Action Cleanup**
+### 3. **Fixed Multi-File Import Processing** 🔧
+The initial v0.11.8 implementation had a bug where fields weren't getting their `baseUrlId` and `issueTypeId` assigned before merging. This has been fixed:
+- Each config is now processed individually BEFORE merging
+- Fields from extraction format (with top-level `baseUrl` and `issueType`) are properly converted
+- All 260 fields from 7 different extractions are now correctly preserved with metadata
+- Optimizer can detect all 47 duplicate field groups
+
+**Test Results:** Using your 7 field extraction files:
+- ✅ 260 fields imported successfully
+- ✅ 47 duplicate groups detected (215 total instances)
+- ✅ "Summary" detected across all 7 issue types
+- ✅ "Description" detected across all 7 issue types
+- ✅ Optimizer correctly identifies all duplicates
+
+### 4. **GitHub Action Cleanup**
 - Removed separate `jira-link-generator.html` and `servicenow-link-generator.html` from releases
 - Only `link-generator.html` is released (unified tool)
 - Cleaner release assets
