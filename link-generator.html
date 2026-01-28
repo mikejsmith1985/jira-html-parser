@@ -1120,6 +1120,22 @@
         
         const currentValue = select.value;
         
+        // Check if current value is still valid for the new filters
+        let currentValueStillValid = false;
+        if (currentValue) {
+          const currentDef = definitions.find(d => d.id === currentValue);
+          if (currentDef) {
+            const matchesBaseUrl = !currentDef.baseUrlId || currentDef.baseUrlId === currentBaseUrlId;
+            const matchesIssueType = !filterByIssueType || !currentDef.issueTypeId && !currentDef.tableNameId || currentDef.issueTypeId === currentIssueTypeId || currentDef.tableNameId === currentIssueTypeId;
+            let matchesAppType = true;
+            if (currentDef.appType) {
+              if (isJira && currentDef.appType !== 'jira') matchesAppType = false;
+              if (isServiceNow && currentDef.appType !== 'servicenow') matchesAppType = false;
+            }
+            currentValueStillValid = matchesBaseUrl && matchesIssueType && matchesAppType;
+          }
+        }
+        
         // Clear options except placeholder
         while (select.options.length > 1) {
           select.remove(1);
@@ -1137,7 +1153,7 @@
             if (isServiceNow && def.appType !== 'servicenow') matchesAppType = false;
           }
           
-          if ((matchesBaseUrl && matchesIssueType && matchesAppType) || def.id === currentValue) {
+          if (matchesBaseUrl && matchesIssueType && matchesAppType) {
             const option = document.createElement('option');
             option.value = def.id;
             // Add visual indicator for required fields
@@ -1146,8 +1162,12 @@
           }
         });
         
-        // Restore value if possible
-        select.value = currentValue;
+        // Restore value ONLY if it's still valid, otherwise clear it
+        if (currentValueStillValid) {
+          select.value = currentValue;
+        } else {
+          select.value = ''; // Clear invalid selection
+        }
       });
     }
     
@@ -1555,11 +1575,12 @@
       const allFields = loadAllFieldDefinitions();
       const activeFields = allFields.filter(f => !f.ignored);
       
-      // Group fields by ID and baseUrlId to find duplicates
+      // Group fields by ID, baseUrlId, AND appType to find duplicates
+      // This ensures Jira and ServiceNow fields are kept separate
       const fieldGroups = new Map();
       
       activeFields.forEach(field => {
-        const key = `${field.id}|${field.baseUrlId || 'global'}`;
+        const key = `${field.id}|${field.baseUrlId || 'global'}|${field.appType || 'unknown'}`;
         if (!fieldGroups.has(key)) {
           fieldGroups.set(key, []);
         }
@@ -1571,7 +1592,7 @@
       const savedIssueTypes = loadItems(getStorageKey('issueTypes')) || [];
       
       fieldGroups.forEach((instances, key) => {
-        const [fieldId, baseUrlId] = key.split('|');
+        const [fieldId, baseUrlId, appType] = key.split('|');
         
         // Get unique issue types from all instances
         const issueTypes = new Set();
@@ -4886,21 +4907,34 @@
               if (!field.id && !field.name) return;
               const fieldId = field.id || field.name;
               
-              // Get label for this field
+              // Get label for this field - ServiceNow uses aria-labelledby
               let label = fieldId;
-              const closestLabel = field.closest('label');
-              if (closestLabel && closestLabel.textContent) {
-                label = closestLabel.textContent.trim();
-              } else {
-                const labelFor = document.querySelector("label[for='" + field.id + "']");
-                if (labelFor && labelFor.textContent) {
-                  label = labelFor.textContent.trim();
+              
+              // Try aria-labelledby first (ServiceNow pattern)
+              const ariaLabelledBy = field.getAttribute('aria-labelledby');
+              if (ariaLabelledBy) {
+                const labelElement = document.getElementById(ariaLabelledBy);
+                if (labelElement && labelElement.textContent) {
+                  label = labelElement.textContent.trim();
                 }
               }
               
-              const fieldContainer = field.closest("[class*='field']");
-              if (fieldContainer && fieldContainer.querySelector('label')) {
-                label = fieldContainer.querySelector('label').textContent.trim();
+              // Fallback to standard label methods
+              if (!ariaLabelledBy || label === fieldId) {
+                const closestLabel = field.closest('label');
+                if (closestLabel && closestLabel.textContent) {
+                  label = closestLabel.textContent.trim();
+                } else {
+                  const labelFor = document.querySelector("label[for='" + field.id + "']");
+                  if (labelFor && labelFor.textContent) {
+                    label = labelFor.textContent.trim();
+                  }
+                }
+                
+                const fieldContainer = field.closest("[class*='field']");
+                if (fieldContainer && fieldContainer.querySelector('label')) {
+                  label = fieldContainer.querySelector('label').textContent.trim();
+                }
               }
               
               label = label.replace(/[*:]/g, '').trim();
@@ -5004,20 +5038,34 @@
               const fieldId = field.id || field.name;
               if (extracted.some(f => f.id === fieldId)) return;
               
+              // Get label for this field - ServiceNow uses aria-labelledby
               let label = fieldId;
-              const closestLabel = field.closest('label');
-              if (closestLabel && closestLabel.textContent) {
-                label = closestLabel.textContent.trim();
-              } else {
-                const labelFor = document.querySelector("label[for='" + field.id + "']");
-                if (labelFor && labelFor.textContent) {
-                  label = labelFor.textContent.trim();
+              
+              // Try aria-labelledby first (ServiceNow pattern)
+              const ariaLabelledBy = field.getAttribute('aria-labelledby');
+              if (ariaLabelledBy) {
+                const labelElement = document.getElementById(ariaLabelledBy);
+                if (labelElement && labelElement.textContent) {
+                  label = labelElement.textContent.trim();
                 }
               }
               
-              const fieldContainer = field.closest("[class*='field']");
-              if (fieldContainer && fieldContainer.querySelector('label')) {
-                label = fieldContainer.querySelector('label').textContent.trim();
+              // Fallback to standard label methods
+              if (!ariaLabelledBy || label === fieldId) {
+                const closestLabel = field.closest('label');
+                if (closestLabel && closestLabel.textContent) {
+                  label = closestLabel.textContent.trim();
+                } else {
+                  const labelFor = document.querySelector("label[for='" + field.id + "']");
+                  if (labelFor && labelFor.textContent) {
+                    label = labelFor.textContent.trim();
+                  }
+                }
+                
+                const fieldContainer = field.closest("[class*='field']");
+                if (fieldContainer && fieldContainer.querySelector('label')) {
+                  label = fieldContainer.querySelector('label').textContent.trim();
+                }
               }
               
               label = label.replace(/[*:]/g, '').trim();
