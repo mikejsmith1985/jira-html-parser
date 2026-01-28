@@ -3923,22 +3923,46 @@
         localStorage.setItem('lastImportBackup', JSON.stringify(lastImportBackup));
 
         // Helper to merge items with smart dropdown option merging
-        const mergeItems = (existing, incoming) => {
+        const mergeItems = (existing, incoming, isFieldDefinitions = false) => {
           const map = new Map();
           if (Array.isArray(existing)) {
-            existing.forEach(i => map.set(i.id, i));
+            existing.forEach(i => {
+              if (isFieldDefinitions) {
+                // For field definitions, use id + issueTypeId + baseUrlId as key
+                const issueTypeKey = Array.isArray(i.issueTypeId) ? i.issueTypeId.sort().join(',') : (i.issueTypeId || 'global');
+                const key = `${i.id}|${issueTypeKey}|${i.baseUrlId || 'global'}`;
+                map.set(key, i);
+              } else {
+                map.set(i.id, i);
+              }
+            });
           }
           if (Array.isArray(incoming)) {
             incoming.forEach(item => {
-              const existingItem = map.get(item.id);
-              if (existingItem && existingItem.fieldType === 'combobox' && item.fieldType === 'combobox') {
-                // Merge dropdown options
-                const optionsMap = new Map();
-                if (existingItem.options) existingItem.options.forEach(opt => optionsMap.set(opt.value, opt));
-                if (item.options) item.options.forEach(opt => optionsMap.set(opt.value, opt));
-                item.options = Array.from(optionsMap.values());
+              if (isFieldDefinitions) {
+                // For field definitions, use id + issueTypeId + baseUrlId as key
+                const issueTypeKey = Array.isArray(item.issueTypeId) ? item.issueTypeId.sort().join(',') : (item.issueTypeId || 'global');
+                const key = `${item.id}|${issueTypeKey}|${item.baseUrlId || 'global'}`;
+                const existingItem = map.get(key);
+                if (existingItem && existingItem.fieldType === 'combobox' && item.fieldType === 'combobox') {
+                  // Merge dropdown options
+                  const optionsMap = new Map();
+                  if (existingItem.options) existingItem.options.forEach(opt => optionsMap.set(opt.value, opt));
+                  if (item.options) item.options.forEach(opt => optionsMap.set(opt.value, opt));
+                  item.options = Array.from(optionsMap.values());
+                }
+                map.set(key, item);
+              } else {
+                const existingItem = map.get(item.id);
+                if (existingItem && existingItem.fieldType === 'combobox' && item.fieldType === 'combobox') {
+                  // Merge dropdown options
+                  const optionsMap = new Map();
+                  if (existingItem.options) existingItem.options.forEach(opt => optionsMap.set(opt.value, opt));
+                  if (item.options) item.options.forEach(opt => optionsMap.set(opt.value, opt));
+                  item.options = Array.from(optionsMap.values());
+                }
+                map.set(item.id, item);
               }
-              map.set(item.id, item);
             });
           }
           return Array.from(map.values());
@@ -3967,7 +3991,7 @@
             });
           }
           
-          saveFieldDefinitions(mergeItems(existing, config.fieldDefinitions));
+          saveFieldDefinitions(mergeItems(existing, config.fieldDefinitions, true));
         }
         
         // Handle ignored fields - merge them into existing fields with ignored flag
