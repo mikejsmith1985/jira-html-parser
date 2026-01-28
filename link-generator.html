@@ -21,12 +21,35 @@
       --corporate-blue: #1e3a8a;
       --corporate-gray: #64748b;
       --corporate-light: #e2e8f0;
+      
+      /* Light mode colors */
+      --bg-gradient-start: #f1f5f9;
+      --bg-gradient-mid: #e2e8f0;
+      --bg-gradient-end: #cbd5e1;
+      --card-bg: #ffffff;
+      --text-primary: #1e293b;
+      --text-secondary: #64748b;
+      --border-color: #e2e8f0;
+      --navbar-bg: #ffffff;
+    }
+    
+    [data-bs-theme="dark"] {
+      --bg-gradient-start: #0f172a;
+      --bg-gradient-mid: #1e293b;
+      --bg-gradient-end: #334155;
+      --card-bg: #1e293b;
+      --text-primary: #f1f5f9;
+      --text-secondary: #94a3b8;
+      --border-color: #334155;
+      --navbar-bg: #1e293b;
     }
     
     body { 
-      background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 50%, #cbd5e1 100%);
+      background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 50%, var(--bg-gradient-end) 100%);
       min-height: 100vh;
       padding: 20px 0;
+      color: var(--text-primary);
+      transition: background 0.3s ease, color 0.3s ease;
     }
     
     .main-container {
@@ -47,6 +70,71 @@
       border: none;
       box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
       margin-bottom: 1.5rem;
+      background: var(--card-bg);
+      transition: background 0.3s ease;
+    }
+    
+    .card-body {
+      color: var(--text-primary);
+    }
+    
+    .navbar {
+      background: var(--navbar-bg) !important;
+      transition: background 0.3s ease;
+    }
+    
+    .navbar-text {
+      color: var(--text-secondary) !important;
+    }
+    
+    .form-select,
+    .form-control,
+    .rich-value {
+      background: var(--card-bg);
+      color: var(--text-primary);
+      border-color: var(--border-color);
+      transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+    
+    .toolbar-section {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+    }
+    
+    .formatting-toolbar {
+      background: var(--card-bg);
+      border-color: var(--border-color);
+    }
+    
+    .output {
+      background: var(--card-bg);
+      border-color: var(--border-color);
+      color: var(--text-primary);
+    }
+    
+    [data-bs-theme="dark"] .card {
+      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
+    }
+    
+    [data-bs-theme="dark"] .navbar {
+      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.5);
+    }
+    
+    .dark-mode-toggle {
+      background: none;
+      border: 1px solid var(--border-color);
+      color: var(--text-primary);
+      border-radius: 0.375rem;
+      padding: 0.5rem 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    
+    .dark-mode-toggle:hover {
+      background: var(--border-color);
     }
     
     .card-header {
@@ -207,6 +295,10 @@
       <span class="navbar-text text-muted">
         <small>Enterprise Issue Template Solution</small>
       </span>
+      <button class="dark-mode-toggle ms-auto" onclick="toggleDarkMode()" id="darkModeToggle" title="Toggle Dark Mode">
+        <i class="bi bi-moon-stars-fill"></i>
+        <span id="darkModeText">Dark</span>
+      </button>
     </div>
   </nav>
 
@@ -779,6 +871,37 @@
     
     let currentAppType = localStorage.getItem('linkGenAppType') || 'servicenow';
     let currentEditingFieldIndex = null;
+    
+    // Dark Mode Functions
+    function toggleDarkMode() {
+      const html = document.documentElement;
+      const currentTheme = html.getAttribute('data-bs-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      
+      html.setAttribute('data-bs-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      
+      updateDarkModeButton(newTheme);
+    }
+    
+    function updateDarkModeButton(theme) {
+      const icon = document.querySelector('#darkModeToggle i');
+      const text = document.getElementById('darkModeText');
+      
+      if (theme === 'dark') {
+        icon.className = 'bi bi-sun-fill';
+        text.textContent = 'Light';
+      } else {
+        icon.className = 'bi bi-moon-stars-fill';
+        text.textContent = 'Dark';
+      }
+    }
+    
+    function initializeDarkMode() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-bs-theme', savedTheme);
+      updateDarkModeButton(savedTheme);
+    }
     
     function switchAppType(appType) {
       currentAppType = appType;
@@ -5504,6 +5627,9 @@
 
     // Initialize dropdowns and restore state on page load
     window.addEventListener('DOMContentLoaded', () => {
+      // Initialize dark mode
+      initializeDarkMode();
+      
       // Restore app type from storage or default to 'servicenow'
       const savedAppType = localStorage.getItem('linkGenAppType') || 'servicenow';
       switchAppType(savedAppType);
