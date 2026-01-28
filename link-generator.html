@@ -4431,6 +4431,27 @@
 
         // Merge each config
         results.forEach(({ filename, config }) => {
+          // First, process each config individually to set baseUrlId and issueTypeId on fields
+          if (config.baseUrl && config.fieldDefinitions) {
+            const baseUrlId = config.baseUrl.replace(/https?:\/\//, '').replace(/\//g, '-');
+            config.fieldDefinitions.forEach(field => {
+              if (!field.baseUrlId) field.baseUrlId = baseUrlId;
+            });
+          }
+          if (config.issueType && config.fieldDefinitions) {
+            config.fieldDefinitions.forEach(field => {
+              // Set issueTypeId from either field.issueType or config.issueType
+              if (!field.issueTypeId) {
+                field.issueTypeId = field.issueType || config.issueType;
+              }
+              // Preserve field.issueType for display
+              if (!field.issueType && config.issueType) {
+                field.issueType = config.issueType;
+              }
+            });
+          }
+          
+          // Now merge into master config
           if (config.configItems) mergedConfig.configItems.push(...config.configItems);
           if (config.fieldDefinitions) mergedConfig.fieldDefinitions.push(...config.fieldDefinitions);
           if (config.baseUrls) mergedConfig.baseUrls.push(...config.baseUrls);
@@ -4468,7 +4489,7 @@
         // User will see which ones are duplicates and can decide what to import
         
         // Show import preview with the merged config
-        const processed = processImportConfig(mergedConfig);
+        const processed = processImportedConfig(mergedConfig);
         showImportPreview(processed);
         
       } catch (e) {

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Multi-File Import</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; max-width: 1200px; margin: 0 auto; }
+        button { padding: 10px 20px; font-size: 16px; cursor: pointer; margin: 10px 5px; }
+        #output { margin-top: 20px; padding: 20px; background: #f5f5f5; border-radius: 8px; }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        .section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 8px; background: white; }
+        pre { background: #f9f9f9; padding: 10px; border-radius: 4px; overflow-x: auto; }
+    </style>
+</head>
+<body>
+    <h1>Multi-File Import Test</h1>
+    
+    <div class="section">
+        <h2>1. Select Multiple JSON Files</h2>
+        <input type="file" id="fileInput" multiple accept=".json" />
+        <button onclick="testImport()">Test Import</button>
+        <button onclick="clearResults()">Clear Results</button>
+    </div>
+
+    <div id="output"></div>
+
+    <script>
+        // Copy the exact functions from link-generator.html
+        
+        async function importMultipleConfigurations(files) {
+          try {
+            log('📁 Starting multi-file import...', 'info');
+            log(`Files selected: ${files.length}`, 'info');
+            
+            // Read all files
+            const filePromises = files.map((file, index) => {
+              return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onload = e => {
+                  try {
+                    log(`✓ Reading file ${index + 1}: ${file.name}`, 'success');
+                    const config = JSON.parse(e.target.result);
+                    resolve({ filename: file.name, config });
+                  } catch (err) {
+                    reject(new Error(`Failed to parse ${file.name}: ${err.message}`));
+                  }
+                };
+                reader.onerror = () => reject(new Error(`Failed to read ${file.name}`));
+                reader.readAsText(file);
+              });
+            });
+
+            const results = await Promise.all(filePromises);
+            log(`✓ All ${results.length} files read successfully`, 'success');
+            
+            // Merge all configurations
+            const mergedConfig = {
+              configItems: [],
+              fieldDefinitions: [],
+              baseUrls: [],
+              issueTypes: [],
+              projectIds: [],
+              ignoredFields: []
+            };
+
+            // Merge each config
+            results.forEach(({ filename, config }, index) => {
+              log(`\n📋 Processing ${filename}:`, 'info');
+              
+              if (config.configItems) {
+                log(`  - Config items: ${config.configItems.length}`, 'info');
+                mergedConfig.configItems.push(...config.configItems);
+              }
+              if (config.fieldDefinitions) {
+                log(`  - Field definitions: ${config.fieldDefinitions.length}`, 'info');
+                mergedConfig.fieldDefinitions.push(...config.fieldDefinitions);
+              }
+              if (config.baseUrls) {
+                log(`  - Base URLs: ${config.baseUrls.length}`, 'info');
+                mergedConfig.baseUrls.push(...config.baseUrls);
+              }
+              if (config.issueTypes) {
+                log(`  - Issue types: ${config.issueTypes.length}`, 'info');
+                mergedConfig.issueTypes.push(...config.issueTypes);
+              }
+              if (config.projectIds) {
+                log(`  - Project IDs: ${config.projectIds.length}`, 'info');
+                mergedConfig.projectIds.push(...config.projectIds);
+              }
+              if (config.ignoredFields) {
+                log(`  - Ignored fields: ${config.ignoredFields.length}`, 'info');
+                mergedConfig.ignoredFields.push(...config.ignoredFields);
+              }
+              
+              // Handle legacy formats
+              if (config.baseUrl && !mergedConfig.baseUrls.find(b => b.url === config.baseUrl)) {
+                const baseUrlId = config.baseUrl.replace(/https?:\/\//, '').replace(/\//g, '-');
+                log(`  - Legacy baseUrl found: ${config.baseUrl}`, 'info');
+                mergedConfig.baseUrls.push({ id: baseUrlId, url: config.baseUrl });
+              }
+              if (config.issueType && !mergedConfig.issueTypes.find(it => it.id === config.issueType)) {
+                log(`  - Legacy issueType found: ${config.issueType}`, 'info');
+                mergedConfig.issueTypes.push({ 
+                  id: config.issueType, 
+                  name: config.issueTypeLabel || config.issueType,
+                  alias: config.issueTypeLabel || config.issueType
+                });
+              }
+            });
+
+            log('\n🔀 Deduplicating merged data...', 'info');
+            
+            // Deduplicate merged data intelligently
+            const originalCounts = {
+              baseUrls: mergedConfig.baseUrls.length,
+              issueTypes: mergedConfig.issueTypes.length,
+              projectIds: mergedConfig.projectIds.length,
+              configItems: mergedConfig.configItems.length,
+              ignoredFields: mergedConfig.ignoredFields.length,
+              fieldDefinitions: mergedConfig.fieldDefinitions.length
+            };
+            
+            mergedConfig.baseUrls = Array.from(new Map(mergedConfig.baseUrls.map(b => [b.id, b])).values());
+            mergedConfig.issueTypes = Array.from(new Map(mergedConfig.issueTypes.map(it => [it.id, it])).values());
+            mergedConfig.projectIds = Array.from(new Map(mergedConfig.projectIds.map(p => [p.id, p])).values());
+            mergedConfig.configItems = Array.from(new Map(mergedConfig.configItems.map(c => [c.id, c])).values());
+            mergedConfig.ignoredFields = Array.from(new Set(mergedConfig.ignoredFields));
+            
+            log(`  Base URLs: ${originalCounts.baseUrls} → ${mergedConfig.baseUrls.length}`, 'info');
+            log(`  Issue Types: ${originalCounts.issueTypes} → ${mergedConfig.issueTypes.length}`, 'info');
+            log(`  Project IDs: ${originalCounts.projectIds} → ${mergedConfig.projectIds.length}`, 'info');
+            log(`  Config Items: ${originalCounts.configItems} → ${mergedConfig.configItems.length}`, 'info');
+            log(`  Ignored Fields: ${originalCounts.ignoredFields} → ${mergedConfig.ignoredFields.length}`, 'info');
+            log(`  Field Definitions: ${originalCounts.fieldDefinitions} (NOT deduped - will show in preview)`, 'info');
+            
+            // Analyze duplicates
+            log('\n🔍 Analyzing field duplicates...', 'info');
+            const fieldGroups = new Map();
+            mergedConfig.fieldDefinitions.forEach(field => {
+              const key = `${field.id}|${field.baseUrlId || 'global'}`;
+              if (!fieldGroups.has(key)) {
+                fieldGroups.set(key, []);
+              }
+              fieldGroups.get(key).push(field);
+            });
+            
+            const duplicateGroups = Array.from(fieldGroups.values()).filter(group => group.length > 1);
+            if (duplicateGroups.length > 0) {
+              const totalDuplicates = duplicateGroups.reduce((sum, group) => sum + group.length, 0);
+              log(`\n🎯 Found ${duplicateGroups.length} duplicate field groups (${totalDuplicates} total instances):`, 'success');
+              duplicateGroups.forEach(group => {
+                const issueTypes = group.map(f => f.issueType || f.issueTypeId).join(', ');
+                log(`  - ${group[0].label} (${group[0].id}): ${group.length} instances across issue types [${issueTypes}]`, 'info');
+              });
+            } else {
+              log('No duplicate fields found.', 'info');
+            }
+            
+            log('\n✅ Multi-file import complete!', 'success');
+            log('\n📦 Final merged configuration:', 'info');
+            log(JSON.stringify(mergedConfig, null, 2), 'code');
+            
+          } catch (e) {
+            log('❌ Error importing files: ' + e.message, 'error');
+            console.error('Multi-file import error:', e);
+          }
+        }
+
+        function testImport() {
+            const fileInput = document.getElementById('fileInput');
+            const files = Array.from(fileInput.files);
+            
+            if (files.length === 0) {
+                log('⚠️ No files selected', 'error');
+                return;
+            }
+            
+            log(`\n${'='.repeat(80)}`, 'info');
+            log(`TEST STARTED: ${new Date().toISOString()}`, 'info');
+            log(`${'='.repeat(80)}\n`, 'info');
+            
+            importMultipleConfigurations(files);
+        }
+
+        function log(message, type = 'info') {
+            const output = document.getElementById('output');
+            const div = document.createElement('div');
+            
+            if (type === 'code') {
+                const pre = document.createElement('pre');
+                pre.textContent = message;
+                output.appendChild(pre);
+                return;
+            }
+            
+            div.className = type;
+            div.textContent = message;
+            output.appendChild(div);
+            
+            // Auto-scroll to bottom
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function clearResults() {
+            document.getElementById('output').innerHTML = '';
+        }
+    </script>
+</body>
+</html>

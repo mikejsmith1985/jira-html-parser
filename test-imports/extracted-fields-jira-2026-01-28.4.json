@@ -1,0 +1,2219 @@
+{
+  "version": "1.3.0",
+  "extractorVersion": "0.11.6",
+  "extractedAt": "2026-01-28T14:56:48.083Z",
+  "description": "Extracted Field Definitions",
+  "tool": "Field Extractor Bookmarklet",
+  "appType": "jira",
+  "baseUrl": "https://jira.express-scripts.com",
+  "projectKey": "75213",
+  "issueType": "10202",
+  "fieldDefinitions": [
+    {
+      "id": "summary",
+      "label": "Summary",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": true
+    },
+    {
+      "id": "reporter",
+      "label": "Reporter",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": true
+    },
+    {
+      "id": "assignee-field",
+      "label": "Assignee",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "assignee",
+      "label": "Assignee",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": false,
+      "options": [
+        {
+          "label": "Smith, Michael  (CTR)",
+          "value": "C8Q6T3"
+        },
+        {
+          "label": "Automatic",
+          "value": "-1"
+        }
+      ]
+    },
+    {
+      "id": "description_yXxCjJatxMLC8528",
+      "label": "Description_yxxcjjatxmlc8528",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "description",
+      "label": "Description",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "customfield_11800",
+      "label": "Acceptance Criteria",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "customfield_10002-field",
+      "label": "Feature Link",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "customfield_34700",
+      "label": "Sub-status",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": false,
+      "options": [
+        {
+          "label": "None",
+          "value": "-1"
+        },
+        {
+          "label": "Assigned for Resolutions",
+          "value": "231600"
+        },
+        {
+          "label": "Blocked",
+          "value": "231601"
+        },
+        {
+          "label": "Code Review",
+          "value": "231602"
+        },
+        {
+          "label": "Deferred",
+          "value": "231603"
+        },
+        {
+          "label": "Design",
+          "value": "231604"
+        },
+        {
+          "label": "Deployed",
+          "value": "231605"
+        },
+        {
+          "label": "Discovery",
+          "value": "231606"
+        },
+        {
+          "label": "Implement",
+          "value": "231607"
+        },
+        {
+          "label": "In Development",
+          "value": "231608"
+        },
+        {
+          "label": "Integration Test",
+          "value": "231609"
+        },
+        {
+          "label": "New",
+          "value": "231610"
+        },
+        {
+          "label": "Planning",
+          "value": "231611"
+        },
+        {
+          "label": "Pre-Intake",
+          "value": "231612"
+        },
+        {
+          "label": "Ready for Design",
+          "value": "231613"
+        },
+        {
+          "label": "Ready for Planning",
+          "value": "231614"
+        },
+        {
+          "label": "Ready for QA",
+          "value": "231615"
+        },
+        {
+          "label": "Ready for Refinement",
+          "value": "231616"
+        },
+        {
+          "label": "Ready for Regression Test",
+          "value": "231617"
+        },
+        {
+          "label": "Ready for System Integration Test",
+          "value": "231618"
+        },
+        {
+          "label": "Ready for Testing",
+          "value": "231619"
+        },
+        {
+          "label": "Ready for UAT",
+          "value": "231620"
+        },
+        {
+          "label": "Refinement",
+          "value": "231621"
+        },
+        {
+          "label": "Regression Test",
+          "value": "231622"
+        },
+        {
+          "label": "Rejected",
+          "value": "231623"
+        },
+        {
+          "label": "System Integration Test",
+          "value": "231624"
+        },
+        {
+          "label": "Testing",
+          "value": "231625"
+        },
+        {
+          "label": "Triage in Progress",
+          "value": "231626"
+        },
+        {
+          "label": "Validation",
+          "value": "231627"
+        }
+      ]
+    },
+    {
+      "id": "customfield_20700",
+      "label": "Story Points Selection",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": false,
+      "options": [
+        {
+          "label": "None",
+          "value": "-1"
+        },
+        {
+          "label": "0",
+          "value": "104111"
+        },
+        {
+          "label": "1",
+          "value": "54505"
+        },
+        {
+          "label": "2",
+          "value": "54506"
+        },
+        {
+          "label": "3",
+          "value": "54507"
+        },
+        {
+          "label": "5",
+          "value": "54508"
+        },
+        {
+          "label": "8",
+          "value": "54509"
+        },
+        {
+          "label": "13",
+          "value": "54510"
+        },
+        {
+          "label": "20",
+          "value": "54511"
+        },
+        {
+          "label": "40",
+          "value": "54512"
+        },
+        {
+          "label": "100",
+          "value": "54513"
+        }
+      ]
+    },
+    {
+      "id": "customfield_10100",
+      "label": "Story Points",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "customfield_28200",
+      "label": "Application Component Selection",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "react-select-2-input",
+      "label": "React-select-2-input",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "fixVersions",
+      "label": "Fixversions",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": false,
+      "options": [
+        {
+          "label": "02/26/2026",
+          "value": "359448"
+        },
+        {
+          "label": "99/99/9999",
+          "value": "294354"
+        },
+        {
+          "label": "Features In Progress (25.5)",
+          "value": "353167"
+        },
+        {
+          "label": "01/28/2026",
+          "value": "363510"
+        },
+        {
+          "label": "01/23/2026",
+          "value": "362531"
+        },
+        {
+          "label": "01/12/2026",
+          "value": "360225"
+        },
+        {
+          "label": "01/05/2026",
+          "value": "359495"
+        },
+        {
+          "label": "11/20/2025",
+          "value": "354126"
+        },
+        {
+          "label": "Features In Progress (25.4)",
+          "value": "332101"
+        },
+        {
+          "label": "Features In Progress (25.3)",
+          "value": "325520"
+        },
+        {
+          "label": "99/99/9999-1",
+          "value": "296017"
+        },
+        {
+          "label": "3/27/2025",
+          "value": "308483"
+        },
+        {
+          "label": "4/10/2025",
+          "value": "315128"
+        },
+        {
+          "label": "2/20/2025",
+          "value": "309697"
+        },
+        {
+          "label": "2/4/2025",
+          "value": "308432"
+        },
+        {
+          "label": "2/6/2025",
+          "value": "307581"
+        },
+        {
+          "label": "2/27/2025",
+          "value": "305875"
+        },
+        {
+          "label": "3/13/2025",
+          "value": "310917"
+        },
+        {
+          "label": "4/29/2025",
+          "value": "308484"
+        },
+        {
+          "label": "01/22/2026",
+          "value": "353107"
+        },
+        {
+          "label": "12/09/2025",
+          "value": "308486"
+        },
+        {
+          "label": "10/23/2025",
+          "value": "308487"
+        },
+        {
+          "label": "9/29/2025",
+          "value": "308489"
+        },
+        {
+          "label": "1/30/2025",
+          "value": "305874"
+        },
+        {
+          "label": "1/23/2025",
+          "value": "302349"
+        },
+        {
+          "label": "1/09/2025",
+          "value": "304789"
+        },
+        {
+          "label": "12/23/2024",
+          "value": "303129"
+        },
+        {
+          "label": "HotFix 11/22/2024",
+          "value": "300264"
+        },
+        {
+          "label": "HotFix 2024/10/10",
+          "value": "295245"
+        },
+        {
+          "label": "2024/10/01 (9/28 Deploy)",
+          "value": "295230"
+        },
+        {
+          "label": "2024/10/01",
+          "value": "262981"
+        },
+        {
+          "label": "2024/10/29",
+          "value": "292947"
+        },
+        {
+          "label": "12/16/2024",
+          "value": "294348"
+        },
+        {
+          "label": "Clear Done Column 8/14/24",
+          "value": "289781"
+        },
+        {
+          "label": "8/13/2025",
+          "value": "335849"
+        },
+        {
+          "label": "7/24/2025",
+          "value": "308490"
+        },
+        {
+          "label": "6/26/2025",
+          "value": "308491"
+        },
+        {
+          "label": "5/22/2025",
+          "value": "308485"
+        },
+        {
+          "label": "5/13/2025",
+          "value": "318248"
+        },
+        {
+          "label": "11/13/2025",
+          "value": "351221"
+        },
+        {
+          "label": "12/18/2025",
+          "value": "357808"
+        }
+      ]
+    },
+    {
+      "id": "customfield_14105-field",
+      "label": "Product Owner",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "customfield_10001-field",
+      "label": "Sprint",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "customfield_15900",
+      "label": "Target Start",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "customfield_15901",
+      "label": "Target End",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "customfield_34500",
+      "label": "Work-type",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": false,
+      "options": [
+        {
+          "label": "Planned",
+          "value": "222300"
+        },
+        {
+          "label": "Unplanned",
+          "value": "222301"
+        }
+      ]
+    },
+    {
+      "id": "duedate",
+      "label": "Due Date (d/mmm/yy)",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "customfield_15105",
+      "label": "Baseline Due Date",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "customfield_10110",
+      "label": "Issue Notes",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "customfield_22900",
+      "label": "Azuredevopsitemid",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "cf-customfield_13901",
+      "label": "None",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "customfield_13901-1",
+      "label": "Production",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "customfield_13901-2",
+      "label": "Non-production",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "customfield_17800",
+      "label": "Cancelled Reason",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": false,
+      "options": [
+        {
+          "label": "None",
+          "value": "-1"
+        },
+        {
+          "label": "Understanding of Cost/Budget",
+          "value": "32945"
+        },
+        {
+          "label": "Understanding of Time/Schedule",
+          "value": "32946"
+        },
+        {
+          "label": "Understanding of Scope/Complexity",
+          "value": "32947"
+        },
+        {
+          "label": "Organizational Priority",
+          "value": "32948"
+        },
+        {
+          "label": "Created by mistake",
+          "value": "32949"
+        },
+        {
+          "label": "Duplicate",
+          "value": "32950"
+        },
+        {
+          "label": "Client Cancelled",
+          "value": "32951"
+        },
+        {
+          "label": "Sponsor Cancelled",
+          "value": "32952"
+        },
+        {
+          "label": "Other",
+          "value": "32953"
+        }
+      ]
+    },
+    {
+      "id": "customfield_22210",
+      "label": "Cca Approval",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": false,
+      "options": [
+        {
+          "label": "None",
+          "value": "-1"
+        },
+        {
+          "label": "Not Started",
+          "value": "78141"
+        },
+        {
+          "label": "In Progress",
+          "value": "78142"
+        },
+        {
+          "label": "Approved",
+          "value": "78143"
+        },
+        {
+          "label": "Not Approved",
+          "value": "78144"
+        },
+        {
+          "label": "Not Applicable",
+          "value": "78145"
+        }
+      ]
+    },
+    {
+      "id": "customfield_17000",
+      "label": "Checklists",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "customfield_10103",
+      "label": "Clarity Id",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "components",
+      "label": "Components",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": false,
+      "options": [
+        {
+          "label": "Amber",
+          "value": "249632"
+        },
+        {
+          "label": "Configuration",
+          "value": "250857"
+        },
+        {
+          "label": "Domain",
+          "value": "247853"
+        },
+        {
+          "label": "Enrollment",
+          "value": "249705"
+        },
+        {
+          "label": "Green",
+          "value": "249631"
+        },
+        {
+          "label": "IPM",
+          "value": "248407"
+        },
+        {
+          "label": "Must Do",
+          "value": "248404"
+        },
+        {
+          "label": "MustHave",
+          "value": "248408"
+        },
+        {
+          "label": "MustHaveTechnical",
+          "value": "248406"
+        },
+        {
+          "label": "Nice2Have",
+          "value": "248405"
+        },
+        {
+          "label": "OIA",
+          "value": "250856"
+        },
+        {
+          "label": "OSS",
+          "value": "249706"
+        },
+        {
+          "label": "Program",
+          "value": "247852"
+        },
+        {
+          "label": "Red",
+          "value": "249630"
+        },
+        {
+          "label": "XProgram",
+          "value": "247851"
+        }
+      ]
+    },
+    {
+      "id": "customfield_18603",
+      "label": "Environment",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": false,
+      "options": [
+        {
+          "label": "None",
+          "value": "-1"
+        },
+        {
+          "label": "DEV",
+          "value": "161620"
+        },
+        {
+          "label": "SI",
+          "value": "36808"
+        },
+        {
+          "label": "SYS",
+          "value": "161621"
+        },
+        {
+          "label": "INT",
+          "value": "161622"
+        },
+        {
+          "label": "PVS",
+          "value": "161623"
+        },
+        {
+          "label": "PREP",
+          "value": "36811"
+        },
+        {
+          "label": "Training",
+          "value": "36812"
+        },
+        {
+          "label": "REL",
+          "value": "161624"
+        },
+        {
+          "label": "PFIX",
+          "value": "161625"
+        },
+        {
+          "label": "PROD",
+          "value": "36813"
+        },
+        {
+          "label": "N/A",
+          "value": "40206"
+        },
+        {
+          "label": "OTHER",
+          "value": "161626"
+        },
+        {
+          "label": "QA",
+          "value": "36809"
+        },
+        {
+          "label": "BAT",
+          "value": "161627"
+        },
+        {
+          "label": "UAT",
+          "value": "36810"
+        },
+        {
+          "label": "TRNG",
+          "value": "161628"
+        }
+      ]
+    },
+    {
+      "id": "customfield_24100",
+      "label": "Expected Release Date",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "customfield_23408",
+      "label": "Justification/business Value Of Change",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "labels",
+      "label": "Labels",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "customfield_22207",
+      "label": "Legal Approval",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": false,
+      "options": [
+        {
+          "label": "None",
+          "value": "-1"
+        },
+        {
+          "label": "Not Started",
+          "value": "78126"
+        },
+        {
+          "label": "In Progress",
+          "value": "78127"
+        },
+        {
+          "label": "Approved",
+          "value": "78128"
+        },
+        {
+          "label": "Not Approved",
+          "value": "78129"
+        },
+        {
+          "label": "Not Applicable",
+          "value": "78130"
+        }
+      ]
+    },
+    {
+      "id": "customfield_22800",
+      "label": "Link To Report",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "issuelinks-linktype",
+      "label": "Linked Issues",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": false,
+      "options": [
+        {
+          "label": "Team Objectives",
+          "value": "Team Objectives"
+        },
+        {
+          "label": "has to be finished together with",
+          "value": "has to be finished together with"
+        },
+        {
+          "label": "is blocked by",
+          "value": "is blocked by"
+        },
+        {
+          "label": "Activity",
+          "value": "Activity"
+        },
+        {
+          "label": "Activity for",
+          "value": "Activity for"
+        },
+        {
+          "label": "blocks",
+          "value": "blocks"
+        },
+        {
+          "label": "clones",
+          "value": "clones"
+        },
+        {
+          "label": "is cloned by",
+          "value": "is cloned by"
+        },
+        {
+          "label": "contains",
+          "value": "contains"
+        },
+        {
+          "label": "contained within",
+          "value": "contained within"
+        },
+        {
+          "label": "created",
+          "value": "created"
+        },
+        {
+          "label": "created by",
+          "value": "created by"
+        },
+        {
+          "label": "depends on",
+          "value": "depends on"
+        },
+        {
+          "label": "is depended on by",
+          "value": "is depended on by"
+        },
+        {
+          "label": "Develops",
+          "value": "Develops"
+        },
+        {
+          "label": "Developed By",
+          "value": "Developed By"
+        },
+        {
+          "label": "duplicates",
+          "value": "duplicates"
+        },
+        {
+          "label": "is duplicated by",
+          "value": "is duplicated by"
+        },
+        {
+          "label": "ESI Parent of Custom Link",
+          "value": "ESI Parent of Custom Link"
+        },
+        {
+          "label": "ESI Child of Custom Link",
+          "value": "ESI Child of Custom Link"
+        },
+        {
+          "label": "has to be done before",
+          "value": "has to be done before"
+        },
+        {
+          "label": "has to be done after",
+          "value": "has to be done after"
+        },
+        {
+          "label": "earliest end is start of",
+          "value": "earliest end is start of"
+        },
+        {
+          "label": "start is earliest end of",
+          "value": "start is earliest end of"
+        },
+        {
+          "label": "has to be started together with",
+          "value": "has to be started together with"
+        },
+        {
+          "label": "git code review opened",
+          "value": "git code review opened"
+        },
+        {
+          "label": "opened during git code review in",
+          "value": "opened during git code review in"
+        },
+        {
+          "label": "impedes",
+          "value": "impedes"
+        },
+        {
+          "label": "is impeded by",
+          "value": "is impeded by"
+        },
+        {
+          "label": "Issue Link Test inwards",
+          "value": "Issue Link Test inwards"
+        },
+        {
+          "label": "issue link Test outwards",
+          "value": "issue link Test outwards"
+        },
+        {
+          "label": "split to",
+          "value": "split to"
+        },
+        {
+          "label": "split from",
+          "value": "split from"
+        },
+        {
+          "label": "has milestone",
+          "value": "has milestone"
+        },
+        {
+          "label": "is a milestone",
+          "value": "is a milestone"
+        },
+        {
+          "label": "Program Objective",
+          "value": "Program Objective"
+        },
+        {
+          "label": "has package",
+          "value": "has package"
+        },
+        {
+          "label": "is a package",
+          "value": "is a package"
+        },
+        {
+          "label": "considers",
+          "value": "considers"
+        },
+        {
+          "label": "considered for",
+          "value": "considered for"
+        },
+        {
+          "label": "planning to decompose",
+          "value": "planning to decompose"
+        },
+        {
+          "label": "planned to decompose in",
+          "value": "planned to decompose in"
+        },
+        {
+          "label": "planning to deliver",
+          "value": "planning to deliver"
+        },
+        {
+          "label": "planned to deliver in",
+          "value": "planned to deliver in"
+        },
+        {
+          "label": "not planned to work on",
+          "value": "not planned to work on"
+        },
+        {
+          "label": "not planned to work in",
+          "value": "not planned to work in"
+        },
+        {
+          "label": "planning to work on",
+          "value": "planning to work on"
+        },
+        {
+          "label": "planned to work in",
+          "value": "planned to work in"
+        },
+        {
+          "label": "causes",
+          "value": "causes"
+        },
+        {
+          "label": "is caused by",
+          "value": "is caused by"
+        },
+        {
+          "label": "relates to",
+          "value": "relates to"
+        },
+        {
+          "label": "has to be deployed before",
+          "value": "has to be deployed before"
+        },
+        {
+          "label": "has to be deployed after",
+          "value": "has to be deployed after"
+        },
+        {
+          "label": "has to be deployed together with",
+          "value": "has to be deployed together with"
+        },
+        {
+          "label": "has risk",
+          "value": "has risk"
+        },
+        {
+          "label": "is a risk",
+          "value": "is a risk"
+        },
+        {
+          "label": "Solves For",
+          "value": "Solves For"
+        },
+        {
+          "label": "Is Solved By",
+          "value": "Is Solved By"
+        },
+        {
+          "label": "Validates",
+          "value": "Validates"
+        },
+        {
+          "label": "Validated By",
+          "value": "Validated By"
+        }
+      ]
+    },
+    {
+      "id": "issuelinks-issues",
+      "label": "Issuelinks-issues",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "customfield_11300",
+      "label": "Location",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": false,
+      "options": [
+        {
+          "label": "None",
+          "value": "-1"
+        },
+        {
+          "label": "Accredo WHT Pharmacy",
+          "value": "77807"
+        },
+        {
+          "label": "All Pharmacies",
+          "value": "46211"
+        },
+        {
+          "label": "Atlanta",
+          "value": "139903"
+        },
+        {
+          "label": "Birmingham",
+          "value": "45905"
+        },
+        {
+          "label": "Boston",
+          "value": "139900"
+        },
+        {
+          "label": "Chicago",
+          "value": "139905"
+        },
+        {
+          "label": "Columbus Pharmacy",
+          "value": "11303"
+        },
+        {
+          "label": "Corona Pharmacy",
+          "value": "21001"
+        },
+        {
+          "label": "Cura Scripts - Grove City Pharmacy",
+          "value": "27339"
+        },
+        {
+          "label": "Cura Scripts - Tempe Pharmacy",
+          "value": "27338"
+        },
+        {
+          "label": "Denver",
+          "value": "139910"
+        },
+        {
+          "label": "Detroit",
+          "value": "139902"
+        },
+        {
+          "label": "Elmsford",
+          "value": "139906"
+        },
+        {
+          "label": "ESSDS Pharmacy",
+          "value": "76601"
+        },
+        {
+          "label": "Fairfield OH",
+          "value": "221400"
+        },
+        {
+          "label": "Florence Pharmacy",
+          "value": "11300"
+        },
+        {
+          "label": "Freedom Fertility",
+          "value": "200801"
+        },
+        {
+          "label": "Greensboro",
+          "value": "45906"
+        },
+        {
+          "label": "Hawaii Pharmacy",
+          "value": "21002"
+        },
+        {
+          "label": "Houston",
+          "value": "139911"
+        },
+        {
+          "label": "Indianapolis Pharmacy",
+          "value": "11307"
+        },
+        {
+          "label": "Las Vegas",
+          "value": "139908"
+        },
+        {
+          "label": "Lenexa",
+          "value": "139904"
+        },
+        {
+          "label": "Memphis Pharmacy",
+          "value": "11304"
+        },
+        {
+          "label": "Minneapolis",
+          "value": "139907"
+        },
+        {
+          "label": "Multiple",
+          "value": "11401"
+        },
+        {
+          "label": "New Castle Pharmacy",
+          "value": "11306"
+        },
+        {
+          "label": "New Orleans",
+          "value": "139901"
+        },
+        {
+          "label": "Newark",
+          "value": "200800"
+        },
+        {
+          "label": "Oklahoma City",
+          "value": "139909"
+        },
+        {
+          "label": "Omaha",
+          "value": "139912"
+        },
+        {
+          "label": "Orlando Pharmacy",
+          "value": "11305"
+        },
+        {
+          "label": "PBM Pharmacies",
+          "value": "46209"
+        },
+        {
+          "label": "Pine Brook",
+          "value": "139915"
+        },
+        {
+          "label": "Rio Salado Pharmacy",
+          "value": "11311"
+        },
+        {
+          "label": "Router",
+          "value": "45607"
+        },
+        {
+          "label": "Salt Lake City",
+          "value": "139913"
+        },
+        {
+          "label": "Seattle",
+          "value": "139914"
+        },
+        {
+          "label": "Specialty Pharmacies",
+          "value": "46210"
+        },
+        {
+          "label": "St. Louis Pharmacy",
+          "value": "11301"
+        },
+        {
+          "label": "Tempe Pharmacy",
+          "value": "11302"
+        },
+        {
+          "label": "UBC Pharmacy",
+          "value": "11309"
+        },
+        {
+          "label": "Warrendale Pharmacy",
+          "value": "11310"
+        },
+        {
+          "label": "Whitestown Pharmacy",
+          "value": "11308"
+        }
+      ]
+    },
+    {
+      "id": "timetracking_originalestimate",
+      "label": "Original Estimate",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "log-work-activate",
+      "label": "Log Work",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "timetracking_remainingestimate",
+      "label": "Remaining Estimate",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "log-work-time-logged",
+      "label": "Log-work-time-logged",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "log-work-date-logged-date-picker",
+      "label": "Log-work-date-logged-date-picker",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "log-work-adjust-estimate-auto",
+      "label": "Adjust Automatically",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "log-work-adjust-estimate-leave",
+      "label": "Leave Estimate Unset",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "log-work-adjust-estimate-new",
+      "label": "Set To",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "log-work-adjust-estimate-new-value",
+      "label": "Log-work-adjust-estimate-new-value",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "log-work-adjust-estimate-manual",
+      "label": "Reduce By",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "log-work-adjust-estimate-manual-value",
+      "label": "Log-work-adjust-estimate-manual-value",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "comment",
+      "label": "Comment",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "commentLevel",
+      "label": "Commentlevel",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": false,
+      "options": [
+        {
+          "label": "Administrators",
+          "value": "role:10002"
+        }
+      ]
+    },
+    {
+      "id": "customfield_10102",
+      "label": "Need By Date",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "customfield_15502",
+      "label": "Need By Date Rationale",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "customfield_28813",
+      "label": "Pi (program Increment)",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": true,
+      "options": [
+        {
+          "label": "Unassigned",
+          "value": "168874"
+        },
+        {
+          "label": "PI 26.1 (01/01/26 - 03/11/26)",
+          "value": "226000"
+        },
+        {
+          "label": "PI 26.2 (03/12/26 - 05/20/26)",
+          "value": "226001"
+        },
+        {
+          "label": "PI 26.3 (05/21/26 - 07/29/26)",
+          "value": "226002"
+        },
+        {
+          "label": "PI 26.4 (07/30/26 - 10/07/26)",
+          "value": "226003"
+        },
+        {
+          "label": "PI 26.5 (10/08/26 - 12/30/26)",
+          "value": "226004"
+        },
+        {
+          "label": "PI 25.1 (01/02/25 - 03/12/25)",
+          "value": "204500"
+        },
+        {
+          "label": "PI 25.2 (03/13/25 - 05/21/25)",
+          "value": "204501"
+        },
+        {
+          "label": "PI 25.3 (05/22/25 - 07/30/25)",
+          "value": "204502"
+        },
+        {
+          "label": "PI 25.4 (07/31/25 - 10/08/25)",
+          "value": "204503"
+        },
+        {
+          "label": "PI 25.5 (10/09/25 - 12/31/25)",
+          "value": "204504"
+        },
+        {
+          "label": "PI 24.1 (01/04/24 - 03/13/24)",
+          "value": "178605"
+        },
+        {
+          "label": "PI 24.2 (03/14/24 - 05/22/24)",
+          "value": "178604"
+        },
+        {
+          "label": "PI 24.3 (05/23/24 - 07/31/24)",
+          "value": "178603"
+        },
+        {
+          "label": "PI 24.4 (08/01/24 - 10/09/24)",
+          "value": "178602"
+        },
+        {
+          "label": "PI 24.5 (10/10/24 - 01/01/25)",
+          "value": "178601"
+        },
+        {
+          "label": "PI 23.1 (01/05/23 - 03/15/23)",
+          "value": "168879"
+        },
+        {
+          "label": "PI 23.2 (03/16/23 - 05/24/23)",
+          "value": "168878"
+        },
+        {
+          "label": "PI 23.3 (05/25/23 - 08/02/23)",
+          "value": "168877"
+        },
+        {
+          "label": "PI 23.4 (08/03/23 - 10/11/23)",
+          "value": "168876"
+        },
+        {
+          "label": "PI 23.5 (10/12/23 - 01/03/24)",
+          "value": "168875"
+        },
+        {
+          "label": "PI 22.1 (01/06/22 - 03/16/22)",
+          "value": "168884"
+        },
+        {
+          "label": "PI 22.2 (03/17/22 - 05/25/22)",
+          "value": "168883"
+        },
+        {
+          "label": "PI 22.3 (05/26/22 - 08/03/22)",
+          "value": "168882"
+        },
+        {
+          "label": "PI 22.4 (08/04/22 - 10/12/22)",
+          "value": "168881"
+        },
+        {
+          "label": "PI 22.5 (10/13/22 - 01/04/23)",
+          "value": "168880"
+        },
+        {
+          "label": "PI 21.1 (01/07/21 - 03/17/21)",
+          "value": "168889"
+        },
+        {
+          "label": "PI 21.2 (03/18/21 - 05/26/21)",
+          "value": "168888"
+        },
+        {
+          "label": "PI 21.3 (05/27/21 - 08/04/21)",
+          "value": "168887"
+        },
+        {
+          "label": "PI 21.4 (08/05/21 - 10/13/21)",
+          "value": "168886"
+        },
+        {
+          "label": "PI 21.5 (10/14/21 - 01/05/22)",
+          "value": "168885"
+        },
+        {
+          "label": "PI 20.1 (01/02/20 - 03/18/20)",
+          "value": "168894"
+        },
+        {
+          "label": "PI 20.2 (03/19/20 - 05/27/20)",
+          "value": "168893"
+        },
+        {
+          "label": "PI 20.3 (05/28/20 - 08/05/20)",
+          "value": "168892"
+        },
+        {
+          "label": "PI 20.4 (08/06/20 - 10/14/20)",
+          "value": "168891"
+        },
+        {
+          "label": "PI 20.5 (10/15/20 - 01/06/21)",
+          "value": "168890"
+        },
+        {
+          "label": "PI 19.5 (10/17/19 - 01/01/20)",
+          "value": "168895"
+        },
+        {
+          "label": "PI 2W 22.5",
+          "value": "168896"
+        },
+        {
+          "label": "PI 2W 23.1",
+          "value": "189786"
+        },
+        {
+          "label": "PI 2W 23.2",
+          "value": "189785"
+        },
+        {
+          "label": "PI 2W 23.3",
+          "value": "189784"
+        },
+        {
+          "label": "PI 2W 23.4",
+          "value": "189783"
+        },
+        {
+          "label": "PI 2W 23.5",
+          "value": "189777"
+        },
+        {
+          "label": "PI 2W 24.1",
+          "value": "189776"
+        },
+        {
+          "label": "PI 2W 24.2",
+          "value": "189774"
+        },
+        {
+          "label": "PI 2W 24.3",
+          "value": "189773"
+        },
+        {
+          "label": "PI 2W 24.4",
+          "value": "189772"
+        },
+        {
+          "label": "PI 2W 24.5",
+          "value": "189771"
+        },
+        {
+          "label": "PI 3W 23.1",
+          "value": "189782"
+        },
+        {
+          "label": "PI 3W 23.2",
+          "value": "189781"
+        },
+        {
+          "label": "PI 3W 23.3",
+          "value": "189780"
+        },
+        {
+          "label": "PI 3W 23.4",
+          "value": "189779"
+        },
+        {
+          "label": "PI 3W 23.5",
+          "value": "189778"
+        },
+        {
+          "label": "PI 3W 24.1",
+          "value": "189775"
+        },
+        {
+          "label": "PI 3W 24.2",
+          "value": "189770"
+        },
+        {
+          "label": "PI 3W 24.3",
+          "value": "189769"
+        },
+        {
+          "label": "PI 3W 24.4",
+          "value": "189768"
+        },
+        {
+          "label": "PI 3W 24.5",
+          "value": "189767"
+        },
+        {
+          "label": "Unassigned Backlog",
+          "value": "168897"
+        }
+      ]
+    },
+    {
+      "id": "customfield_16001",
+      "label": "Pops Source",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": false,
+      "options": [
+        {
+          "label": "None",
+          "value": "-1"
+        },
+        {
+          "label": "Account Executives",
+          "value": "25901"
+        },
+        {
+          "label": "Account Management",
+          "value": "24100"
+        },
+        {
+          "label": "Accounts Payable",
+          "value": "24101"
+        },
+        {
+          "label": "BAU-IT",
+          "value": "54728"
+        },
+        {
+          "label": "BI",
+          "value": "53403"
+        },
+        {
+          "label": "Cash Posting Team",
+          "value": "54724"
+        },
+        {
+          "label": "CBA",
+          "value": "25726"
+        },
+        {
+          "label": "Clinical",
+          "value": "24102"
+        },
+        {
+          "label": "Compliance",
+          "value": "24103"
+        },
+        {
+          "label": "Corporate Finance",
+          "value": "24104"
+        },
+        {
+          "label": "Direct Claims",
+          "value": "25727"
+        },
+        {
+          "label": "Eligibility Ops",
+          "value": "36803"
+        },
+        {
+          "label": "EMS",
+          "value": "24105"
+        },
+        {
+          "label": "Enterprise Support",
+          "value": "36805"
+        },
+        {
+          "label": "Enterprise-IT",
+          "value": "54729"
+        },
+        {
+          "label": "Finance",
+          "value": "24106"
+        },
+        {
+          "label": "Helpdesk",
+          "value": "24107"
+        },
+        {
+          "label": "Implementations",
+          "value": "24108"
+        },
+        {
+          "label": "Marketing",
+          "value": "53402"
+        },
+        {
+          "label": "myPassport Support",
+          "value": "36804"
+        },
+        {
+          "label": "Network",
+          "value": "80500"
+        },
+        {
+          "label": "Other",
+          "value": "24111"
+        },
+        {
+          "label": "Out of Network",
+          "value": "53401"
+        },
+        {
+          "label": "POPS",
+          "value": "25725"
+        },
+        {
+          "label": "Product",
+          "value": "24109"
+        },
+        {
+          "label": "Rx Ops",
+          "value": "24110"
+        },
+        {
+          "label": "Sales",
+          "value": "25902"
+        },
+        {
+          "label": "TnT",
+          "value": "53404"
+        },
+        {
+          "label": "WC-IT",
+          "value": "25903"
+        }
+      ]
+    },
+    {
+      "id": "customfield_16002",
+      "label": "Pops Source Priority",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": false,
+      "options": [
+        {
+          "label": "None",
+          "value": "-1"
+        },
+        {
+          "label": "1",
+          "value": "24112"
+        },
+        {
+          "label": "2",
+          "value": "24113"
+        },
+        {
+          "label": "3",
+          "value": "24114"
+        },
+        {
+          "label": "4",
+          "value": "24115"
+        },
+        {
+          "label": "5",
+          "value": "24116"
+        },
+        {
+          "label": "6",
+          "value": "24117"
+        },
+        {
+          "label": "7",
+          "value": "24118"
+        },
+        {
+          "label": "8",
+          "value": "24119"
+        },
+        {
+          "label": "9",
+          "value": "24120"
+        },
+        {
+          "label": "10",
+          "value": "24121"
+        },
+        {
+          "label": "11",
+          "value": "24122"
+        },
+        {
+          "label": "12",
+          "value": "24123"
+        },
+        {
+          "label": "13",
+          "value": "24124"
+        },
+        {
+          "label": "14",
+          "value": "24125"
+        },
+        {
+          "label": "15",
+          "value": "24126"
+        },
+        {
+          "label": "16",
+          "value": "24127"
+        },
+        {
+          "label": "17",
+          "value": "24128"
+        },
+        {
+          "label": "18",
+          "value": "24129"
+        },
+        {
+          "label": "19",
+          "value": "24130"
+        },
+        {
+          "label": "20",
+          "value": "24131"
+        },
+        {
+          "label": "21",
+          "value": "40600"
+        },
+        {
+          "label": "22",
+          "value": "40601"
+        },
+        {
+          "label": "23",
+          "value": "40602"
+        },
+        {
+          "label": "24",
+          "value": "40603"
+        },
+        {
+          "label": "25",
+          "value": "40604"
+        },
+        {
+          "label": "26",
+          "value": "40605"
+        },
+        {
+          "label": "27",
+          "value": "40606"
+        },
+        {
+          "label": "28",
+          "value": "40607"
+        },
+        {
+          "label": "29",
+          "value": "40608"
+        },
+        {
+          "label": "30",
+          "value": "40609"
+        },
+        {
+          "label": "31",
+          "value": "40610"
+        },
+        {
+          "label": "32",
+          "value": "40611"
+        },
+        {
+          "label": "33",
+          "value": "40612"
+        },
+        {
+          "label": "34",
+          "value": "40613"
+        },
+        {
+          "label": "35",
+          "value": "40614"
+        },
+        {
+          "label": "36",
+          "value": "40615"
+        },
+        {
+          "label": "37",
+          "value": "40616"
+        },
+        {
+          "label": "38",
+          "value": "40617"
+        },
+        {
+          "label": "39",
+          "value": "40618"
+        },
+        {
+          "label": "40",
+          "value": "40619"
+        },
+        {
+          "label": "41",
+          "value": "40620"
+        },
+        {
+          "label": "42",
+          "value": "40621"
+        },
+        {
+          "label": "43",
+          "value": "40622"
+        },
+        {
+          "label": "44",
+          "value": "40623"
+        },
+        {
+          "label": "45",
+          "value": "40624"
+        },
+        {
+          "label": "46",
+          "value": "40625"
+        },
+        {
+          "label": "47",
+          "value": "40626"
+        },
+        {
+          "label": "48",
+          "value": "40627"
+        },
+        {
+          "label": "49",
+          "value": "40628"
+        },
+        {
+          "label": "50",
+          "value": "40629"
+        }
+      ]
+    },
+    {
+      "id": "priority-field",
+      "label": "Priority",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "priority",
+      "label": "Priority",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": false,
+      "options": [
+        {
+          "label": "Critical",
+          "value": "1"
+        },
+        {
+          "label": "High",
+          "value": "2"
+        },
+        {
+          "label": "Medium",
+          "value": "3"
+        },
+        {
+          "label": "Low",
+          "value": "4"
+        },
+        {
+          "label": "None",
+          "value": "10200"
+        }
+      ]
+    },
+    {
+      "id": "customfield_15200",
+      "label": "Product Health Investment",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": false,
+      "options": [
+        {
+          "label": "No",
+          "value": "18901"
+        },
+        {
+          "label": "Yes",
+          "value": "18902"
+        }
+      ]
+    },
+    {
+      "id": "customfield_14103-field",
+      "label": "Product Manager",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "customfield_22801",
+      "label": "Protected Health Information?",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": false,
+      "options": [
+        {
+          "label": "None",
+          "value": "-1"
+        },
+        {
+          "label": "Yes",
+          "value": "99606"
+        },
+        {
+          "label": "No",
+          "value": "99607"
+        }
+      ]
+    },
+    {
+      "id": "customfield_14017",
+      "label": "Servicenow Ticket Number",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "customfield_22208",
+      "label": "Solution Assessment",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": false,
+      "options": [
+        {
+          "label": "None",
+          "value": "-1"
+        },
+        {
+          "label": "Not Started",
+          "value": "78131"
+        },
+        {
+          "label": "In Progress",
+          "value": "78132"
+        },
+        {
+          "label": "Approved",
+          "value": "78133"
+        },
+        {
+          "label": "Not Approved",
+          "value": "78134"
+        },
+        {
+          "label": "Not Applicable",
+          "value": "78135"
+        }
+      ]
+    },
+    {
+      "id": "customfield_20500",
+      "label": "Status Summary",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "10202",
+      "required": false
+    },
+    {
+      "id": "customfield_22209",
+      "label": "Technology & Security Assessment",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "10202",
+      "required": false,
+      "options": [
+        {
+          "label": "None",
+          "value": "-1"
+        },
+        {
+          "label": "Not Started",
+          "value": "78136"
+        },
+        {
+          "label": "In Progress",
+          "value": "78137"
+        },
+        {
+          "label": "Approved",
+          "value": "78138"
+        },
+        {
+          "label": "Not Approved",
+          "value": "78139"
+        },
+        {
+          "label": "Not Applicable",
+          "value": "78140"
+        }
+      ]
+    }
+  ]
+}

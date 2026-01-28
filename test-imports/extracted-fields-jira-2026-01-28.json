@@ -1,0 +1,1675 @@
+{
+  "version": "1.3.0",
+  "extractorVersion": "0.11.6",
+  "extractedAt": "2026-01-28T14:38:28.718Z",
+  "description": "Extracted Field Definitions",
+  "tool": "Field Extractor Bookmarklet",
+  "appType": "jira",
+  "baseUrl": "https://jira.express-scripts.com",
+  "projectKey": "75213",
+  "issueType": "13000",
+  "fieldDefinitions": [
+    {
+      "id": "summary",
+      "label": "Summary",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "13000",
+      "required": true
+    },
+    {
+      "id": "description_iapcwUMEKGp6OsiY",
+      "label": "Description_iapcwumekgp6osiy",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "13000",
+      "required": false
+    },
+    {
+      "id": "description",
+      "label": "Description",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "13000",
+      "required": false
+    },
+    {
+      "id": "customfield_11800",
+      "label": "Acceptance Criteria",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "13000",
+      "required": false
+    },
+    {
+      "id": "assignee-field",
+      "label": "Assignee",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "13000",
+      "required": false
+    },
+    {
+      "id": "assignee",
+      "label": "Assignee",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "13000",
+      "required": false,
+      "options": [
+        {
+          "label": "Smith, Michael  (CTR)",
+          "value": "C8Q6T3"
+        },
+        {
+          "label": "Automatic",
+          "value": "-1"
+        }
+      ]
+    },
+    {
+      "id": "reporter",
+      "label": "Reporter",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "13000",
+      "required": true
+    },
+    {
+      "id": "customfield_34700",
+      "label": "Sub-status",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "13000",
+      "required": false,
+      "options": [
+        {
+          "label": "None",
+          "value": "-1"
+        },
+        {
+          "label": "Assigned for Resolutions",
+          "value": "231600"
+        },
+        {
+          "label": "Blocked",
+          "value": "231601"
+        },
+        {
+          "label": "Code Review",
+          "value": "231602"
+        },
+        {
+          "label": "Deferred",
+          "value": "231603"
+        },
+        {
+          "label": "Design",
+          "value": "231604"
+        },
+        {
+          "label": "Deployed",
+          "value": "231605"
+        },
+        {
+          "label": "Discovery",
+          "value": "231606"
+        },
+        {
+          "label": "Implement",
+          "value": "231607"
+        },
+        {
+          "label": "In Development",
+          "value": "231608"
+        },
+        {
+          "label": "Integration Test",
+          "value": "231609"
+        },
+        {
+          "label": "New",
+          "value": "231610"
+        },
+        {
+          "label": "Planning",
+          "value": "231611"
+        },
+        {
+          "label": "Pre-Intake",
+          "value": "231612"
+        },
+        {
+          "label": "Ready for Design",
+          "value": "231613"
+        },
+        {
+          "label": "Ready for Planning",
+          "value": "231614"
+        },
+        {
+          "label": "Ready for QA",
+          "value": "231615"
+        },
+        {
+          "label": "Ready for Refinement",
+          "value": "231616"
+        },
+        {
+          "label": "Ready for Regression Test",
+          "value": "231617"
+        },
+        {
+          "label": "Ready for System Integration Test",
+          "value": "231618"
+        },
+        {
+          "label": "Ready for Testing",
+          "value": "231619"
+        },
+        {
+          "label": "Ready for UAT",
+          "value": "231620"
+        },
+        {
+          "label": "Refinement",
+          "value": "231621"
+        },
+        {
+          "label": "Regression Test",
+          "value": "231622"
+        },
+        {
+          "label": "Rejected",
+          "value": "231623"
+        },
+        {
+          "label": "System Integration Test",
+          "value": "231624"
+        },
+        {
+          "label": "Testing",
+          "value": "231625"
+        },
+        {
+          "label": "Triage in Progress",
+          "value": "231626"
+        },
+        {
+          "label": "Validation",
+          "value": "231627"
+        }
+      ]
+    },
+    {
+      "id": "customfield_28810",
+      "label": "Size",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "13000",
+      "required": false,
+      "options": [
+        {
+          "label": "None",
+          "value": "-1"
+        },
+        {
+          "label": "X-Small ($100K)",
+          "value": "168866"
+        },
+        {
+          "label": "Small ($250K)",
+          "value": "168867"
+        },
+        {
+          "label": "Medium ($500K)",
+          "value": "168868"
+        },
+        {
+          "label": "Large ($1M)",
+          "value": "168869"
+        },
+        {
+          "label": "X-Large ($3M)",
+          "value": "168870"
+        },
+        {
+          "label": "XX-Large ($5M)",
+          "value": "168871"
+        },
+        {
+          "label": "XXX-Large ($10M)",
+          "value": "168872"
+        },
+        {
+          "label": "XXXX-Large ($20M)",
+          "value": "168873"
+        }
+      ]
+    },
+    {
+      "id": "customfield_15900",
+      "label": "Target Start",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "13000",
+      "required": false
+    },
+    {
+      "id": "customfield_15901",
+      "label": "Target End",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "13000",
+      "required": false
+    },
+    {
+      "id": "duedate",
+      "label": "Due Date (d/mmm/yy)",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "13000",
+      "required": false
+    },
+    {
+      "id": "customfield_10109",
+      "label": "External Reference Id",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "13000",
+      "required": false
+    },
+    {
+      "id": "customfield_10110",
+      "label": "Issue Notes",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "13000",
+      "required": false
+    },
+    {
+      "id": "customfield_20500",
+      "label": "Status Summary",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "13000",
+      "required": false
+    },
+    {
+      "id": "customfield_28200",
+      "label": "Application Component Selection",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "13000",
+      "required": false
+    },
+    {
+      "id": "react-select-2-input",
+      "label": "React-select-2-input",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "13000",
+      "required": false
+    },
+    {
+      "id": "customfield_28812",
+      "label": "Approved Funding ($)",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "13000",
+      "required": false
+    },
+    {
+      "id": "customfield_10103",
+      "label": "Clarity Id",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "13000",
+      "required": false
+    },
+    {
+      "id": "components",
+      "label": "Components",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "13000",
+      "required": false,
+      "options": [
+        {
+          "label": "Amber",
+          "value": "249632"
+        },
+        {
+          "label": "Configuration",
+          "value": "250857"
+        },
+        {
+          "label": "Domain",
+          "value": "247853"
+        },
+        {
+          "label": "Enrollment",
+          "value": "249705"
+        },
+        {
+          "label": "Green",
+          "value": "249631"
+        },
+        {
+          "label": "IPM",
+          "value": "248407"
+        },
+        {
+          "label": "Must Do",
+          "value": "248404"
+        },
+        {
+          "label": "MustHave",
+          "value": "248408"
+        },
+        {
+          "label": "MustHaveTechnical",
+          "value": "248406"
+        },
+        {
+          "label": "Nice2Have",
+          "value": "248405"
+        },
+        {
+          "label": "OIA",
+          "value": "250856"
+        },
+        {
+          "label": "OSS",
+          "value": "249706"
+        },
+        {
+          "label": "Program",
+          "value": "247852"
+        },
+        {
+          "label": "Red",
+          "value": "249630"
+        },
+        {
+          "label": "XProgram",
+          "value": "247851"
+        }
+      ]
+    },
+    {
+      "id": "customfield_28811",
+      "label": "Estimate ($)",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "13000",
+      "required": false
+    },
+    {
+      "id": "labels",
+      "label": "Labels",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "13000",
+      "required": false
+    },
+    {
+      "id": "issuelinks-linktype",
+      "label": "Linked Issues",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "13000",
+      "required": false,
+      "options": [
+        {
+          "label": "Team Objectives",
+          "value": "Team Objectives"
+        },
+        {
+          "label": "has to be finished together with",
+          "value": "has to be finished together with"
+        },
+        {
+          "label": "is blocked by",
+          "value": "is blocked by"
+        },
+        {
+          "label": "Activity",
+          "value": "Activity"
+        },
+        {
+          "label": "Activity for",
+          "value": "Activity for"
+        },
+        {
+          "label": "blocks",
+          "value": "blocks"
+        },
+        {
+          "label": "clones",
+          "value": "clones"
+        },
+        {
+          "label": "is cloned by",
+          "value": "is cloned by"
+        },
+        {
+          "label": "contains",
+          "value": "contains"
+        },
+        {
+          "label": "contained within",
+          "value": "contained within"
+        },
+        {
+          "label": "created",
+          "value": "created"
+        },
+        {
+          "label": "created by",
+          "value": "created by"
+        },
+        {
+          "label": "depends on",
+          "value": "depends on"
+        },
+        {
+          "label": "is depended on by",
+          "value": "is depended on by"
+        },
+        {
+          "label": "Develops",
+          "value": "Develops"
+        },
+        {
+          "label": "Developed By",
+          "value": "Developed By"
+        },
+        {
+          "label": "duplicates",
+          "value": "duplicates"
+        },
+        {
+          "label": "is duplicated by",
+          "value": "is duplicated by"
+        },
+        {
+          "label": "ESI Parent of Custom Link",
+          "value": "ESI Parent of Custom Link"
+        },
+        {
+          "label": "ESI Child of Custom Link",
+          "value": "ESI Child of Custom Link"
+        },
+        {
+          "label": "has to be done before",
+          "value": "has to be done before"
+        },
+        {
+          "label": "has to be done after",
+          "value": "has to be done after"
+        },
+        {
+          "label": "earliest end is start of",
+          "value": "earliest end is start of"
+        },
+        {
+          "label": "start is earliest end of",
+          "value": "start is earliest end of"
+        },
+        {
+          "label": "has to be started together with",
+          "value": "has to be started together with"
+        },
+        {
+          "label": "git code review opened",
+          "value": "git code review opened"
+        },
+        {
+          "label": "opened during git code review in",
+          "value": "opened during git code review in"
+        },
+        {
+          "label": "impedes",
+          "value": "impedes"
+        },
+        {
+          "label": "is impeded by",
+          "value": "is impeded by"
+        },
+        {
+          "label": "Issue Link Test inwards",
+          "value": "Issue Link Test inwards"
+        },
+        {
+          "label": "issue link Test outwards",
+          "value": "issue link Test outwards"
+        },
+        {
+          "label": "split to",
+          "value": "split to"
+        },
+        {
+          "label": "split from",
+          "value": "split from"
+        },
+        {
+          "label": "has milestone",
+          "value": "has milestone"
+        },
+        {
+          "label": "is a milestone",
+          "value": "is a milestone"
+        },
+        {
+          "label": "Program Objective",
+          "value": "Program Objective"
+        },
+        {
+          "label": "has package",
+          "value": "has package"
+        },
+        {
+          "label": "is a package",
+          "value": "is a package"
+        },
+        {
+          "label": "considers",
+          "value": "considers"
+        },
+        {
+          "label": "considered for",
+          "value": "considered for"
+        },
+        {
+          "label": "planning to decompose",
+          "value": "planning to decompose"
+        },
+        {
+          "label": "planned to decompose in",
+          "value": "planned to decompose in"
+        },
+        {
+          "label": "planning to deliver",
+          "value": "planning to deliver"
+        },
+        {
+          "label": "planned to deliver in",
+          "value": "planned to deliver in"
+        },
+        {
+          "label": "not planned to work on",
+          "value": "not planned to work on"
+        },
+        {
+          "label": "not planned to work in",
+          "value": "not planned to work in"
+        },
+        {
+          "label": "planning to work on",
+          "value": "planning to work on"
+        },
+        {
+          "label": "planned to work in",
+          "value": "planned to work in"
+        },
+        {
+          "label": "causes",
+          "value": "causes"
+        },
+        {
+          "label": "is caused by",
+          "value": "is caused by"
+        },
+        {
+          "label": "relates to",
+          "value": "relates to"
+        },
+        {
+          "label": "has to be deployed before",
+          "value": "has to be deployed before"
+        },
+        {
+          "label": "has to be deployed after",
+          "value": "has to be deployed after"
+        },
+        {
+          "label": "has to be deployed together with",
+          "value": "has to be deployed together with"
+        },
+        {
+          "label": "has risk",
+          "value": "has risk"
+        },
+        {
+          "label": "is a risk",
+          "value": "is a risk"
+        },
+        {
+          "label": "Solves For",
+          "value": "Solves For"
+        },
+        {
+          "label": "Is Solved By",
+          "value": "Is Solved By"
+        },
+        {
+          "label": "Validates",
+          "value": "Validates"
+        },
+        {
+          "label": "Validated By",
+          "value": "Validated By"
+        }
+      ]
+    },
+    {
+      "id": "issuelinks-issues",
+      "label": "Issuelinks-issues",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "13000",
+      "required": false
+    },
+    {
+      "id": "priority-field",
+      "label": "Priority",
+      "category": "custom",
+      "fieldType": "text",
+      "issueType": "13000",
+      "required": false
+    },
+    {
+      "id": "priority",
+      "label": "Priority",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "13000",
+      "required": false,
+      "options": [
+        {
+          "label": "Critical",
+          "value": "1"
+        },
+        {
+          "label": "High",
+          "value": "2"
+        },
+        {
+          "label": "Medium",
+          "value": "3"
+        },
+        {
+          "label": "Low",
+          "value": "4"
+        },
+        {
+          "label": "None",
+          "value": "10200"
+        }
+      ]
+    },
+    {
+      "id": "customfield_28801",
+      "label": "Strategic Business Case",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "13000",
+      "required": false,
+      "options": [
+        {
+          "label": "None",
+          "value": "-1"
+        },
+        {
+          "label": "Accelerated Learning",
+          "value": "168683"
+        },
+        {
+          "label": "Affordability Program Enablement",
+          "value": "168684"
+        },
+        {
+          "label": "AFF: Accelerated Learning",
+          "value": "168685"
+        },
+        {
+          "label": "AFF: Affordability",
+          "value": "168686"
+        },
+        {
+          "label": "AFF: AMP+Transparency",
+          "value": "168687"
+        },
+        {
+          "label": "AFF: Benefit Systems Flexibility",
+          "value": "168688"
+        },
+        {
+          "label": "AFF: Benefit System Redesign",
+          "value": "168689"
+        },
+        {
+          "label": "AFF: BH/Med Network Flexibility",
+          "value": "168690"
+        },
+        {
+          "label": "AFF: CAC",
+          "value": "168691"
+        },
+        {
+          "label": "AFF: CCD/COE",
+          "value": "168692"
+        },
+        {
+          "label": "AFF: Condition Specific Care",
+          "value": "168693"
+        },
+        {
+          "label": "AFF: Evicore Foundational",
+          "value": "168694"
+        },
+        {
+          "label": "AFF: GUTS",
+          "value": "168695"
+        },
+        {
+          "label": "AFF: HCC/EI",
+          "value": "168696"
+        },
+        {
+          "label": "AFF: Idaho TPV Conversion",
+          "value": "168697"
+        },
+        {
+          "label": "AFF: ID Centralization",
+          "value": "168698"
+        },
+        {
+          "label": "AFF: Moonshot",
+          "value": "168699"
+        },
+        {
+          "label": "AFF: Navigation",
+          "value": "168700"
+        },
+        {
+          "label": "AFF: Network Product",
+          "value": "168701"
+        },
+        {
+          "label": "AFF: Network Virtual Reimbursement",
+          "value": "168702"
+        },
+        {
+          "label": "AFF: SCC - Nephrology",
+          "value": "168703"
+        },
+        {
+          "label": "AFF: SCC – Oncology",
+          "value": "168704"
+        },
+        {
+          "label": "AFF: Trucare Migration",
+          "value": "168705"
+        },
+        {
+          "label": "AMP",
+          "value": "168706"
+        },
+        {
+          "label": "Auto-Recoupment Refund Initiative",
+          "value": "168707"
+        },
+        {
+          "label": "Benefit Steerage",
+          "value": "168708"
+        },
+        {
+          "label": "BSW Tiered Network Solution",
+          "value": "168709"
+        },
+        {
+          "label": "CAC",
+          "value": "168710"
+        },
+        {
+          "label": "Care Navigation - Guided Search - Beh",
+          "value": "168711"
+        },
+        {
+          "label": "Care Navigation - Guided Search - Med+Rx",
+          "value": "168712"
+        },
+        {
+          "label": "Channel Promotion and Awareness",
+          "value": "168713"
+        },
+        {
+          "label": "Cost Transparency",
+          "value": "168714"
+        },
+        {
+          "label": "Data & Analytics",
+          "value": "168715"
+        },
+        {
+          "label": "Digital Rx",
+          "value": "168716"
+        },
+        {
+          "label": "Enable E2E Contract and Market Leader Experience",
+          "value": "168717"
+        },
+        {
+          "label": "Enable Enterprise Pricing Service for Proclaim",
+          "value": "168718"
+        },
+        {
+          "label": "EOC",
+          "value": "168719"
+        },
+        {
+          "label": "EviCore - Foundational",
+          "value": "168720"
+        },
+        {
+          "label": "Gastro Precertification (non-SOC) v4",
+          "value": "168721"
+        },
+        {
+          "label": "Gastro SOC",
+          "value": "168722"
+        },
+        {
+          "label": "HCPM First - Contract & Network Data Management",
+          "value": "168723"
+        },
+        {
+          "label": "HCPM First - Scaling & Implementation",
+          "value": "168724"
+        },
+        {
+          "label": "Home Health-DME-Sleep",
+          "value": "168725"
+        },
+        {
+          "label": "Idaho TPV Conversion",
+          "value": "168726"
+        },
+        {
+          "label": "Incentives - HPP",
+          "value": "168727"
+        },
+        {
+          "label": "Moonshot",
+          "value": "168728"
+        },
+        {
+          "label": "MS TPV Replacement",
+          "value": "168729"
+        },
+        {
+          "label": "MSK Phase 1 v4",
+          "value": "168730"
+        },
+        {
+          "label": "MSK Phase 2 SOC v2",
+          "value": "168731"
+        },
+        {
+          "label": "n/a",
+          "value": "168732"
+        },
+        {
+          "label": "Navigation",
+          "value": "168733"
+        },
+        {
+          "label": "Navigation - HPP",
+          "value": "168734"
+        },
+        {
+          "label": "Network Product",
+          "value": "168735"
+        },
+        {
+          "label": "Onboarding",
+          "value": "168736"
+        },
+        {
+          "label": "Patient Assurance Program (2020 Carryover)",
+          "value": "168737"
+        },
+        {
+          "label": "Project Cardinal - PT/OT",
+          "value": "168738"
+        },
+        {
+          "label": "Provider Data - Foundational",
+          "value": "168739"
+        },
+        {
+          "label": "Radiology SOC",
+          "value": "168740"
+        },
+        {
+          "label": "Retail",
+          "value": "168741"
+        },
+        {
+          "label": "Rx - Embarc",
+          "value": "168742"
+        },
+        {
+          "label": "Rx - Flexible Network",
+          "value": "168743"
+        },
+        {
+          "label": "SCC - Nephrology",
+          "value": "168744"
+        },
+        {
+          "label": "STSP",
+          "value": "168745"
+        },
+        {
+          "label": "tbd",
+          "value": "168746"
+        },
+        {
+          "label": "Timely Contract Update in Reimbursement System",
+          "value": "168747"
+        },
+        {
+          "label": "TruCare Migration",
+          "value": "168748"
+        },
+        {
+          "label": "Virtual Portfolio - Recovery One",
+          "value": "168749"
+        }
+      ]
+    },
+    {
+      "id": "customfield_28802",
+      "label": "Strategic Choice",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "13000",
+      "required": false,
+      "options": [
+        {
+          "label": "None",
+          "value": "-1"
+        },
+        {
+          "label": "AFF SP1: Utilize a differential approach to providers to improve overall cost position",
+          "value": "168750"
+        },
+        {
+          "label": "AFF SP2: Optimize sites of care and increase low cost, quality access options",
+          "value": "168751"
+        },
+        {
+          "label": "AFF SP3: Tightly manage and optimize pharmacy and behavioral specific spend",
+          "value": "168752"
+        },
+        {
+          "label": "AFF SP5: Change the demand paradigm and navigate customers to the most efficient care choice",
+          "value": "168753"
+        },
+        {
+          "label": "AFF SP7: Key Enablers",
+          "value": "168754"
+        },
+        {
+          "label": "AFF: Accelerated Learning",
+          "value": "168755"
+        },
+        {
+          "label": "AFF: D&A Enablement",
+          "value": "168756"
+        },
+        {
+          "label": "AFF: Health Plan Guts",
+          "value": "168757"
+        },
+        {
+          "label": "Affordability - Accelerate Virtual Care",
+          "value": "168758"
+        },
+        {
+          "label": "Affordability - Accelerated Learning",
+          "value": "168759"
+        },
+        {
+          "label": "Affordability - Architect High-Performing Primary Care",
+          "value": "168760"
+        },
+        {
+          "label": "Affordability - Architect Preferred Specialty Care",
+          "value": "168761"
+        },
+        {
+          "label": "Affordability - Behavioral",
+          "value": "168762"
+        },
+        {
+          "label": "Affordability - Clinical Solutions",
+          "value": "168763"
+        },
+        {
+          "label": "Affordability - Contracting Strategy, Improvement & Enablement",
+          "value": "168764"
+        },
+        {
+          "label": "Affordability - Data & Analytics",
+          "value": "168765"
+        },
+        {
+          "label": "Affordability - Drive Care Journey and Navigation",
+          "value": "168766"
+        },
+        {
+          "label": "Affordability - Enhance Reimbursement",
+          "value": "168767"
+        },
+        {
+          "label": "Affordability - Evolve Benefit, Product, Incentives",
+          "value": "168768"
+        },
+        {
+          "label": "Affordability - Expand Brick and Mortar Alternate Care",
+          "value": "168769"
+        },
+        {
+          "label": "Affordability - Network Solutions",
+          "value": "168770"
+        },
+        {
+          "label": "Affordability - Provider Data",
+          "value": "168771"
+        },
+        {
+          "label": "Affordability - Rx",
+          "value": "168772"
+        },
+        {
+          "label": "Affordability - Site of Care",
+          "value": "168773"
+        },
+        {
+          "label": "Coordinated Services - Evernorth",
+          "value": "168774"
+        },
+        {
+          "label": "Effectiveness & Efficiency - Digitized Print",
+          "value": "168775"
+        },
+        {
+          "label": "Effectiveness & Efficiency - ID Card Optimization",
+          "value": "168776"
+        },
+        {
+          "label": "Effectiveness & Efficiency - Knowledge Management",
+          "value": "168777"
+        },
+        {
+          "label": "Enterprise Digital",
+          "value": "168778"
+        },
+        {
+          "label": "Enterprise E&E – Back Office Optimization (Non-Call)",
+          "value": "168779"
+        },
+        {
+          "label": "Enterprise E&E – Call Optimization",
+          "value": "168780"
+        },
+        {
+          "label": "Enterprise E&E – E2E Efficiency Redesign Opportunities",
+          "value": "168781"
+        },
+        {
+          "label": "Enterprise E&E – Knowledge Management",
+          "value": "168782"
+        },
+        {
+          "label": "Enterprise E&E – Office of Intelligent Automation",
+          "value": "168783"
+        },
+        {
+          "label": "Enterprise E&E – Other Efficiency Opportunities",
+          "value": "168784"
+        },
+        {
+          "label": "Enterprise E&E – Print and Distribution",
+          "value": "168785"
+        },
+        {
+          "label": "Enterprise Provider Services & Operations",
+          "value": "168786"
+        },
+        {
+          "label": "Enterprise Regulatory",
+          "value": "168787"
+        },
+        {
+          "label": "Enterprise – Other",
+          "value": "168788"
+        },
+        {
+          "label": "GBS - CareAllies",
+          "value": "168789"
+        },
+        {
+          "label": "GBS - CSB",
+          "value": "168790"
+        },
+        {
+          "label": "GBS - IFP Affordability",
+          "value": "168791"
+        },
+        {
+          "label": "GBS - IFP Compliance",
+          "value": "168792"
+        },
+        {
+          "label": "GBS - IFP Customer Experience & Lifestyle",
+          "value": "168793"
+        },
+        {
+          "label": "GBS - IFP Growth",
+          "value": "168794"
+        },
+        {
+          "label": "GBS - IFP Partner of Choice",
+          "value": "168795"
+        },
+        {
+          "label": "GBS - IFP Product",
+          "value": "168796"
+        },
+        {
+          "label": "GBS - IFP Risk Adjustment",
+          "value": "168797"
+        },
+        {
+          "label": "GBS - IT Foundational",
+          "value": "168798"
+        },
+        {
+          "label": "GBS - MA Agile Transformation",
+          "value": "168799"
+        },
+        {
+          "label": "GBS - MA Customer Lifecycle",
+          "value": "168800"
+        },
+        {
+          "label": "GBS - MA Data & Analytics",
+          "value": "168801"
+        },
+        {
+          "label": "GBS - MA Geographic Expansion",
+          "value": "168802"
+        },
+        {
+          "label": "GBS - MA Product Expansion",
+          "value": "168803"
+        },
+        {
+          "label": "GBS - MA Scalable Op Model",
+          "value": "168804"
+        },
+        {
+          "label": "GBS - MA TCC & Quality",
+          "value": "168805"
+        },
+        {
+          "label": "GBS - Pharmacy",
+          "value": "168806"
+        },
+        {
+          "label": "GTM 1: Distribution Excellence",
+          "value": "168807"
+        },
+        {
+          "label": "GTM 3: Leverage Rx Value",
+          "value": "168808"
+        },
+        {
+          "label": "GTM 5: Modernize Vision",
+          "value": "168809"
+        },
+        {
+          "label": "GTM 6: Nail the Basics",
+          "value": "168810"
+        },
+        {
+          "label": "GTM 7: Leverage Supplemental Health Solutions Value",
+          "value": "168811"
+        },
+        {
+          "label": "GTM 8: Small Group",
+          "value": "168812"
+        },
+        {
+          "label": "Integrated Medical - Behavioral Health",
+          "value": "168813"
+        },
+        {
+          "label": "Integrated Medical - Cigna + Oscar",
+          "value": "168814"
+        },
+        {
+          "label": "Integrated Medical - Cigna Supplemental Health Administrative Platform Replacement",
+          "value": "168815"
+        },
+        {
+          "label": "Integrated Medical - Financial Wellness",
+          "value": "168816"
+        },
+        {
+          "label": "Integrated Medical - Network Affordability / Benefit Solutions",
+          "value": "168817"
+        },
+        {
+          "label": "Integrated Medical - Pharmacy",
+          "value": "168818"
+        },
+        {
+          "label": "Integrated Medical - Taft Hartley / SAR",
+          "value": "168819"
+        },
+        {
+          "label": "Integrated Medical - Underwriting Enablement",
+          "value": "168820"
+        },
+        {
+          "label": "Integrated Medical - Virtual Benefits Education",
+          "value": "168821"
+        },
+        {
+          "label": "LODO",
+          "value": "168822"
+        },
+        {
+          "label": "Other - Business/Delivery Directed",
+          "value": "168823"
+        },
+        {
+          "label": "Producer - Growth & Retention",
+          "value": "168824"
+        },
+        {
+          "label": "Producer - Producer Compensation",
+          "value": "168825"
+        },
+        {
+          "label": "Producer - Segmentation",
+          "value": "168826"
+        },
+        {
+          "label": "Producer - Service & Engagement",
+          "value": "168827"
+        },
+        {
+          "label": "Run The Business",
+          "value": "168828"
+        },
+        {
+          "label": "USC Regulatory",
+          "value": "168829"
+        }
+      ]
+    },
+    {
+      "id": "customfield_25503",
+      "label": "Stakeholder Owner",
+      "category": "custom",
+      "fieldType": "combobox",
+      "issueType": "13000",
+      "required": false,
+      "options": [
+        {
+          "label": "None",
+          "value": "-1"
+        },
+        {
+          "label": "Affordability Accuracy & Business Development",
+          "value": "168600"
+        },
+        {
+          "label": "Affordability Excellence",
+          "value": "168601"
+        },
+        {
+          "label": "Agile Value Management Office",
+          "value": "168602"
+        },
+        {
+          "label": "Analytics",
+          "value": "168603"
+        },
+        {
+          "label": "AVMO- Agile Value Management Office",
+          "value": "168604"
+        },
+        {
+          "label": "Business Continuity Management/ Disaster Recovery",
+          "value": "168605"
+        },
+        {
+          "label": "Business Operational Readiness",
+          "value": "168606"
+        },
+        {
+          "label": "Care Solutions",
+          "value": "168607"
+        },
+        {
+          "label": "CareAllies (CA)",
+          "value": "168608"
+        },
+        {
+          "label": "Cigna Global Architecture",
+          "value": "168609"
+        },
+        {
+          "label": "Cigna Information Protection",
+          "value": "168610"
+        },
+        {
+          "label": "Cigna Legal",
+          "value": "168611"
+        },
+        {
+          "label": "Cigna Medical Group",
+          "value": "168612"
+        },
+        {
+          "label": "Cigna Supplemental Benefits (CSB)",
+          "value": "168613"
+        },
+        {
+          "label": "CIP-Cigna Information Protection",
+          "value": "168614"
+        },
+        {
+          "label": "Client",
+          "value": "168615"
+        },
+        {
+          "label": "Clinical",
+          "value": "168616"
+        },
+        {
+          "label": "Clinical Excellence",
+          "value": "168617"
+        },
+        {
+          "label": "Clinical Integration Services (CIS)",
+          "value": "168618"
+        },
+        {
+          "label": "Clinical Products and Services",
+          "value": "168619"
+        },
+        {
+          "label": "Connected Care Provider Operations (CCPO)",
+          "value": "168620"
+        },
+        {
+          "label": "Core Systems",
+          "value": "168621"
+        },
+        {
+          "label": "Core Technology Engineering and Solutions",
+          "value": "168622"
+        },
+        {
+          "label": "Cornerstone",
+          "value": "168623"
+        },
+        {
+          "label": "Corporate Applications",
+          "value": "168624"
+        },
+        {
+          "label": "Customer",
+          "value": "168625"
+        },
+        {
+          "label": "Data",
+          "value": "168626"
+        },
+        {
+          "label": "Data & Analytics",
+          "value": "168627"
+        },
+        {
+          "label": "Digital",
+          "value": "168628"
+        },
+        {
+          "label": "Digital Care Management",
+          "value": "168629"
+        },
+        {
+          "label": "EandE",
+          "value": "168630"
+        },
+        {
+          "label": "Employee",
+          "value": "168631"
+        },
+        {
+          "label": "Enterprise Client Computing (ECC)",
+          "value": "168632"
+        },
+        {
+          "label": "Enterprise Data Management",
+          "value": "168633"
+        },
+        {
+          "label": "Enterprise Release Management",
+          "value": "168634"
+        },
+        {
+          "label": "Enterprise-Regulatory/Compliance",
+          "value": "168635"
+        },
+        {
+          "label": "ESI Cigna Integration",
+          "value": "168636"
+        },
+        {
+          "label": "Evernorth Behavioral",
+          "value": "168637"
+        },
+        {
+          "label": "Experience Platform & Integration",
+          "value": "168638"
+        },
+        {
+          "label": "Finance",
+          "value": "168639"
+        },
+        {
+          "label": "GBS Shared Services",
+          "value": "168640"
+        },
+        {
+          "label": "Global Data & Analytics",
+          "value": "168641"
+        },
+        {
+          "label": "Global Health Benefits",
+          "value": "168642"
+        },
+        {
+          "label": "Global Infrastructure Services Group (GISG)",
+          "value": "168643"
+        },
+        {
+          "label": "Government Business Services",
+          "value": "168644"
+        },
+        {
+          "label": "HI2",
+          "value": "168645"
+        },
+        {
+          "label": "Human Resources (HR)",
+          "value": "168646"
+        },
+        {
+          "label": "Individual and Family Plans (IFP)",
+          "value": "168647"
+        },
+        {
+          "label": "Intelligent Automation",
+          "value": "168648"
+        },
+        {
+          "label": "Interoperability",
+          "value": "168649"
+        },
+        {
+          "label": "IT Sponsored",
+          "value": "168650"
+        },
+        {
+          "label": "Medicaid",
+          "value": "168651"
+        },
+        {
+          "label": "Medical Management",
+          "value": "168652"
+        },
+        {
+          "label": "Medicare",
+          "value": "168653"
+        },
+        {
+          "label": "Medicare Advantage (MA)",
+          "value": "168654"
+        },
+        {
+          "label": "Mergers & Acquisitions",
+          "value": "168655"
+        },
+        {
+          "label": "Performance Data Environment Engineering (PDEE)",
+          "value": "168656"
+        },
+        {
+          "label": "Platform Clinical",
+          "value": "168657"
+        },
+        {
+          "label": "Platform Core Systems",
+          "value": "168658"
+        },
+        {
+          "label": "Platform Corporate Apps",
+          "value": "168659"
+        },
+        {
+          "label": "Platform Data & Analytics",
+          "value": "168660"
+        },
+        {
+          "label": "Platform Exp & Platform Integration",
+          "value": "168661"
+        },
+        {
+          "label": "Platform Specialty",
+          "value": "168662"
+        },
+        {
+          "label": "Platform_Clinical",
+          "value": "168663"
+        },
+        {
+          "label": "Platform_Core Systems",
+          "value": "168664"
+        },
+        {
+          "label": "Platform_Corporate Apps",
+          "value": "168665"
+        },
+        {
+          "label": "Platform_Data & Analytics",
+          "value": "168666"
+        },
+        {
+          "label": "Platform_Exp & Platform Integration",
+          "value": "168667"
+        },
+        {
+          "label": "Platform_Specialty",
+          "value": "168668"
+        },
+        {
+          "label": "Prescription Drug Plan",
+          "value": "168669"
+        },
+        {
+          "label": "Producer",
+          "value": "168670"
+        },
+        {
+          "label": "Production Support Services",
+          "value": "168671"
+        },
+        {
+          "label": "Provider",
+          "value": "168672"
+        },
+        {
+          "label": "Provider Solutions and Operations",
+          "value": "168673"
+        },
+        {
+          "label": "Quality Engineering",
+          "value": "168674"
+        },
+        {
+          "label": "Service Operations Services",
+          "value": "168675"
+        },
+        {
+          "label": "Shared Service",
+          "value": "168676"
+        },
+        {
+          "label": "Specialty Platform",
+          "value": "168677"
+        },
+        {
+          "label": "Supply Chain Management (SCM)",
+          "value": "168678"
+        },
+        {
+          "label": "System Team",
+          "value": "168679"
+        },
+        {
+          "label": "Talent",
+          "value": "168680"
+        },
+        {
+          "label": "Technical Strategic Portfolio",
+          "value": "168681"
+        },
+        {
+          "label": "US Regulatory/Compliance",
+          "value": "168682"
+        }
+      ]
+    }
+  ]
+}
