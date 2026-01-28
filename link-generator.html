@@ -637,7 +637,7 @@
 
     function loadFieldDefinitions() {
       try {
-        const stored = localStorage.getItem('snowFieldDefinitions');
+        const stored = localStorage.getItem(getStorageKey('fieldDefinitions'));
         if (!stored) return DEFAULT_FIELDS;
         const parsed = JSON.parse(stored);
         if (!Array.isArray(parsed)) return DEFAULT_FIELDS;
@@ -652,7 +652,7 @@
     function loadAllFieldDefinitions() {
       // Load ALL fields including ignored ones (for Ignored Fields Manager)
       try {
-        const stored = localStorage.getItem('snowFieldDefinitions');
+        const stored = localStorage.getItem(getStorageKey('fieldDefinitions'));
         if (!stored) return DEFAULT_FIELDS;
         const parsed = JSON.parse(stored);
         if (!Array.isArray(parsed)) return DEFAULT_FIELDS;
@@ -671,7 +671,7 @@
           const key = `${d.id}|${issueTypeKey}|${d.baseUrlId || 'global'}`;
           return [key, d];
         })).values());
-        localStorage.setItem('snowFieldDefinitions', JSON.stringify(unique));
+        localStorage.setItem(getStorageKey('fieldDefinitions'), JSON.stringify(unique));
         return true;
       } catch (e) {
         console.error('Failed to save field definitions:', e);
@@ -1473,7 +1473,7 @@
         field.ignored = false;
         delete field.ignoredAt;
         delete field.ignoredReason;
-        localStorage.setItem('snowFieldDefinitions', JSON.stringify(allFields));
+        localStorage.setItem(getStorageKey('fieldDefinitions'), JSON.stringify(allFields));
         refreshIgnoredFieldsList();
         updateIgnoredFieldsCount();
         showNotification('✓ Field un-ignored: ' + field.label, 'success');
@@ -1505,7 +1505,7 @@
         }
       });
       
-      localStorage.setItem('snowFieldDefinitions', JSON.stringify(allFields));
+      localStorage.setItem(getStorageKey('fieldDefinitions'), JSON.stringify(allFields));
       refreshIgnoredFieldsList();
       updateIgnoredFieldsCount();
       showNotification(`✓ Un-ignored ${count} field(s)`, 'success');
@@ -1532,7 +1532,7 @@
         }
       });
       
-      localStorage.setItem('snowFieldDefinitions', JSON.stringify(allFields));
+      localStorage.setItem(getStorageKey('fieldDefinitions'), JSON.stringify(allFields));
       refreshIgnoredFieldsList();
       updateIgnoredFieldsCount();
       showNotification(`✓ Cleared all ${ignoredCount} ignored field(s)`, 'success');
@@ -1792,7 +1792,7 @@
         filtered.push(globalField);
         
         // Save
-        localStorage.setItem('snowFieldDefinitions', JSON.stringify(filtered));
+        localStorage.setItem(getStorageKey('fieldDefinitions'), JSON.stringify(filtered));
         
         mergedCount += group.instanceCount - 1;
       });
@@ -1871,7 +1871,7 @@
         filtered.push(mergedField);
         
         // Save
-        localStorage.setItem('snowFieldDefinitions', JSON.stringify(filtered));
+        localStorage.setItem(getStorageKey('fieldDefinitions'), JSON.stringify(filtered));
         
         mergedCount += group.instanceCount - 1;
       });
@@ -1939,7 +1939,7 @@
       
       try {
         const restoredFields = JSON.parse(backup);
-        localStorage.setItem('snowFieldDefinitions', JSON.stringify(restoredFields));
+        localStorage.setItem(getStorageKey('fieldDefinitions'), JSON.stringify(restoredFields));
         localStorage.removeItem('lastFieldOptimizationBackup');
         
         showNotification('✓ Optimization undone, fields restored', 'success');
@@ -3909,6 +3909,11 @@
 
     function executeImport(config) {
       try {
+        // Detect and switch app type FIRST, before any operations that use getStorageKey()
+        if (config.appType) {
+          switchAppType(config.appType);
+        }
+        
         // Create backup before import
         lastImportBackup = {
           timestamp: new Date().toISOString(),
@@ -4014,7 +4019,7 @@
           });
           
           // Save back all fields including ignored ones
-          localStorage.setItem('snowFieldDefinitions', JSON.stringify(allFields));
+          localStorage.setItem(getStorageKey('fieldDefinitions'), JSON.stringify(allFields));
           console.log('[executeImport] Processed', config.ignoredFields.length, 'ignored fields');
         }
         
@@ -4042,11 +4047,6 @@
           issueType: config.issueType || 'none',
           projectKey: config.projectKey || 'none'
         });
-        
-        // Detect app type from config if available
-        if (config.appType) {
-          switchAppType(config.appType);
-        }
 
         // Clear form state so user gets a clean slate after import
         localStorage.removeItem('linkGenFormState');
@@ -4452,14 +4452,24 @@
           projectIds: [],
           ignoredFields: []
         };
+        
+        // Set appType from first config that has it
+        let detectedAppType = null;
 
         // Merge each config
-        results.forEach(({ filename, config }) => {
+        results.forEach(({ filename, config }, index) => {
+          // Detect app type from first config
+          if (!detectedAppType && config.appType) {
+            detectedAppType = config.appType;
+          }
+          
           // First, process each config individually to set baseUrlId and issueTypeId on fields
           if (config.baseUrl && config.fieldDefinitions) {
             const baseUrlId = config.baseUrl.replace(/https?:\/\//, '').replace(/\//g, '-');
             config.fieldDefinitions.forEach(field => {
               if (!field.baseUrlId) field.baseUrlId = baseUrlId;
+              // Also set appType on each field
+              if (detectedAppType && !field.appType) field.appType = detectedAppType;
             });
           }
           if (config.issueType && config.fieldDefinitions) {
@@ -4511,6 +4521,11 @@
         
         // For fieldDefinitions - DON'T dedupe yet, let the import preview show all duplicates
         // User will see which ones are duplicates and can decide what to import
+        
+        // Set appType on merged config so executeImport can switch to it
+        if (detectedAppType) {
+          mergedConfig.appType = detectedAppType;
+        }
         
         // Show import preview with the merged config
         const processed = processImportedConfig(mergedConfig);
