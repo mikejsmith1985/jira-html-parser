@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Field Picker Manual Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #2c3e50;
+      margin-bottom: 10px;
+    }
+    .instructions {
+      background: #e3f2fd;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      border-left: 4px solid #2196F3;
+    }
+    .instructions h2 {
+      margin-top: 0;
+      color: #1976D2;
+      font-size: 18px;
+    }
+    .instructions ol {
+      margin: 10px 0;
+      padding-left: 24px;
+    }
+    .instructions li {
+      margin-bottom: 12px;
+      line-height: 1.6;
+    }
+    .test-form {
+      background: #f9f9f9;
+      padding: 24px;
+      border-radius: 8px;
+      border: 2px dashed #cbd5e0;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #2c3e50;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #cbd5e0;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    .required-marker {
+      color: #e74c3c;
+    }
+    .bookmarklet-container {
+      background: #fff3e0;
+      padding: 20px;
+      border-radius: 8px;
+      margin-bottom: 30px;
+      border-left: 4px solid #ff9800;
+      text-align: center;
+    }
+    .bookmarklet-container h2 {
+      margin-top: 0;
+      color: #f57c00;
+      font-size: 18px;
+    }
+    .bookmarklet-button {
+      display: inline-block;
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+      color: white;
+      text-decoration: none;
+      padding: 14px 28px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: move;
+      box-shadow: 0 4px 12px rgba(231, 76, 60, 0.4);
+      transition: transform 0.2s;
+    }
+    .bookmarklet-button:hover {
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎯 Field Picker Manual Test</h1>
+    
+    <div class="bookmarklet-container">
+      <h2>📌 Step 1: Add the Bookmarklet</h2>
+      <p style="margin-bottom: 16px;">Drag this button to your bookmarks bar:</p>
+      <a id="fieldPickerBookmarklet" class="bookmarklet-button">🎯 Field Picker</a>
+      <p style="margin-top: 12px; font-size: 13px; color: #666;">← Drag to bookmarks bar</p>
+    </div>
+
+    <div class="instructions">
+      <h2>📖 Test Instructions</h2>
+      <ol>
+        <li><strong>Drag the bookmarklet above</strong> to your browser's bookmarks bar</li>
+        <li><strong>Click the bookmarklet</strong> in your bookmarks bar to activate Field Picker</li>
+        <li>You should see a <strong>green banner</strong> at the top saying "Field Picker Active"</li>
+        <li><strong>Click any field</strong> in the form below</li>
+        <li>A modal should appear with the field's details (ID, Label, Type, etc.)</li>
+        <li><strong>Expected Result:</strong> Modal displays field information correctly</li>
+        <li><strong>Press ESC</strong> to deactivate Field Picker when done</li>
+      </ol>
+    </div>
+
+    <div class="test-form">
+      <h3 style="margin-top: 0; margin-bottom: 20px; color: #2c3e50;">📝 Test Form</h3>
+      
+      <div class="form-group">
+        <label for="summary">Summary <span class="required-marker">*</span></label>
+        <input type="text" id="summary" name="summary" required placeholder="Enter a summary..." value="Test Issue">
+      </div>
+
+      <div class="form-group">
+        <label for="priority">Priority <span class="required-marker">*</span></label>
+        <select id="priority" name="priority" required>
+          <option value="">-- Select Priority --</option>
+          <option value="1">P1 - Critical</option>
+          <option value="2">P2 - High</option>
+          <option value="3">P3 - Medium</option>
+          <option value="4">P4 - Low</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="assignee">Assignee</label>
+        <select id="assignee" name="assignee">
+          <option value="">-- Unassigned --</option>
+          <option value="john.doe">John Doe</option>
+          <option value="jane.smith">Jane Smith</option>
+          <option value="bob.johnson">Bob Johnson</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description <span class="required-marker">*</span></label>
+        <textarea id="description" name="description" required placeholder="Describe the issue...">This is a test description for the Field Picker tool.</textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="environment">Environment</label>
+        <input type="text" id="environment" name="environment" placeholder="e.g., Production, Staging">
+      </div>
+
+      <div class="form-group">
+        <label for="dueDate">Due Date</label>
+        <input type="date" id="dueDate" name="dueDate">
+      </div>
+    </div>
+
+    <div style="margin-top: 30px; padding: 20px; background: #f0f9ff; border-radius: 8px; border-left: 4px solid #0ea5e9;">
+      <h3 style="margin-top: 0; color: #0369a1;">✅ What to Check</h3>
+      <ul style="line-height: 1.8; color: #0c4a6e;">
+        <li><strong>Banner appears:</strong> Green banner at top when activated</li>
+        <li><strong>Modal appears:</strong> Clicking any field shows modal with details</li>
+        <li><strong>Field ID shown:</strong> Modal displays correct field ID (e.g., "summary", "priority")</li>
+        <li><strong>Label shown:</strong> Modal displays correct label text</li>
+        <li><strong>Type shown:</strong> Shows "text" or "combobox" correctly</li>
+        <li><strong>Required marker:</strong> Shows "Yes ⚠️" for required fields</li>
+        <li><strong>Options shown:</strong> Dropdown fields show their options list</li>
+        <li><strong>Copy buttons work:</strong> Copy buttons copy text to clipboard</li>
+      </ul>
+    </div>
+  </div>
+
+  <script>
+    // Inline the Field Picker bookmarklet code
+    const fieldPickerBookmarkletCode = `(function(){if(window.fieldPickerActive){alert('Field Picker is already active!');return;}window.fieldPickerActive=true;const escapeHtml=(text)=>{const div=document.createElement('div');div.textContent=text;return div.innerHTML;};let banner=document.createElement('div');banner.id='fpBanner';banner.style.cssText='position:fixed;top:0;left:50%;transform:translateX(-50%);background:#27ae60;color:white;padding:12px 24px;border-radius:0 0 8px 8px;z-index:999998;font-family:Arial,sans-serif;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.3);pointer-events:none;';banner.textContent='🎯 Field Picker Active - Click any field to inspect (ESC to exit)';document.body.appendChild(banner);document.body.style.cursor='crosshair';const handleClick=(e)=>{let field=null;if(e.target&&e.target.nodeType===1&&e.target.matches){field=e.target.matches('input,select,textarea')?e.target:e.target.closest('input,select,textarea');}if(!field)return;e.preventDefault();e.stopPropagation();const fieldId=field.id||field.name;const fieldName=field.name;const currentValue=field.value;let label=fieldId;const ariaLabelledBy=field.getAttribute('aria-labelledby');if(ariaLabelledBy){const labelEl=document.getElementById(ariaLabelledBy);if(labelEl)label=labelEl.textContent.trim();}else{const labelFor=document.querySelector(\`label[for="\${field.id}"]\`);if(labelFor)label=labelFor.textContent.trim();}label=label.replace(/[*:]/g,'').trim();label=label.replace(/\\s+(Required|Mandatory)[\\s.,;:!?]*$/gi,'').trim();label=label.replace(/\\s+(Required|Mandatory)\\b/gi,'').trim();let fieldType='text';if(field.tagName==='SELECT')fieldType='combobox';else if(field.tagName==='TEXTAREA')fieldType='text';const isRequired=field.required||field.getAttribute('aria-required')==='true'||field.hasAttribute('required');let options=[];let optionCount=0;if(fieldType==='combobox'&&field.options){Array.from(field.options).forEach(opt=>{if(opt.value){options.push({label:opt.textContent.trim(),value:opt.value});}});optionCount=options.length;}showModal({id:fieldId,name:fieldName,label:label,fieldType:fieldType,required:isRequired,currentValue:currentValue,options:options,optionCount:optionCount});};const handleHover=(e)=>{let field=null;if(e.target&&e.target.nodeType===1&&e.target.matches){field=e.target.matches('input,select,textarea')?e.target:e.target.closest('input,select,textarea');}if(field&&!field.closest('#fpModal')){field.style.outline='2px solid #3498db';}};const handleHoverOut=(e)=>{let field=null;if(e.target&&e.target.nodeType===1&&e.target.matches){field=e.target.matches('input,select,textarea')?e.target:e.target.closest('input,select,textarea');}if(field){field.style.outline='';}};const handleEscape=(e)=>{if(e.key==='Escape'){deactivate();}};const showModal=(meta)=>{let modal=document.getElementById('fpModal');if(modal)modal.remove();let backdrop=document.getElementById('fpBackdrop');if(!backdrop){backdrop=document.createElement('div');backdrop.id='fpBackdrop';backdrop.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:999999;display:flex;align-items:center;justify-content:center;';document.body.appendChild(backdrop);}modal=document.createElement('div');modal.id='fpModal';modal.style.cssText='background:white;border-radius:12px;padding:32px;max-width:600px;width:90%;max-height:85vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.3);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,sans-serif;position:relative;line-height:1.6;';const showAllOptions=meta.optionCount>0&&meta.optionCount<50;const hasLargeDropdown=meta.optionCount>=50;let html=\`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid #ecf0f1;"><h2 style="margin:0;color:#2c3e50;font-size:24px;font-weight:600;">🎯 Field Details</h2><button id="fpCloseBtn" style="background:none;border:none;font-size:32px;cursor:pointer;color:#95a5a6;line-height:1;padding:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center;transition:color 0.2s;" onmouseover="this.style.color='#e74c3c'" onmouseout="this.style.color='#95a5a6'">&times;</button></div><div style="background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px;"><div style="margin-bottom:16px;"><div style="color:#7f8c8d;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Field ID</div><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><code style="background:white;padding:8px 12px;border-radius:6px;font-size:14px;font-family:Monaco,Consolas,monospace;border:1px solid #e1e4e8;flex:1;min-width:0;word-break:break-all;">\${escapeHtml(meta.id)}</code><button class="fpCopyBtn" data-copy="\${escapeHtml(meta.id)}" style="background:#3498db;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap;transition:background 0.2s;" onmouseover="this.style.background='#2980b9'" onmouseout="if(!this.classList.contains('copied'))this.style.background='#3498db'">Copy</button></div></div><div style="margin-bottom:16px;"><div style="color:#7f8c8d;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Label</div><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><span style="font-size:16px;color:#2c3e50;flex:1;min-width:0;word-break:break-word;">\${escapeHtml(meta.label)}</span><button class="fpCopyBtn" data-copy="\${escapeHtml(meta.label)}" style="background:#3498db;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap;transition:background 0.2s;" onmouseover="this.style.background='#2980b9'" onmouseout="if(!this.classList.contains('copied'))this.style.background='#3498db'">Copy</button></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;"><div><div style="color:#7f8c8d;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Type</div><span style="font-size:15px;color:#2c3e50;background:white;padding:6px 12px;border-radius:6px;display:inline-block;border:1px solid #e1e4e8;">\${meta.fieldType}</span></div><div><div style="color:#7f8c8d;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Required</div><span style="font-size:15px;color:\${meta.required?'#e74c3c':'#27ae60'};background:white;padding:6px 12px;border-radius:6px;display:inline-block;font-weight:600;border:1px solid #e1e4e8;">\${meta.required?'Yes ⚠️':'No ✓'}</span></div></div>\`;if(meta.currentValue){html+=\`<div style="margin-top:16px;padding-top:16px;border-top:1px solid #e1e4e8;"><div style="color:#7f8c8d;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Current Value</div><div style="background:white;padding:10px 12px;border-radius:6px;font-size:15px;color:#27ae60;font-weight:500;border:1px solid #e1e4e8;word-break:break-word;">\${escapeHtml(meta.currentValue)}</div></div>\`;}html+=\`</div>\`;if(showAllOptions){html+=\`<div style="background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div style="color:#7f8c8d;font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Options (\${meta.optionCount})</div><button class="fpCopyBtn" data-copy='\${JSON.stringify(meta.options)}' style="background:#3498db;color:white;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:background 0.2s;" onmouseover="this.style.background='#2980b9'" onmouseout="if(!this.classList.contains('copied'))this.style.background='#3498db'">Copy All</button></div><div style="background:white;padding:16px;border-radius:6px;max-height:300px;overflow-y:auto;border:1px solid #e1e4e8;"><ul style="margin:0;padding:0;list-style:none;">\`;meta.options.forEach((opt,idx)=>{html+=\`<li style="padding:8px 0;border-bottom:1px solid #f0f0f0;font-size:14px;"><span style="color:#2c3e50;font-weight:500;">\${escapeHtml(opt.label)}</span><br><span style="color:#7f8c8d;font-size:13px;font-family:Monaco,Consolas,monospace;">value: \${escapeHtml(opt.value)}</span></li>\`;});html+=\`</ul></div></div>\`;}else if(hasLargeDropdown){html+=\`<div style="background:#fff3cd;padding:20px;border-radius:8px;margin-bottom:20px;border-left:4px solid #ffc107;"><div style="display:flex;align-items:start;gap:12px;"><span style="font-size:24px;">ℹ️</span><div><div style="color:#856404;font-weight:600;margin-bottom:6px;font-size:15px;">Large Dropdown Field</div><p style="margin:0;color:#856404;font-size:14px;line-height:1.5;">This field has <strong>\${meta.optionCount.toLocaleString()} options</strong>. To avoid performance issues, only the current value is shown above.</p></div></div></div>\`;}html+=\`<div style="text-align:center;padding-top:8px;"><button id="fpCopyJsonBtn" style="background:#27ae60;color:white;border:none;padding:14px 32px;border-radius:8px;cursor:pointer;font-size:15px;font-weight:600;box-shadow:0 2px 8px rgba(39,174,96,0.3);transition:all 0.2s;" onmouseover="this.style.background='#229954';this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 12px rgba(39,174,96,0.4)'" onmouseout="if(!this.classList.contains('copied')){this.style.background='#27ae60';this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(39,174,96,0.3)'}">📋 Copy Field as JSON</button></div>\`;modal.innerHTML=html;backdrop.appendChild(modal);document.getElementById('fpCloseBtn').onclick=()=>{modal.remove();backdrop.style.display='none';backdrop.remove();};document.querySelectorAll('.fpCopyBtn').forEach(btn=>{btn.onclick=()=>{const text=btn.getAttribute('data-copy');if(navigator.clipboard){navigator.clipboard.writeText(text);}else{const textarea=document.createElement('textarea');textarea.value=text;document.body.appendChild(textarea);textarea.select();document.execCommand('copy');document.body.removeChild(textarea);}btn.classList.add('copied');const originalText=btn.textContent;btn.textContent='✓ Copied!';btn.style.background='#27ae60';setTimeout(()=>{btn.classList.remove('copied');btn.textContent=originalText;btn.style.background='#3498db';},1500);};});document.getElementById('fpCopyJsonBtn').onclick=()=>{const json={id:meta.id,label:meta.label,fieldType:meta.fieldType,required:meta.required};if(meta.options.length>0&&meta.options.length<50){json.options=meta.options;}const jsonStr=JSON.stringify(json,null,2);if(navigator.clipboard){navigator.clipboard.writeText(jsonStr);}else{const textarea=document.createElement('textarea');textarea.value=jsonStr;document.body.appendChild(textarea);textarea.select();document.execCommand('copy');document.body.removeChild(textarea);}const btn=document.getElementById('fpCopyJsonBtn');btn.classList.add('copied');const originalText=btn.textContent;btn.textContent='✓ Copied to Clipboard!';btn.style.background='#27ae60';setTimeout(()=>{btn.classList.remove('copied');btn.textContent=originalText;btn.style.background='#27ae60';},1500);};backdrop.style.display='flex';};const deactivate=()=>{window.fieldPickerActive=false;if(banner)banner.remove();const modal=document.getElementById('fpModal');if(modal)modal.remove();const backdrop=document.getElementById('fpBackdrop');if(backdrop)backdrop.remove();document.body.style.cursor='';document.removeEventListener('click',handleClick,true);document.removeEventListener('keydown',handleEscape,true);document.removeEventListener('mouseover',handleHover,true);document.removeEventListener('mouseout',handleHoverOut,true);};document.addEventListener('click',handleClick,true);document.addEventListener('keydown',handleEscape,true);document.addEventListener('mouseover',handleHover,true);document.addEventListener('mouseout',handleHoverOut,true);})();`;
+
+    // Set the href for the bookmarklet
+    document.addEventListener('DOMContentLoaded', () => {
+      const bookmarkletLink = document.getElementById('fieldPickerBookmarklet');
+      bookmarkletLink.href = 'javascript:' + encodeURIComponent(fieldPickerBookmarkletCode);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - navigation [ref=e2]:
+    - generic [ref=e3]:
+      - link " Template Link Generator" [ref=e4] [cursor=pointer]:
+        - /url: "#"
+        - generic [ref=e5]: 
+        - text: Template Link Generator
+      - generic [ref=e6]: Enterprise Issue Template Solution
+      - button " Dark" [ref=e7] [cursor=pointer]:
+        - generic [ref=e8]: 
+        - generic [ref=e9]: Dark
+  - generic [ref=e10]:
+    - generic [ref=e12]:
+      - heading " Select Platform" [level=5] [ref=e13]:
+        - generic [ref=e14]: 
+        - text: Select Platform
+      - generic [ref=e15]:
+        - button " Jira" [ref=e16] [cursor=pointer]:
+          - generic [ref=e17]: 
+          - text: Jira
+        - button " ServiceNow" [ref=e18] [cursor=pointer]:
+          - generic [ref=e19]: 
+          - text: ServiceNow
+    - generic [ref=e22]:
+      - combobox [ref=e23]:
+        - option "-- Load Preset --" [selected]
+      - button " Presets" [ref=e24] [cursor=pointer]:
+        - generic [ref=e25]: 
+        - text: Presets
+      - button " Field Extractor" [ref=e26] [cursor=pointer]:
+        - generic [ref=e27]: 
+        - text: Field Extractor
+      - button " Field Picker" [ref=e28] [cursor=pointer]:
+        - generic [ref=e29]: 
+        - text: Field Picker
+      - button " Manage Configs" [ref=e30] [cursor=pointer]:
+        - generic [ref=e31]: 
+        - text: Manage Configs
+      - button " Export" [ref=e32] [cursor=pointer]:
+        - generic [ref=e33]: 
+        - text: Export
+      - button " Import" [ref=e34] [cursor=pointer]:
+        - generic [ref=e35]: 
+        - text: Import
+      - button " Undo" [ref=e36] [cursor=pointer]:
+        - generic [ref=e37]: 
+        - text: Undo
+    - generic [ref=e38]:
+      - generic [ref=e39]:
+        - generic [ref=e40]: 
+        - text: Link Configuration
+      - generic [ref=e41]:
+        - generic [ref=e42]:
+          - generic [ref=e43]:
+            - generic [ref=e44]:
+              - generic [ref=e45]: 
+              - text: Base URL
+              - generic [ref=e46]: Required
+            - generic [ref=e47]:
+              - combobox " Base URL Required" [ref=e48]:
+                - option "-- Select Base URL --" [selected]
+              - button " Manage" [ref=e49] [cursor=pointer]:
+                - generic [ref=e50]: 
+                - text: Manage
+          - text:  
+          - generic [ref=e51]:
+            - generic [ref=e52]:
+              - generic [ref=e53]: 
+              - text: Issue Type
+              - generic [ref=e54]: Required
+            - generic [ref=e55]:
+              - combobox " Issue Type Required" [ref=e56]:
+                - option "-- Select Issue Type --" [selected]
+              - button " Manage" [ref=e57] [cursor=pointer]:
+                - generic [ref=e58]: 
+                - text: Manage
+          - generic [ref=e59]:
+            - checkbox " Only show fields for selected issue type" [ref=e60]
+            - generic [ref=e61]:
+              - generic [ref=e62]: 
+              - text: Only show fields for selected issue type
+          - generic [ref=e64]:
+            - combobox [ref=e65]:
+              - option "-- Select Field --" [selected]
+              - option "Assigned To"
+              - option "Category"
+              - option "Description"
+              - option "Impact"
+              - option "Priority"
+              - option "Short Description"
+              - option "Urgency"
+            - button " Manage" [ref=e66] [cursor=pointer]:
+              - generic [ref=e67]: 
+              - text: Manage
+            - button "" [ref=e70] [cursor=pointer]:
+              - generic [ref=e71]: 
+          - button " Add Field" [ref=e73] [cursor=pointer]:
+            - generic [ref=e74]: 
+            - text: Add Field
+          - generic [ref=e75]:
+            - button " Generate Link" [ref=e77] [cursor=pointer]:
+              - generic [ref=e78]: 
+              - text: Generate Link
+            - button " Save as Preset" [ref=e80] [cursor=pointer]:
+              - generic [ref=e81]: 
+              - text: Save as Preset
+        - text:   
+  - text:      
+```
