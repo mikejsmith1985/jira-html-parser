@@ -3979,45 +3979,77 @@
       const select = document.getElementById('presetSelect');
       const presetId = select.value;
 
-      if (!presetId) return;
+      console.log('[loadPresetFromDropdown] Starting. presetId:', presetId);
+
+      if (!presetId) {
+        console.log('[loadPresetFromDropdown] No presetId, returning');
+        return;
+      }
 
       try {
+        console.log('[loadPresetFromDropdown] Calling applyPresetToForm...');
         const formData = applyPresetToForm(presetId);
+        console.log('[loadPresetFromDropdown] Got formData:', formData);
+        console.log('[loadPresetFromDropdown] formData.fields:', formData.fields);
 
         // Clear fields
         document.getElementById('fields').innerHTML = '';
+        console.log('[loadPresetFromDropdown] Cleared existing fields');
 
         // Populate form
         document.getElementById('baseUrl').value = formData.baseUrl;
         document.getElementById('issueType').value = formData.issueType;
+        console.log('[loadPresetFromDropdown] Set baseUrl and issueType');
         
         // For Jira, also restore projectId
         if (currentAppType === 'jira' && formData.projectId) {
           document.getElementById('projectId').value = formData.projectId;
+          console.log('[loadPresetFromDropdown] Set projectId');
         }
 
         // Add fields
-        formData.fields.forEach(f => addField(f));
+        if (!formData.fields || !Array.isArray(formData.fields)) {
+          console.warn('[loadPresetFromDropdown] No fields array in preset!');
+          formData.fields = [];
+        }
+        console.log('[loadPresetFromDropdown] About to add', formData.fields.length, 'fields');
+        if (formData.fields.length === 0) {
+          console.warn('[loadPresetFromDropdown] WARNING: Preset has 0 fields!');
+        }
+        formData.fields.forEach((f, idx) => {
+          console.log('[loadPresetFromDropdown] Adding field', idx, ':', f);
+          addField(f);
+        });
+        console.log('[loadPresetFromDropdown] Finished adding fields');
 
         saveState();
         select.value = ''; // Reset dropdown
         alert('Preset loaded successfully!');
       } catch (e) {
+        console.error('[loadPresetFromDropdown] ERROR:', e);
         alert('Error loading preset: ' + e.message);
         select.value = '';
       }
     }
 
     function applyPresetToForm(presetId) {
+      console.log('[applyPresetToForm] Looking for preset:', presetId);
       const presets = loadConfigurationPresets();
+      console.log('[applyPresetToForm] All presets:', presets);
       const preset = presets.find(p => p.id === presetId);
-      if (!preset) throw new Error('Preset not found');
-      return {
+      if (!preset) {
+        console.error('[applyPresetToForm] Preset not found!');
+        throw new Error('Preset not found');
+      }
+      console.log('[applyPresetToForm] Found preset:', preset);
+      const result = {
         baseUrl: preset.baseUrl || '',
         issueType: preset.issueType || preset.tableName || '',
         projectId: preset.projectId || '',
         fields: preset.fields || []
       };
+      console.log('[applyPresetToForm] Returning:', result);
+      return result;
     }
 
     function openManagePresetsModal() {

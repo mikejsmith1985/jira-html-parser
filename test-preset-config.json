@@ -1,0 +1,2140 @@
+{
+  "version": "1.0.0",
+  "exportedAt": "2026-01-29T17:58:43.426Z",
+  "description": "Link Generator Configuration",
+  "appType": "servicenow",
+  "configItems": [
+    {
+      "id": "baseUrl",
+      "label": "Base URL",
+      "category": "config"
+    },
+    {
+      "id": "issueType",
+      "label": "Issue Type",
+      "category": "config"
+    },
+    {
+      "id": "projectId",
+      "label": "Project ID",
+      "category": "config"
+    },
+    {
+      "id": "issueTypeId",
+      "label": "Issue Type ID",
+      "category": "config"
+    },
+    {
+      "id": "tableName",
+      "label": "Table Name",
+      "category": "config"
+    }
+  ],
+  "fieldDefinitions": [
+    {
+      "id": "short_description",
+      "label": "Short Description",
+      "fieldType": "text"
+    },
+    {
+      "id": "description",
+      "label": "Description",
+      "fieldType": "text"
+    },
+    {
+      "id": "priority",
+      "label": "Priority",
+      "fieldType": "text"
+    },
+    {
+      "id": "assigned_to",
+      "label": "Assigned To",
+      "fieldType": "text",
+      "required": true
+    },
+    {
+      "id": "category",
+      "label": "Category",
+      "fieldType": "text"
+    },
+    {
+      "id": "urgency",
+      "label": "Urgency",
+      "fieldType": "text"
+    },
+    {
+      "id": "impact",
+      "label": "Impact",
+      "fieldType": "text"
+    },
+    {
+      "id": "sc_req_item.cat_item_label",
+      "label": "Item",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "sc_req_item"
+    },
+    {
+      "id": "sc_req_item.request_label",
+      "label": "Request",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "sc_req_item"
+    },
+    {
+      "id": "sc_req_item.requested_for_label",
+      "label": "Requested For",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "sc_req_item"
+    },
+    {
+      "id": "sc_req_item.configuration_item_label",
+      "label": "Configuration Item",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "sc_req_item"
+    },
+    {
+      "id": "sc_req_item.assignment_group_label",
+      "label": "Assignment Group",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "issueTypeId": "sc_req_item",
+      "required": true
+    },
+    {
+      "id": "sc_req_item.assigned_to_label",
+      "label": "Assigned To",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "sc_req_item"
+    },
+    {
+      "id": "sc_req_item.opened_by_label",
+      "label": "Opened By",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "sc_req_item"
+    },
+    {
+      "id": "sc_req_item.approval",
+      "label": "Sc_req_item.approval",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "sc_req_item"
+    },
+    {
+      "id": "sc_req_item.stage",
+      "label": "Sc_req_item.stage",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "sc_req_item"
+    },
+    {
+      "id": "sc_req_item.state",
+      "label": "Sc_req_item.state",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "sc_req_item"
+    },
+    {
+      "id": "sc_request.number",
+      "label": "Sc_request.number",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "sc_request"
+    },
+    {
+      "id": "sc_request.requested_for_label",
+      "label": "Requested For",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "sc_request"
+    },
+    {
+      "id": "sc_request.location_label",
+      "label": "Location",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "sc_request"
+    },
+    {
+      "id": "sc_request.price",
+      "label": "Sc_request.price",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "sc_request"
+    },
+    {
+      "id": "sc_request.price.storage",
+      "label": "Sc_request.price.storage",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "sc_request"
+    },
+    {
+      "id": "sc_request.price.id",
+      "label": "Sc_request.price.id",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "sc_request"
+    },
+    {
+      "id": "sc_request.opened_by_label",
+      "label": "Opened By",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "sc_request"
+    },
+    {
+      "id": "sc_request.approval",
+      "label": "Sc_request.approval",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "sc_request"
+    },
+    {
+      "id": "sc_request.request_state",
+      "label": "Sc_request.request_state",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "sc_request"
+    },
+    {
+      "id": "sc_request.state",
+      "label": "Sc_request.state",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "sc_request"
+    },
+    {
+      "id": "problem.number",
+      "label": "Problem.number",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem"
+    },
+    {
+      "id": "problem.category",
+      "label": "Category",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem",
+      "required": true,
+      "options": [
+        {
+          "label": "Managed Incident",
+          "value": "Managed Incident"
+        },
+        {
+          "label": "Proactive",
+          "value": "Proactive"
+        },
+        {
+          "label": "Reactive / Non-Managed",
+          "value": "Reactive / Non-Managed"
+        },
+        {
+          "label": "DQI/Tracking",
+          "value": "DQI/Tracking"
+        },
+        {
+          "label": "Business-Facing",
+          "value": "Business-Facing"
+        }
+      ]
+    },
+    {
+      "id": "problem.due_date",
+      "label": "Due Date",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem"
+    },
+    {
+      "id": "problem.related_incidents",
+      "label": "Problem.related_incidents",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem"
+    },
+    {
+      "id": "problem.state",
+      "label": "Problem.state",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem"
+    },
+    {
+      "id": "problem.resolution_code",
+      "label": "Problem.resolution_code",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem"
+    },
+    {
+      "id": "problem.impact",
+      "label": "Impact",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem",
+      "options": [
+        {
+          "label": "1 - High",
+          "value": "1"
+        },
+        {
+          "label": "2 - Medium",
+          "value": "2"
+        },
+        {
+          "label": "3 - Low",
+          "value": "3"
+        }
+      ]
+    },
+    {
+      "id": "problem.urgency",
+      "label": "Urgency",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem",
+      "options": [
+        {
+          "label": "1 - High",
+          "value": "1"
+        },
+        {
+          "label": "2 - Medium",
+          "value": "2"
+        },
+        {
+          "label": "3 - Low",
+          "value": "3"
+        }
+      ]
+    },
+    {
+      "id": "problem.priority",
+      "label": "Link Opens In New Windowpriority",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem",
+      "options": [
+        {
+          "label": "1 - Critical",
+          "value": "1"
+        },
+        {
+          "label": "2 - High",
+          "value": "2"
+        },
+        {
+          "label": "3 - Moderate",
+          "value": "3"
+        },
+        {
+          "label": "4 - Low",
+          "value": "4"
+        },
+        {
+          "label": "5 - Planning",
+          "value": "5"
+        }
+      ]
+    },
+    {
+      "id": "problem.short_description",
+      "label": "Problem Statement",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem",
+      "required": true
+    },
+    {
+      "id": "problem.description",
+      "label": "Description",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem",
+      "required": true
+    },
+    {
+      "id": "problem.fix_notes",
+      "label": "Fix Notes",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem"
+    },
+    {
+      "id": "cxs_related_search",
+      "label": "Related Search",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem"
+    },
+    {
+      "id": "searchresource_dropdown",
+      "label": "Searchresource_dropdown",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem",
+      "options": [
+        {
+          "label": "Pinned Articles",
+          "value": "61e0ca04eb53210070a9666cd206fef5"
+        },
+        {
+          "label": "Knowledge Articles",
+          "value": "0790ca04eb53210070a9666cd206fe4d"
+        },
+        {
+          "label": "Outages",
+          "value": "a663c14f530b33005e32ddeeff7b1282"
+        },
+        {
+          "label": "Open Outages",
+          "value": "11db518b534b33005e32ddeeff7b12b5"
+        },
+        {
+          "label": "Incidents",
+          "value": "a4ed15d087452300fb3ad61e36cb0bf3"
+        },
+        {
+          "label": "Open Incidents",
+          "value": "8564187a535b130005ecddeeff7b1268"
+        },
+        {
+          "label": "Resolved Incidents",
+          "value": "95c59c7a535b130005ecddeeff7b12d4"
+        },
+        {
+          "label": "Problems",
+          "value": "739dd1d087452300fb3ad61e36cb0b77"
+        },
+        {
+          "label": "Open Problems",
+          "value": "c769159087452300fb3ad61e36cb0b49"
+        },
+        {
+          "label": "Resolved Problems",
+          "value": "3d0a959087452300fb3ad61e36cb0ba3"
+        },
+        {
+          "label": "Open Changes",
+          "value": "c1dd6816536323004acaddeeff7b12ac"
+        },
+        {
+          "label": "Closed Changes",
+          "value": "c8952343535323004acaddeeff7b12ab"
+        }
+      ]
+    },
+    {
+      "id": "select_0problem.work_notes_list",
+      "label": "Work Notes List",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem"
+    },
+    {
+      "id": "text.value.problem.work_notes_list",
+      "label": "Text.value.problem.work_notes_list",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem"
+    },
+    {
+      "id": "problem.work_notes",
+      "label": "Work Notes",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem"
+    },
+    {
+      "id": "problem.workaround",
+      "label": "Workaround",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem"
+    },
+    {
+      "id": "problem.cause_notes",
+      "label": "Cause Notes",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem"
+    },
+    {
+      "id": "problem.resolved_by_label",
+      "label": "Resolved By",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem"
+    },
+    {
+      "id": "problem.close_notes",
+      "label": "Close Notes",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem"
+    },
+    {
+      "id": "problem.opened_by_label",
+      "label": "Opened By",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem"
+    },
+    {
+      "id": "problem.confirmed_by_label",
+      "label": "Confirmed By",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem"
+    },
+    {
+      "id": "problem.fix_by_label",
+      "label": "Fix By",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem"
+    },
+    {
+      "id": "problem.closed_by_label",
+      "label": "Closed By",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem"
+    },
+    {
+      "id": "problem.workaround_communicated_by_label",
+      "label": "Workaround Communicated By",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem"
+    },
+    {
+      "id": "problem.fix_communicated_by_label",
+      "label": "Fix Communicated By",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "problem"
+    },
+    {
+      "id": "incident.number",
+      "label": "Incident.number",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident"
+    },
+    {
+      "id": "incident.u_callback_number",
+      "label": "Callback Number",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident"
+    },
+    {
+      "id": "incident.category",
+      "label": "Category",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident",
+      "required": true,
+      "options": [
+        {
+          "label": "Data",
+          "value": "data"
+        },
+        {
+          "label": "Inquiry / Help",
+          "value": "inquiry"
+        },
+        {
+          "label": "Software",
+          "value": "software"
+        },
+        {
+          "label": "Hardware",
+          "value": "hardware"
+        },
+        {
+          "label": "Network",
+          "value": "network"
+        },
+        {
+          "label": "Database",
+          "value": "database"
+        },
+        {
+          "label": "Access",
+          "value": "access"
+        },
+        {
+          "label": "Analytics Platform",
+          "value": "analytics platform"
+        },
+        {
+          "label": "Application Support",
+          "value": "application support"
+        },
+        {
+          "label": "CA",
+          "value": "ca"
+        },
+        {
+          "label": "Disaster Recovery",
+          "value": "disaster recovery"
+        },
+        {
+          "label": "Failure",
+          "value": "failure"
+        },
+        {
+          "label": "Monitoring",
+          "value": "monitoring"
+        },
+        {
+          "label": "Performance",
+          "value": "performance"
+        },
+        {
+          "label": "Telephony",
+          "value": "telephony"
+        },
+        {
+          "label": "Server",
+          "value": "server"
+        },
+        {
+          "label": "Security",
+          "value": "security"
+        },
+        {
+          "label": "Password Reset",
+          "value": "password_reset"
+        }
+      ]
+    },
+    {
+      "id": "incident.subcategory",
+      "label": "Subcategory",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident",
+      "required": true
+    },
+    {
+      "id": "incident.notify",
+      "label": "Notify",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident",
+      "options": [
+        {
+          "label": "Do Not Notify",
+          "value": "1"
+        },
+        {
+          "label": "Send Email",
+          "value": "2"
+        },
+        {
+          "label": "Telephone",
+          "value": "3"
+        }
+      ]
+    },
+    {
+      "id": "incident.impact",
+      "label": "Impact",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident",
+      "required": true,
+      "options": [
+        {
+          "label": "2- Medium",
+          "value": "2"
+        },
+        {
+          "label": "3- Low",
+          "value": "3"
+        }
+      ]
+    },
+    {
+      "id": "incident.urgency",
+      "label": "Urgency",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident",
+      "required": true,
+      "options": [
+        {
+          "label": "2 - Medium",
+          "value": "2"
+        },
+        {
+          "label": "3 - Low",
+          "value": "3"
+        }
+      ]
+    },
+    {
+      "id": "incident.priority",
+      "label": "Link Opens In New Windowpriority",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident",
+      "required": true,
+      "options": [
+        {
+          "label": "P1",
+          "value": "1"
+        },
+        {
+          "label": "P2",
+          "value": "2"
+        },
+        {
+          "label": "P3",
+          "value": "3"
+        },
+        {
+          "label": "P4",
+          "value": "4"
+        }
+      ]
+    },
+    {
+      "id": "incident.universal_request_label",
+      "label": "Universal Request",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident"
+    },
+    {
+      "id": "incident.route_reason",
+      "label": "Incident.route_reason",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident"
+    },
+    {
+      "id": "incident.opened_by_label",
+      "label": "Opened By",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident"
+    },
+    {
+      "id": "incident.contact_type",
+      "label": "Channel",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident",
+      "required": true,
+      "options": [
+        {
+          "label": "Chat",
+          "value": "chat"
+        },
+        {
+          "label": "Email",
+          "value": "email"
+        },
+        {
+          "label": "Phone",
+          "value": "phone"
+        },
+        {
+          "label": "Self-service",
+          "value": "self-service"
+        },
+        {
+          "label": "Virtual Agent",
+          "value": "virtual_agent"
+        },
+        {
+          "label": "Walk-in",
+          "value": "walk-in"
+        },
+        {
+          "label": "Event",
+          "value": "event"
+        },
+        {
+          "label": "Ebonding Cigna",
+          "value": "Ebonding Cigna"
+        }
+      ]
+    },
+    {
+      "id": "incident.state",
+      "label": "State",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident",
+      "required": true,
+      "options": [
+        {
+          "label": "New",
+          "value": "1"
+        },
+        {
+          "label": "In Progress",
+          "value": "2"
+        },
+        {
+          "label": "On Hold",
+          "value": "3"
+        },
+        {
+          "label": "Assigned",
+          "value": "5"
+        },
+        {
+          "label": "Resolved",
+          "value": "6"
+        },
+        {
+          "label": "Canceled",
+          "value": "8"
+        }
+      ]
+    },
+    {
+      "id": "incident.hold_reason",
+      "label": "On Hold Reason",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident",
+      "options": [
+        {
+          "label": "Awaiting Caller",
+          "value": "1"
+        },
+        {
+          "label": "Awaiting Change",
+          "value": "5"
+        },
+        {
+          "label": "Awaiting Problem",
+          "value": "3"
+        },
+        {
+          "label": "Awaiting Vendor",
+          "value": "4"
+        },
+        {
+          "label": "Awaiting Other",
+          "value": "6"
+        }
+      ]
+    },
+    {
+      "id": "incident.u_managed_incident_line_label",
+      "label": "Managed Incident Line",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident"
+    },
+    {
+      "id": "incident.reassignment_count",
+      "label": "Incident.reassignment_count",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident"
+    },
+    {
+      "id": "incident.reopen_count",
+      "label": "Incident.reopen_count",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident"
+    },
+    {
+      "id": "incident.u_cancel_reason",
+      "label": "Cancel Reason",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident"
+    },
+    {
+      "id": "incident.u_hypercare_ticket",
+      "label": "Hypercare Ticket",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident",
+      "required": true,
+      "options": [
+        {
+          "label": "No",
+          "value": "No"
+        },
+        {
+          "label": "Yes",
+          "value": "Yes"
+        }
+      ]
+    },
+    {
+      "id": "incident.short_description",
+      "label": "Short Description",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident",
+      "required": true
+    },
+    {
+      "id": "incident.description",
+      "label": "Description",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident",
+      "required": true
+    },
+    {
+      "id": "incident.calendar_stc",
+      "label": "Incident.calendar_stc",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident"
+    },
+    {
+      "id": "incident.u_event_outage_time",
+      "label": "Incident.u_event_outage_time",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident"
+    },
+    {
+      "id": "cxs_related_search",
+      "label": "Related Search",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident"
+    },
+    {
+      "id": "searchresource_dropdown",
+      "label": "Searchresource_dropdown",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident",
+      "options": [
+        {
+          "label": "Knowledge Articles",
+          "value": "adba8d70c39102006f333b0ac3d3aefa"
+        },
+        {
+          "label": "Catalog Items",
+          "value": "299a8d70c39102006f333b0ac3d3aeab"
+        },
+        {
+          "label": "Pinned Articles",
+          "value": "3d3bcd70c39102006f333b0ac3d3ae04"
+        },
+        {
+          "label": "Open Major Incidents",
+          "value": "7f25d87a535b130005ecddeeff7b1261"
+        },
+        {
+          "label": "Outages",
+          "value": "a663c14f530b33005e32ddeeff7b1282"
+        },
+        {
+          "label": "Open Outages",
+          "value": "11db518b534b33005e32ddeeff7b12b5"
+        },
+        {
+          "label": "Open Incidents",
+          "value": "8564187a535b130005ecddeeff7b1268"
+        },
+        {
+          "label": "Resolved Incidents",
+          "value": "95c59c7a535b130005ecddeeff7b12d4"
+        },
+        {
+          "label": "Problems",
+          "value": "739dd1d087452300fb3ad61e36cb0b77"
+        },
+        {
+          "label": "Open Problems",
+          "value": "c769159087452300fb3ad61e36cb0b49"
+        },
+        {
+          "label": "Resolved Problems",
+          "value": "3d0a959087452300fb3ad61e36cb0ba3"
+        },
+        {
+          "label": "Open Changes",
+          "value": "c1dd6816536323004acaddeeff7b12ac"
+        },
+        {
+          "label": "Closed Changes",
+          "value": "c8952343535323004acaddeeff7b12ab"
+        }
+      ]
+    },
+    {
+      "id": "select_0incident.watch_list",
+      "label": "Watch List",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident"
+    },
+    {
+      "id": "text.value.incident.watch_list",
+      "label": "Text.value.incident.watch_list",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident"
+    },
+    {
+      "id": "select_0incident.work_notes_list",
+      "label": "Work Notes List",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident"
+    },
+    {
+      "id": "text.value.incident.work_notes_list",
+      "label": "Text.value.incident.work_notes_list",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident"
+    },
+    {
+      "id": "incident.comments",
+      "label": "Additional Comments (customer Visible)",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident"
+    },
+    {
+      "id": "incident.work_notes",
+      "label": "Work Notes",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident"
+    },
+    {
+      "id": "incident.correlation_display",
+      "label": "Correlation Display",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident"
+    },
+    {
+      "id": "incident.resolved_by_label",
+      "label": "Resolved By",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident"
+    },
+    {
+      "id": "incident.close_notes",
+      "label": "Resolution Notes",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident"
+    },
+    {
+      "id": "incident.close_code",
+      "label": "Resolution Code",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident",
+      "options": [
+        {
+          "label": "Solved (Work Around)",
+          "value": "Solved (Work Around)"
+        },
+        {
+          "label": "Solved (Permanently)",
+          "value": "Solved (Permanently)"
+        },
+        {
+          "label": "Solved Remotely (Work Around)",
+          "value": "Solved Remotely (Work Around)"
+        },
+        {
+          "label": "Solved Remotely (Permanently)",
+          "value": "Solved Remotely (Permanently)"
+        },
+        {
+          "label": "Not Solved (Not Reproducible)",
+          "value": "Not Solved (Not Reproducible)"
+        },
+        {
+          "label": "Not Solved (Too Costly)",
+          "value": "Not Solved (Too Costly)"
+        },
+        {
+          "label": "Closed/Resolved by Caller",
+          "value": "Closed/Resolved by Caller"
+        },
+        {
+          "label": "Duplicate Record",
+          "value": "Duplicate Record"
+        },
+        {
+          "label": "Advise Call",
+          "value": "Advise Call"
+        },
+        {
+          "label": "Third Party Resolution",
+          "value": "Third Party Resolution"
+        },
+        {
+          "label": "Related Incident Resolved",
+          "value": "Related Incident Resolved"
+        },
+        {
+          "label": "Resolved By Change",
+          "value": "Resolved By Change"
+        },
+        {
+          "label": "First Call Resolution",
+          "value": "First Call Resolution"
+        }
+      ]
+    },
+    {
+      "id": "incident.major_incident_state",
+      "label": "Incident.major_incident_state",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident"
+    },
+    {
+      "id": "incident.proposed_by_label",
+      "label": "Proposed By",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident"
+    },
+    {
+      "id": "incident.business_impact",
+      "label": "Business Impact",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "incident"
+    },
+    {
+      "id": "change_request.category",
+      "label": "Category",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request",
+      "options": [
+        {
+          "label": "Hardware",
+          "value": "Hardware"
+        },
+        {
+          "label": "Software",
+          "value": "Software"
+        },
+        {
+          "label": "Network",
+          "value": "Network"
+        },
+        {
+          "label": "Other",
+          "value": "Other"
+        }
+      ]
+    },
+    {
+      "id": "u_ci_environment",
+      "label": "CI Environment",
+      "fieldType": "text",
+      "issueTypeId": "change_request",
+      "required": false,
+      "appType": "servicenow"
+    },
+    {
+      "id": "change_request.risk",
+      "label": "Risk",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request",
+      "options": [
+        {
+          "label": "High",
+          "value": "2"
+        },
+        {
+          "label": "Moderate",
+          "value": "3"
+        },
+        {
+          "label": "Low",
+          "value": "4"
+        }
+      ]
+    },
+    {
+      "id": "change_request.impact",
+      "label": "Impact",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request",
+      "options": [
+        {
+          "label": "1 - High",
+          "value": "1"
+        },
+        {
+          "label": "2 - Medium",
+          "value": "2"
+        },
+        {
+          "label": "3 - Low",
+          "value": "3"
+        }
+      ]
+    },
+    {
+      "id": "change_request.conflict_status",
+      "label": "Change_request.conflict_status",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request"
+    },
+    {
+      "id": "change_request.approval",
+      "label": "Change_request.approval",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request"
+    },
+    {
+      "id": "change_request.chg_model_label",
+      "label": "Model",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request"
+    },
+    {
+      "id": "change_request.type",
+      "label": "Change_request.type",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request"
+    },
+    {
+      "id": "change_request.state",
+      "label": "State",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request",
+      "options": [
+        {
+          "label": "New",
+          "value": "-5"
+        },
+        {
+          "label": "Assess",
+          "value": "-4"
+        },
+        {
+          "label": "Canceled",
+          "value": "4"
+        }
+      ]
+    },
+    {
+      "id": "change_request.u_environment",
+      "label": "Environment",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request",
+      "options": [
+        {
+          "label": "Production",
+          "value": "production"
+        },
+        {
+          "label": "Development",
+          "value": "development"
+        },
+        {
+          "label": "Test",
+          "value": "test"
+        },
+        {
+          "label": "Training",
+          "value": "training"
+        },
+        {
+          "label": "Disaster Recovery",
+          "value": "disaster"
+        },
+        {
+          "label": "User Acceptance",
+          "value": "acceptance"
+        },
+        {
+          "label": "Quality Assurance",
+          "value": "qassurance"
+        },
+        {
+          "label": "Destructive",
+          "value": "destructive"
+        },
+        {
+          "label": "Production Fix",
+          "value": "fix"
+        },
+        {
+          "label": "System Testing",
+          "value": "systesting"
+        },
+        {
+          "label": "Integration Testing",
+          "value": "integration"
+        },
+        {
+          "label": "Client Test Environment",
+          "value": "clienttest"
+        },
+        {
+          "label": "Performance Volume Stress (PVS),",
+          "value": "pvs"
+        },
+        {
+          "label": "Release (Non-Prod data)",
+          "value": "release_nonprod"
+        },
+        {
+          "label": "Release (Prod data)",
+          "value": "release_prod"
+        },
+        {
+          "label": "Stage",
+          "value": "stage"
+        }
+      ]
+    },
+    {
+      "id": "change_request.short_description",
+      "label": "Short Description",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request",
+      "required": true
+    },
+    {
+      "id": "change_request.description",
+      "label": "Description",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request",
+      "required": true
+    },
+    {
+      "id": "change_request.on_hold_reason",
+      "label": "On Hold Reason",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request"
+    },
+    {
+      "id": "change_request.u_expedited_reason",
+      "label": "Expedited Reason",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request"
+    },
+    {
+      "id": "change_request.u_conflict_resolution",
+      "label": "Conflict Resolution",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request"
+    },
+    {
+      "id": "change_request.u_impact",
+      "label": "Impact",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request",
+      "required": true,
+      "options": [
+        {
+          "label": "3-Low - Change with no or minimal (less than 25 users  or 1-10 customers) impact",
+          "value": "3-low"
+        },
+        {
+          "label": "2-Med - Change with moderate (25 - 250 users or 10 - 25 customers) impact",
+          "value": "2-Med"
+        },
+        {
+          "label": "1-High - Change with significant (10% or > 250 users or > 25 customers) impact",
+          "value": "1-High"
+        }
+      ]
+    },
+    {
+      "id": "change_request.u_implications_of_system_availability",
+      "label": "Implications On System Availability",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request",
+      "required": true,
+      "options": [
+        {
+          "label": "Application or Service will be unavailable for use",
+          "value": "c_unavail"
+        },
+        {
+          "label": "Application or Service could experience slow performance",
+          "value": "c_slow"
+        },
+        {
+          "label": "Application or Service would be available, but some features could be unavailable",
+          "value": "c_avail"
+        },
+        {
+          "label": "Application or Service would remain functioning as designed",
+          "value": "c_func"
+        }
+      ]
+    },
+    {
+      "id": "change_request.u_has_this_change_been_tested",
+      "label": "Has This Change Been Tested ?",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request",
+      "required": true,
+      "options": [
+        {
+          "label": "No - Testing has not been performed or testing not possible",
+          "value": "no"
+        },
+        {
+          "label": "Yes - Testing has been performed or proven process",
+          "value": "yes"
+        }
+      ]
+    },
+    {
+      "id": "change_request.u_are_impacted_persons_aware_prepared_for_test_checkout",
+      "label": "Are Impacted Persons Aware/prepared For Test/checkout?",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request",
+      "required": true,
+      "options": [
+        {
+          "label": "Checkout include User Validation / Checkout  during change",
+          "value": "userval"
+        },
+        {
+          "label": "Checkout includes Technical team validation (manual or automated)",
+          "value": "teamval"
+        },
+        {
+          "label": "Both User and Technical team validation planned",
+          "value": "userteamval"
+        }
+      ]
+    },
+    {
+      "id": "change_request.u_has_change_been_performed_previously",
+      "label": "Has Change Been Performed Previously?",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request",
+      "required": true,
+      "options": [
+        {
+          "label": "Previously successful on all attempts",
+          "value": "successful"
+        },
+        {
+          "label": "Previously successful after encountering issues",
+          "value": "issues"
+        },
+        {
+          "label": "Unsuccessful after issues",
+          "value": "unsuccessful"
+        },
+        {
+          "label": "No previous experience",
+          "value": "noexp"
+        }
+      ]
+    },
+    {
+      "id": "change_request.u_assessment_of_success_probability",
+      "label": "Assessment Of Success Probability",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request",
+      "required": true,
+      "options": [
+        {
+          "label": "Very Confident",
+          "value": "vcon"
+        },
+        {
+          "label": "Confident",
+          "value": "conf"
+        },
+        {
+          "label": "Not at all confident",
+          "value": "notcon"
+        }
+      ]
+    },
+    {
+      "id": "change_request.u_can_change_be_backed_out",
+      "label": "Can Change Be Backed Out?",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request",
+      "required": true,
+      "options": [
+        {
+          "label": "Yes",
+          "value": "yes"
+        },
+        {
+          "label": "No",
+          "value": "no"
+        }
+      ]
+    },
+    {
+      "id": "change_request.justification",
+      "label": "Justification",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request",
+      "required": true
+    },
+    {
+      "id": "change_request.implementation_plan",
+      "label": "Implementation Plan",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request",
+      "required": true
+    },
+    {
+      "id": "change_request.risk_impact_analysis",
+      "label": "Risk And Impact Analysis",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request",
+      "required": true
+    },
+    {
+      "id": "change_request.backout_plan",
+      "label": "Backout Plan",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request",
+      "required": true
+    },
+    {
+      "id": "change_request.test_plan",
+      "label": "Test Plan",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request",
+      "required": true
+    },
+    {
+      "id": "change_request.start_date",
+      "label": "Planned Start Date",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request",
+      "required": true
+    },
+    {
+      "id": "change_request.end_date",
+      "label": "Planned End Date",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request",
+      "required": true
+    },
+    {
+      "id": "change_request.cab_date_time",
+      "label": "Cab Date/time",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request"
+    },
+    {
+      "id": "change_request.work_start",
+      "label": "Actual Start Date",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request"
+    },
+    {
+      "id": "change_request.work_end",
+      "label": "Actual End Date",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request"
+    },
+    {
+      "id": "change_request.cab_recommendation",
+      "label": "Cab Recommendation",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request"
+    },
+    {
+      "id": "select_0change_request.u_new_field_1",
+      "label": "Additional Approvers",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request"
+    },
+    {
+      "id": "text.value.change_request.u_new_field_1",
+      "label": "Text.value.change_request.u_new_field_1",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request"
+    },
+    {
+      "id": "listv2_fcf8be1c53ba72505fff7a01a0490e94_first_row",
+      "label": "Listv2_fcf8be1c53ba72505fff7a01a0490e94_first_row",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request"
+    },
+    {
+      "id": "select_0change_request.watch_list",
+      "label": "Watch List",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request"
+    },
+    {
+      "id": "select_0change_request.work_notes_list",
+      "label": "Work Notes List",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request"
+    },
+    {
+      "id": "text.value.change_request.work_notes_list",
+      "label": "Text.value.change_request.work_notes_list",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request"
+    },
+    {
+      "id": "change_request.comments",
+      "label": "Additional Comments (customer Visible)",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request"
+    },
+    {
+      "id": "change_request.work_notes",
+      "label": "Work Notes",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request"
+    },
+    {
+      "id": "change_request.close_code",
+      "label": "Close Code",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request",
+      "options": [
+        {
+          "label": "Successful",
+          "value": "successful"
+        },
+        {
+          "label": "Successful with issues",
+          "value": "successful_issues"
+        },
+        {
+          "label": "Not Implemented",
+          "value": "not_implemented"
+        },
+        {
+          "label": "Unsuccessful",
+          "value": "unsuccessful"
+        },
+        {
+          "label": "Deployed with Issues and No Business Impact",
+          "value": "Deployed_with_issues"
+        }
+      ]
+    },
+    {
+      "id": "change_request.close_notes",
+      "label": "Close Notes",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_request"
+    },
+    {
+      "id": "create_favorite_title",
+      "label": "Bookmark Title",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "required": true
+    },
+    {
+      "id": "overflowTemplateSearch",
+      "label": "Overflowtemplatesearch",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": [
+        "change_request",
+        "incident",
+        "problem"
+      ],
+      "issueTypeLabel": "problem, incident, change_request"
+    },
+    {
+      "id": "change_task.planned_start_date",
+      "label": "Planned Start Date",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_task",
+      "issueTypeLabel": "CTASK",
+      "required": true
+    },
+    {
+      "id": "change_task.planned_end_date",
+      "label": "Planned End Date",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_task",
+      "issueTypeLabel": "CTASK",
+      "required": true
+    },
+    {
+      "id": "change_task.change_task_type",
+      "label": "Type",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_task",
+      "issueTypeLabel": "CTASK",
+      "options": [
+        {
+          "label": "Planning",
+          "value": "planning"
+        },
+        {
+          "label": "Implementation",
+          "value": "implementation"
+        },
+        {
+          "label": "Testing",
+          "value": "testing"
+        },
+        {
+          "label": "Review",
+          "value": "review"
+        }
+      ]
+    },
+    {
+      "id": "change_task.state",
+      "label": "State",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_task",
+      "issueTypeLabel": "CTASK",
+      "options": [
+        {
+          "label": "Open",
+          "value": "1"
+        },
+        {
+          "label": "Ready",
+          "value": "6"
+        },
+        {
+          "label": "In Progress",
+          "value": "2"
+        }
+      ]
+    },
+    {
+      "id": "change_task.u_reason_for_cancellation",
+      "label": "Reason For Cancellation",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_task",
+      "issueTypeLabel": "CTASK"
+    },
+    {
+      "id": "change_task.short_description",
+      "label": "Short Description",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_task",
+      "issueTypeLabel": "CTASK",
+      "required": true
+    },
+    {
+      "id": "change_task.description",
+      "label": "Description",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_task",
+      "issueTypeLabel": "CTASK",
+      "required": true
+    },
+    {
+      "id": "change_task.on_hold_reason",
+      "label": "On Hold Reason",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_task",
+      "issueTypeLabel": "CTASK"
+    },
+    {
+      "id": "select_0change_task.work_notes_list",
+      "label": "Work Notes List",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_task",
+      "issueTypeLabel": "CTASK"
+    },
+    {
+      "id": "text.value.change_task.work_notes_list",
+      "label": "Text.value.change_task.work_notes_list",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_task",
+      "issueTypeLabel": "CTASK"
+    },
+    {
+      "id": "change_task.work_notes",
+      "label": "Work Notes",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_task",
+      "issueTypeLabel": "CTASK"
+    },
+    {
+      "id": "change_task.close_code",
+      "label": "Close Code",
+      "fieldType": "combobox",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_task",
+      "issueTypeLabel": "CTASK",
+      "options": [
+        {
+          "label": "Successful",
+          "value": "successful"
+        },
+        {
+          "label": "Not Implemented",
+          "value": "not_implement"
+        },
+        {
+          "label": "Failed",
+          "value": "failed"
+        }
+      ]
+    },
+    {
+      "id": "change_task.close_notes",
+      "label": "Close Notes",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_task",
+      "issueTypeLabel": "CTASK"
+    },
+    {
+      "id": "overflowTemplateSearch",
+      "label": "Overflowtemplatesearch",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_task",
+      "issueTypeLabel": "CTASK"
+    },
+    {
+      "id": "create_favorite_title",
+      "label": "Bookmark Title",
+      "fieldType": "text",
+      "appType": "servicenow",
+      "baseUrlId": "zilverton.service-now.com",
+      "issueTypeId": "change_task",
+      "issueTypeLabel": "CTASK",
+      "required": true
+    },
+    {
+      "id": "u_tester",
+      "label": "Tester",
+      "fieldType": "text",
+      "required": true
+    },
+    {
+      "id": "u_service_manager",
+      "label": "Service Manager",
+      "fieldType": "text",
+      "required": true
+    },
+    {
+      "id": "u_change_manager",
+      "label": "Change Manager",
+      "fieldType": "text",
+      "required": true
+    }
+  ],
+  "ignoredFields": [],
+  "baseUrls": [
+    {
+      "id": "base_url_1769106350724_1lns6dsk1",
+      "alias": "Zilverton",
+      "value": "https://zilverton.service-now.com/",
+      "createdAt": 1769106350724
+    },
+    {
+      "id": "base_url_1769171414979_vvjb94u7a",
+      "alias": "Cigna",
+      "value": "https://cigna.service-now.com/",
+      "createdAt": 1769171414979
+    }
+  ],
+  "issueTypes": [
+    {
+      "id": "table_1769106729146_seuyk5yb5",
+      "alias": "Incident",
+      "value": "incident",
+      "createdAt": 1769106729146
+    },
+    {
+      "id": "table_1769106758482_hzpkiskfg",
+      "alias": "Change Request",
+      "value": "change_request",
+      "createdAt": 1769106758482
+    },
+    {
+      "id": "table_1769106768354_ctqt7s6tb",
+      "alias": "Problem",
+      "value": "problem",
+      "createdAt": 1769106768354
+    },
+    {
+      "id": "table_1769106801754_6r51tker2",
+      "alias": "Service Request",
+      "value": "sc_request",
+      "createdAt": 1769106801754
+    },
+    {
+      "id": "table_1769106818834_upui1kz4a",
+      "alias": "Requested Item",
+      "value": "sc_req_item",
+      "createdAt": 1769106818834
+    },
+    {
+      "id": "issuetype_1769643224210_7686xtrau",
+      "alias": "CTASK",
+      "value": "change_task",
+      "createdAt": 1769643224210
+    }
+  ],
+  "projectIds": [
+    {
+      "id": "project_1766496019601_030f53tcz",
+      "alias": "ENFCT: Transformers",
+      "value": "75213",
+      "createdAt": 1766496019602,
+      "updatedAt": 1766502611572
+    },
+    {
+      "id": "project_1766502534676_2bdck22to",
+      "alias": "ENCUC: CleanUpCrew",
+      "value": "80104",
+      "createdAt": 1766502534676,
+      "updatedAt": 1766502635204
+    },
+    {
+      "id": "project_1766502552156_9snxiub7f",
+      "alias": "DAST: Digital Underground",
+      "value": "76470",
+      "createdAt": 1766502552156,
+      "updatedAt": 1766502653477
+    },
+    {
+      "id": "project_1766502572373_0t12p2rky",
+      "alias": "DASTM: Scrum Knights",
+      "value": "76096",
+      "createdAt": 1766502572373,
+      "updatedAt": 1766502667565
+    },
+    {
+      "id": "project_1766502587692_6087y7rvm",
+      "alias": "ENSIS: SIS",
+      "value": "87321",
+      "createdAt": 1766502587692,
+      "updatedAt": 1766502695989
+    },
+    {
+      "id": "project_1766502603324_vtcgcf41u",
+      "alias": "GBSAPT: Champions",
+      "value": "76448",
+      "createdAt": 1766502603324,
+      "updatedAt": 1766502704694
+    }
+  ]
+}
