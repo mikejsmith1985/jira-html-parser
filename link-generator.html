@@ -929,7 +929,7 @@
             <i class="bi bi-clipboard-check-fill"></i> Link Copied to Clipboard!
           </span>
           <small class="text-muted">
-            <i class="bi bi-chevron-down" id="expandIcon"></i> Click to view link
+            <i class="bi bi-chevron-down" id="expandIcon"></i> Click to view link (<span id="urlLength">0</span> chars)
           </small>
         </h5>
       </div>
@@ -1310,6 +1310,59 @@
     </div>
   </div>
 
+  <!-- Import Modal -->
+  <div id="importModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
+    <div class="modal-content" style="background:#fff;border-radius:12px;padding:28px;max-width:700px;width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 4px 20px rgba(0,0,0,0.15);">
+      <h2 style="margin:0 0 16px 0;color:#2c3e50;">📥 Import Configuration</h2>
+      <p style="color:#666;margin:0 0 24px 0;line-height:1.5;">Import field definitions, base URLs, and settings from a JSON file or paste JSON directly.</p>
+      
+      <!-- Tab Selection -->
+      <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:2px solid #e9ecef;">
+        <button id="importFileTabBtn" class="import-tab active" onclick="switchImportTab('file')" style="background:none;border:none;padding:12px 20px;cursor:pointer;font-weight:600;color:#6c757d;border-bottom:3px solid #3498db;transition:all 0.2s;">
+          📁 Upload File(s)
+        </button>
+        <button id="importPasteTabBtn" class="import-tab" onclick="switchImportTab('paste')" style="background:none;border:none;padding:12px 20px;cursor:pointer;font-weight:600;color:#6c757d;border-bottom:3px solid transparent;transition:all 0.2s;">
+          📋 Paste JSON
+        </button>
+      </div>
+      
+      <!-- File Upload Tab -->
+      <div id="importFileTab" style="display:block;">
+        <div style="background:#f8fafc;border:2px dashed #cbd5e0;border-radius:8px;padding:32px;text-align:center;margin-bottom:16px;">
+          <input type="file" id="importFileInput" accept=".json" multiple style="display:none;" onchange="handleFileImport(event)">
+          <p style="margin:0 0 16px 0;color:#64748b;font-size:14px;">
+            <i class="bi bi-cloud-upload" style="font-size:48px;display:block;margin-bottom:12px;"></i>
+            Click below to select one or more JSON files
+          </p>
+          <button type="button" onclick="document.getElementById('importFileInput').click()" style="background:#3498db;color:#fff;border:none;border-radius:6px;padding:12px 24px;cursor:pointer;font-size:14px;font-weight:600;">
+            Choose File(s)
+          </button>
+        </div>
+        <p style="color:#64748b;font-size:13px;margin:0;"><strong>💡 Tip:</strong> You can select multiple JSON files at once. They will be merged automatically.</p>
+      </div>
+      
+      <!-- Paste JSON Tab -->
+      <div id="importPasteTab" style="display:none;">
+        <textarea id="importJsonTextarea" placeholder="Paste your JSON configuration here..." style="width:100%;min-height:300px;padding:12px;border:1px solid #cbd5e0;border-radius:6px;font-family:Monaco,Consolas,monospace;font-size:13px;resize:vertical;margin-bottom:16px;"></textarea>
+        <div style="display:flex;gap:8px;justify-content:flex-end;">
+          <button type="button" onclick="clearImportJson()" style="background:#95a5a6;color:#fff;border:none;border-radius:6px;padding:10px 20px;cursor:pointer;font-size:14px;">
+            Clear
+          </button>
+          <button type="button" onclick="importFromPastedJson()" style="background:#27ae60;color:#fff;border:none;border-radius:6px;padding:10px 20px;cursor:pointer;font-size:14px;font-weight:600;">
+            Import JSON
+          </button>
+        </div>
+        <p style="color:#64748b;font-size:13px;margin:12px 0 0 0;"><strong>💡 Tip:</strong> Paste the entire JSON configuration from an export file.</p>
+      </div>
+      
+      <div style="margin-top:24px;text-align:right;">
+        <button type="button" onclick="closeImportModal()" style="background:#6c757d;color:#fff;border:none;border-radius:6px;padding:10px 24px;cursor:pointer;font-size:14px;">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Config Management Modal -->
   <div id="configManagementModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;">
     <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:12px;padding:28px;max-width:900px;width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 4px 20px rgba(0,0,0,0.15);">
@@ -1324,6 +1377,61 @@
       </div>
 
       <div id="configFieldsTab" class="config-tab-content" style="display:block;">
+        <!-- Add/Edit Field Form -->
+        <div style="background:#e8f4fd;border:1px solid #3498db;border-radius:8px;padding:16px;margin-bottom:20px;">
+          <h4 style="margin:0 0 16px 0;color:#2c3e50;font-size:1.1em;">Add / Edit Field</h4>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
+            <div>
+              <label style="display:block;margin-bottom:4px;font-size:0.9em;color:#555;">Field ID *</label>
+              <input type="text" id="configFieldIdInput" placeholder="e.g., assigned_to" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
+            </div>
+            <div>
+              <label style="display:block;margin-bottom:4px;font-size:0.9em;color:#555;">Label *</label>
+              <input type="text" id="configFieldLabelInput" placeholder="e.g., Assigned To" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
+            <div>
+              <label style="display:block;margin-bottom:4px;font-size:0.9em;color:#555;">Field Type</label>
+              <select id="configFieldTypeSelect" onchange="toggleConfigFieldOptions()" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
+                <option value="text">Text</option>
+                <option value="combobox">Combobox</option>
+              </select>
+            </div>
+            <div>
+              <label style="display:block;margin-bottom:4px;font-size:0.9em;color:#555;">Base URL</label>
+              <select id="configFieldBaseUrlSelect" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
+                <option value="">All Instances</option>
+              </select>
+            </div>
+            <div>
+              <label style="display:block;margin-bottom:4px;font-size:0.9em;color:#555;">Issue Type</label>
+              <select id="configFieldIssueTypeSelect" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
+                <option value="">All Issue Types</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+            <label style="margin:0;display:flex;align-items:center;gap:6px;font-size:0.9em;">
+              <input type="checkbox" id="configFieldRequiredCheck">
+              <span>Required</span>
+            </label>
+          </div>
+          <div id="configComboboxOptionsSection" style="display:none;border-top:1px solid #3498db;padding-top:12px;margin-top:12px;">
+            <label style="display:block;margin-bottom:8px;font-size:0.9em;color:#555;font-weight:600;">Combobox Options:</label>
+            <div id="configComboboxOptionsList" style="max-height:120px;overflow-y:auto;margin-bottom:8px;"></div>
+            <div style="display:flex;gap:8px;">
+              <input type="text" id="configOptionLabelInput" placeholder="Label" style="flex:1;padding:6px;border:1px solid #ccc;border-radius:4px;font-size:0.85em;">
+              <input type="text" id="configOptionValueInput" placeholder="Value" style="flex:1;padding:6px;border:1px solid #ccc;border-radius:4px;font-size:0.85em;">
+              <button type="button" onclick="addConfigComboboxOption()" style="background:#27ae60;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.85em;white-space:nowrap;">Add</button>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;margin-top:12px;">
+            <button type="button" onclick="saveConfigField()" id="configSaveFieldBtn" style="background:#27ae60;color:#fff;border:none;border-radius:6px;padding:10px 20px;cursor:pointer;font-size:0.9em;font-weight:600;">Save Field</button>
+            <button type="button" onclick="cancelConfigFieldEdit()" id="configCancelFieldBtn" style="display:none;background:#95a5a6;color:#fff;border:none;border-radius:6px;padding:10px 20px;cursor:pointer;font-size:0.9em;">Cancel</button>
+          </div>
+        </div>
+        
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
           <div id="fieldsSummary" style="color:#666;font-size:0.9em;"></div>
           <div>
@@ -1712,16 +1820,6 @@
         }
       });
 
-      // Manage Fields button
-      const manageBtn = document.createElement('button');
-      manageBtn.type = 'button';
-      manageBtn.className = 'btn btn-primary';
-      manageBtn.innerHTML = '<i class="bi bi-gear"></i> Manage';
-      manageBtn.onclick = (e) => {
-        e.preventDefault();
-        openFieldManager();
-      };
-
       // Value input container (will be populated based on field type)
       const valueContainer = document.createElement('div');
       valueContainer.className = 'editor-container';
@@ -2021,6 +2119,12 @@
       }
 
       document.getElementById('link').textContent = url;
+      
+      // Update URL length display
+      const urlLengthSpan = document.getElementById('urlLength');
+      if (urlLengthSpan) {
+        urlLengthSpan.textContent = url.length;
+      }
       
       // Auto-copy to clipboard
       copyToClipboard(url);
@@ -5236,6 +5340,9 @@
       const modal = document.getElementById('configManagementModal');
       if (!modal) return;
       
+      // Populate dropdowns in the form
+      populateConfigFieldSelects();
+      
       modal.style.display = 'block';
       showConfigTab('fields'); // Show fields tab by default
     }
@@ -5244,6 +5351,194 @@
       const modal = document.getElementById('configManagementModal');
       if (!modal) return;
       modal.style.display = 'none';
+      cancelConfigFieldEdit();
+    }
+
+    function populateConfigFieldSelects() {
+      // Populate Base URL select
+      const baseUrlSelect = document.getElementById('configFieldBaseUrlSelect');
+      baseUrlSelect.innerHTML = '<option value="">All Instances</option>';
+      const baseUrls = loadItems(getStorageKey('baseUrls')) || [];
+      baseUrls.forEach(url => {
+        const option = document.createElement('option');
+        option.value = url.id;
+        option.textContent = `${url.alias} (${url.value})`;
+        baseUrlSelect.appendChild(option);
+      });
+      
+      // Populate Issue Type select
+      const issueTypeSelect = document.getElementById('configFieldIssueTypeSelect');
+      issueTypeSelect.innerHTML = '<option value="">All Issue Types</option>';
+      const issueTypes = loadItems(getStorageKey('issueTypes')) || [];
+      issueTypes.forEach(it => {
+        const option = document.createElement('option');
+        option.value = it.value;
+        option.textContent = `${it.alias} (${it.value})`;
+        issueTypeSelect.appendChild(option);
+      });
+    }
+
+    let editingConfigFieldId = null;
+    let configComboboxOptions = [];
+
+    function toggleConfigFieldOptions() {
+      const fieldType = document.getElementById('configFieldTypeSelect').value;
+      const optionsSection = document.getElementById('configComboboxOptionsSection');
+      optionsSection.style.display = fieldType === 'combobox' ? 'block' : 'none';
+    }
+
+    function addConfigComboboxOption() {
+      const labelInput = document.getElementById('configOptionLabelInput');
+      const valueInput = document.getElementById('configOptionValueInput');
+      
+      const label = labelInput.value.trim();
+      const value = valueInput.value.trim();
+      
+      if (!label || !value) {
+        alert('Please provide both label and value');
+        return;
+      }
+      
+      configComboboxOptions.push({ label, value });
+      labelInput.value = '';
+      valueInput.value = '';
+      
+      renderConfigComboboxOptions();
+    }
+
+    function renderConfigComboboxOptions() {
+      const list = document.getElementById('configComboboxOptionsList');
+      
+      if (configComboboxOptions.length === 0) {
+        list.innerHTML = '<p style="color:#999;text-align:center;padding:8px;margin:0;font-size:0.85em;">No options yet</p>';
+        return;
+      }
+      
+      let html = '';
+      configComboboxOptions.forEach((opt, index) => {
+        html += `
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:white;margin-bottom:3px;border-radius:3px;border:1px solid #dee2e6;">
+            <span style="font-size:0.85em;"><strong>${opt.label}</strong> = ${opt.value}</span>
+            <button onclick="removeConfigComboboxOption(${index})" style="background:#e74c3c;color:#fff;border:none;border-radius:3px;padding:2px 8px;cursor:pointer;font-size:0.75em;">×</button>
+          </div>
+        `;
+      });
+      
+      list.innerHTML = html;
+    }
+
+    function removeConfigComboboxOption(index) {
+      configComboboxOptions.splice(index, 1);
+      renderConfigComboboxOptions();
+    }
+
+    function editConfigField(fieldId) {
+      const fields = loadFieldDefinitions();
+      const field = fields.find(f => f.id === fieldId);
+      
+      if (!field) {
+        alert('Field not found');
+        return;
+      }
+      
+      // Populate form
+      document.getElementById('configFieldIdInput').value = field.id;
+      document.getElementById('configFieldLabelInput').value = field.label;
+      document.getElementById('configFieldTypeSelect').value = field.fieldType || 'text';
+      document.getElementById('configFieldBaseUrlSelect').value = field.baseUrlId || '';
+      document.getElementById('configFieldIssueTypeSelect').value = field.issueTypeId || '';
+      document.getElementById('configFieldRequiredCheck').checked = field.required || false;
+      
+      // Handle combobox options
+      configComboboxOptions = field.options ? [...field.options] : [];
+      toggleConfigFieldOptions();
+      renderConfigComboboxOptions();
+      
+      // Update UI
+      editingConfigFieldId = fieldId;
+      document.getElementById('configSaveFieldBtn').textContent = 'Update Field';
+      document.getElementById('configCancelFieldBtn').style.display = 'inline-block';
+      
+      // Scroll to form
+      document.querySelector('#configFieldsTab').scrollTop = 0;
+    }
+
+    function cancelConfigFieldEdit() {
+      editingConfigFieldId = null;
+      configComboboxOptions = [];
+      
+      document.getElementById('configFieldIdInput').value = '';
+      document.getElementById('configFieldLabelInput').value = '';
+      document.getElementById('configFieldTypeSelect').value = 'text';
+      document.getElementById('configFieldBaseUrlSelect').value = '';
+      document.getElementById('configFieldIssueTypeSelect').value = '';
+      document.getElementById('configFieldRequiredCheck').checked = false;
+      
+      toggleConfigFieldOptions();
+      renderConfigComboboxOptions();
+      
+      document.getElementById('configSaveFieldBtn').textContent = 'Save Field';
+      document.getElementById('configCancelFieldBtn').style.display = 'none';
+    }
+
+    function saveConfigField() {
+      const fieldId = document.getElementById('configFieldIdInput').value.trim();
+      const label = document.getElementById('configFieldLabelInput').value.trim();
+      const fieldType = document.getElementById('configFieldTypeSelect').value;
+      const baseUrlId = document.getElementById('configFieldBaseUrlSelect').value;
+      const issueTypeId = document.getElementById('configFieldIssueTypeSelect').value;
+      const required = document.getElementById('configFieldRequiredCheck').checked;
+      
+      if (!fieldId || !label) {
+        alert('Please provide Field ID and Label');
+        return;
+      }
+      
+      const fields = loadFieldDefinitions();
+      
+      if (editingConfigFieldId) {
+        // Update existing field
+        const index = fields.findIndex(f => f.id === editingConfigFieldId);
+        if (index >= 0) {
+          fields[index] = {
+            ...fields[index],
+            id: fieldId,
+            label: label,
+            fieldType: fieldType,
+            baseUrlId: baseUrlId || undefined,
+            issueTypeId: issueTypeId || undefined,
+            required: required,
+            options: fieldType === 'combobox' ? configComboboxOptions : undefined
+          };
+        }
+      } else {
+        // Add new field
+        const newField = {
+          id: fieldId,
+          label: label,
+          fieldType: fieldType,
+          required: required
+        };
+        
+        if (baseUrlId) newField.baseUrlId = baseUrlId;
+        if (issueTypeId) newField.issueTypeId = issueTypeId;
+        if (fieldType === 'combobox') newField.options = configComboboxOptions;
+        
+        // Get appType from body
+        const isJira = document.body.classList.contains('app-jira');
+        const isServiceNow = document.body.classList.contains('app-servicenow');
+        if (isJira) newField.appType = 'jira';
+        if (isServiceNow) newField.appType = 'servicenow';
+        
+        fields.push(newField);
+      }
+      
+      saveFieldDefinitions(fields);
+      updateAllFieldSelects();
+      loadFieldsManagement();
+      cancelConfigFieldEdit();
+      
+      alert(editingConfigFieldId ? 'Field updated successfully!' : 'Field added successfully!');
     }
 
     function showConfigTab(tabName) {
@@ -5312,12 +5607,16 @@
         
         fieldsInType.forEach(field => {
           const optionsInfo = field.options ? ` <span style="color:#6c757d;">(${field.options.length} options)</span>` : '';
+          const requiredBadge = field.required ? '<span style="background:#e74c3c;color:white;padding:2px 6px;border-radius:3px;font-size:0.75em;margin-left:8px;">REQUIRED</span>' : '';
           html += `
             <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:white;margin-bottom:4px;border-radius:4px;">
-              <div>
-                <strong>${field.label}</strong> <span style="color:#999;font-size:0.85em;">${field.id}</span>${optionsInfo}
+              <div style="flex:1;">
+                <strong>${field.label}</strong>${requiredBadge} <span style="color:#999;font-size:0.85em;">${field.id}</span>${optionsInfo}
               </div>
-              <button onclick="deleteField('${field.id}')" style="background:#6c757d;color:#fff;border:none;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:11px;">Delete</button>
+              <div style="display:flex;gap:6px;">
+                <button onclick="editConfigField('${field.id.replace(/'/g, "\\\'")}')" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:11px;">Edit</button>
+                <button onclick="deleteField('${field.id.replace(/'/g, "\\\'")}')" style="background:#6c757d;color:#fff;border:none;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:11px;">Delete</button>
+              </div>
             </div>
           `;
         });
@@ -5526,23 +5825,75 @@
     }
 
     function openImportModal() {
-      const input = document.createElement('input');
-      input.type = 'file';
-      input.accept = '.json';
-      input.multiple = true; // Allow multiple file selection
-      input.onchange = function(e) {
-        const files = Array.from(e.target.files);
-        if (files.length > 0) {
-          if (files.length === 1) {
-            // Single file import - use existing logic
-            importConfiguration(files[0]);
-          } else {
-            // Multiple files - merge them first
-            importMultipleConfigurations(files);
-          }
+      const modal = document.getElementById('importModal');
+      modal.style.display = 'flex';
+      // Reset to file tab
+      switchImportTab('file');
+    }
+
+    function closeImportModal() {
+      const modal = document.getElementById('importModal');
+      modal.style.display = 'none';
+      // Clear inputs
+      document.getElementById('importFileInput').value = '';
+      document.getElementById('importJsonTextarea').value = '';
+    }
+
+    function switchImportTab(tab) {
+      const fileTab = document.getElementById('importFileTab');
+      const pasteTab = document.getElementById('importPasteTab');
+      const fileTabBtn = document.getElementById('importFileTabBtn');
+      const pasteTabBtn = document.getElementById('importPasteTabBtn');
+      
+      if (tab === 'file') {
+        fileTab.style.display = 'block';
+        pasteTab.style.display = 'none';
+        fileTabBtn.style.borderBottom = '3px solid #3498db';
+        pasteTabBtn.style.borderBottom = '3px solid transparent';
+      } else {
+        fileTab.style.display = 'none';
+        pasteTab.style.display = 'block';
+        fileTabBtn.style.borderBottom = '3px solid transparent';
+        pasteTabBtn.style.borderBottom = '3px solid #3498db';
+      }
+    }
+
+    function handleFileImport(event) {
+      const files = Array.from(event.target.files);
+      if (files.length > 0) {
+        closeImportModal();
+        if (files.length === 1) {
+          importConfiguration(files[0]);
+        } else {
+          importMultipleConfigurations(files);
         }
-      };
-      input.click();
+      }
+    }
+
+    function clearImportJson() {
+      document.getElementById('importJsonTextarea').value = '';
+    }
+
+    function importFromPastedJson() {
+      const jsonText = document.getElementById('importJsonTextarea').value.trim();
+      
+      if (!jsonText) {
+        alert('Please paste JSON configuration first');
+        return;
+      }
+      
+      try {
+        const config = JSON.parse(jsonText);
+        closeImportModal();
+        
+        // Create a mock file object to use existing import logic
+        const blob = new Blob([jsonText], { type: 'application/json' });
+        const file = new File([blob], 'pasted-config.json', { type: 'application/json' });
+        
+        importConfiguration(file);
+      } catch (err) {
+        alert('Invalid JSON: ' + err.message);
+      }
     }
 
     async function importMultipleConfigurations(files) {
@@ -6365,7 +6716,7 @@
     }
 
     function closeFieldPickerModal() {
-      return `(function(){if(window.fieldPickerActive){alert('Field Picker is already active!');return;}window.fieldPickerActive=true;const escapeHtml=(text)=>{const div=document.createElement('div');div.textContent=text;return div.innerHTML;};const isDarkMode=window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches;const colors=isDarkMode?{modalBg:'#1e293b',borderColor:'#4a5568',sectionBg:'#2d3748',textPrimary:'#f1f5f9',textSecondary:'#94a3b8',codeBg:'#374151',buttonBg:'#3b82f6',buttonHover:'#2563eb'}:{modalBg:'white',borderColor:'#ecf0f1',sectionBg:'#f8f9fa',textPrimary:'#2c3e50',textSecondary:'#7f8c8d',codeBg:'white',buttonBg:'#3498db',buttonHover:'#2980b9'};let banner=document.createElement('div');banner.id='fpBanner';banner.style.cssText='position:fixed;top:0;left:50%;transform:translateX(-50%);background:#27ae60;color:white;padding:12px 24px;border-radius:0 0 8px 8px;z-index:999998;font-family:Arial,sans-serif;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.3);pointer-events:none;';banner.textContent='🎯 Field Picker Active - Click any field to inspect (ESC to exit)';document.body.appendChild(banner);document.body.style.cursor='crosshair';const handleClick=(e)=>{let field=null;if(e.target&&e.target.nodeType===1&&e.target.matches){field=e.target.matches('input,select,textarea')?e.target:e.target.closest('input,select,textarea');}if(!field)return;e.preventDefault();e.stopPropagation();let fieldId=field.id||field.name||field.getAttribute('data-ref')||field.getAttribute('aria-labelledby');if(!fieldId&&field.closest('[data-element]')){fieldId=field.closest('[data-element]').getAttribute('data-element');}if(!fieldId){const parent=field.parentElement;if(parent&&parent.classList.contains('reference')){const hiddenInput=parent.querySelector('input[type="hidden"]');if(hiddenInput&&hiddenInput.name){fieldId=hiddenInput.name;}}}const fieldName=field.name||fieldId;let currentValue=field.value;let actualValue=currentValue;let displayedValue=currentValue;if(field.tagName==='INPUT'&&field.type==='text'&&field.hasAttribute('ac_display_value')){actualValue=field.value;displayedValue=field.getAttribute('ac_display_value');}else if(field.tagName==='INPUT'&&field.type==='text'){const container=field.closest('.reference_autocomplete')||field.closest('.form-group')||field.parentElement;if(container){const hiddenInputs=container.querySelectorAll('input[type="hidden"]');for(let hidden of hiddenInputs){if(hidden.value&&hidden.value.length===32&&/^[0-9a-f]{32}$/.test(hidden.value)){actualValue=hidden.value;displayedValue=currentValue;break;}}}if(actualValue===currentValue&&field.name){const hiddenByName=document.querySelector(\`input[type="hidden"][name="\${field.name}"]\`);if(hiddenByName&&hiddenByName.value){actualValue=hiddenByName.value;displayedValue=currentValue;}}}let label=fieldId;const ariaLabelledBy=field.getAttribute('aria-labelledby');if(ariaLabelledBy){const labelEl=document.getElementById(ariaLabelledBy);if(labelEl)label=labelEl.textContent.trim();}else{const labelFor=document.querySelector(\`label[for="\${field.id}"]\`);if(labelFor)label=labelFor.textContent.trim();}label=label.replace(/[*:]/g,'').trim();label=label.replace(/\\s+(Required|Mandatory)[\\s.,;:!?]*$/gi,'').trim();label=label.replace(/\\s+(Required|Mandatory)\\b/gi,'').trim();let fieldType='text';if(field.tagName==='SELECT')fieldType='combobox';else if(field.tagName==='TEXTAREA')fieldType='text';const isRequired=field.required||field.getAttribute('aria-required')==='true'||field.hasAttribute('required');let options=[];let optionCount=0;if(fieldType==='combobox'&&field.options){Array.from(field.options).forEach(opt=>{if(opt.value){options.push({label:opt.textContent.trim(),value:opt.value});}});optionCount=options.length;}showModal({id:fieldId,name:fieldName,label:label,fieldType:fieldType,required:isRequired,currentValue:actualValue,displayedValue:displayedValue!==actualValue?displayedValue:null,options:options,optionCount:optionCount});};const handleHover=(e)=>{let field=null;if(e.target&&e.target.nodeType===1&&e.target.matches){field=e.target.matches('input,select,textarea')?e.target:e.target.closest('input,select,textarea');}if(field&&!field.closest('#fpModal')){field.style.outline='2px solid #3498db';}};const handleHoverOut=(e)=>{let field=null;if(e.target&&e.target.nodeType===1&&e.target.matches){field=e.target.matches('input,select,textarea')?e.target:e.target.closest('input,select,textarea');}if(field){field.style.outline='';}};const handleEscape=(e)=>{if(e.key==='Escape'){deactivate();}};const showModal=(meta)=>{let modal=document.getElementById('fpModal');if(modal)modal.remove();let backdrop=document.getElementById('fpBackdrop');if(!backdrop){backdrop=document.createElement('div');backdrop.id='fpBackdrop';backdrop.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:999999;display:flex;align-items:center;justify-content:center;';document.body.appendChild(backdrop);}modal=document.createElement('div');modal.id='fpModal';modal.style.cssText=\`background:\${colors.modalBg};border-radius:12px;padding:32px;max-width:600px;width:90%;max-height:85vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.3);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,sans-serif;position:relative;line-height:1.6;\`;const showAllOptions=meta.optionCount>0&&meta.optionCount<50;const hasLargeDropdown=meta.optionCount>=50;const isDifferent=meta.displayedValue&&meta.currentValue!==meta.displayedValue;let html=\`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid \${colors.borderColor};"><h2 style="margin:0;color:\${colors.textPrimary};font-size:24px;font-weight:600;">🎯 Field Details</h2><button id="fpCloseBtn" style="background:none;border:none;font-size:32px;cursor:pointer;color:\${colors.textSecondary};line-height:1;padding:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center;transition:color 0.2s;" onmouseover="this.style.color='#e74c3c'" onmouseout="this.style.color='\${colors.textSecondary}'">&times;</button></div><div style="background:\${colors.sectionBg};padding:20px;border-radius:8px;margin-bottom:20px;"><div style="margin-bottom:16px;"><div style="color:\${colors.textSecondary};font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Field ID</div><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><code style="background:\${colors.codeBg};color:\${colors.textPrimary};padding:8px 12px;border-radius:6px;font-size:14px;font-family:Monaco,Consolas,monospace;border:1px solid \${colors.borderColor};flex:1;min-width:0;word-break:break-all;">\${escapeHtml(meta.id)}</code><button class="fpCopyBtn" data-copy="\${escapeHtml(meta.id)}" style="background:\${colors.buttonBg};color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap;transition:background 0.2s;" onmouseover="this.style.background='\${colors.buttonHover}'" onmouseout="if(!this.classList.contains('copied'))this.style.background='\${colors.buttonBg}'">Copy</button></div></div><div style="margin-bottom:16px;"><div style="color:\${colors.textSecondary};font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Label</div><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><span style="font-size:16px;color:\${colors.textPrimary};flex:1;min-width:0;word-break:break-word;">\${escapeHtml(meta.label)}</span><button class="fpCopyBtn" data-copy="\${escapeHtml(meta.label)}" style="background:\${colors.buttonBg};color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap;transition:background 0.2s;" onmouseover="this.style.background='\${colors.buttonHover}'" onmouseout="if(!this.classList.contains('copied'))this.style.background='\${colors.buttonBg}'">Copy</button></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;"><div><div style="color:\${colors.textSecondary};font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Type</div><span style="font-size:15px;color:\${colors.textPrimary};background:\${colors.codeBg};padding:6px 12px;border-radius:6px;display:inline-block;border:1px solid \${colors.borderColor};">\${meta.fieldType}</span></div><div><div style="color:\${colors.textSecondary};font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Required</div><span style="font-size:15px;color:\${meta.required?'#e74c3c':'#27ae60'};background:\${colors.codeBg};padding:6px 12px;border-radius:6px;display:inline-block;font-weight:600;border:1px solid \${colors.borderColor};">\${meta.required?'Yes ⚠️':'No ✓'}</span></div></div>\`;if(meta.currentValue){html+=\`<div style="margin-top:16px;padding-top:16px;border-top:1px solid \${colors.borderColor};"><div style="color:\${colors.textSecondary};font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Actual Value \${isDifferent?'(sys_id)':''}</div><div style="background:\${colors.codeBg};color:#27ae60;padding:10px 12px;border-radius:6px;font-size:15px;font-weight:500;border:1px solid \${colors.borderColor};word-break:break-word;">\${escapeHtml(meta.currentValue)}</div></div>\`;}if(isDifferent){html+=\`<div style="margin-top:12px;padding-top:12px;border-top:1px solid \${colors.borderColor};"><div style="color:\${colors.textSecondary};font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Displayed Value</div><div style="background:\${colors.codeBg};color:\${colors.textSecondary};padding:10px 12px;border-radius:6px;font-size:14px;border:1px solid \${colors.borderColor};word-break:break-word;">\${escapeHtml(meta.displayedValue)}</div></div>\`;}html+=\`</div>\`;if(showAllOptions){html+=\`<div style="background:\${colors.sectionBg};padding:20px;border-radius:8px;margin-bottom:20px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div style="color:\${colors.textSecondary};font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Options (\${meta.optionCount})</div><button class="fpCopyBtn" data-copy='\${JSON.stringify(meta.options)}' style="background:\${colors.buttonBg};color:white;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:background 0.2s;" onmouseover="this.style.background='\${colors.buttonHover}'" onmouseout="if(!this.classList.contains('copied'))this.style.background='\${colors.buttonBg}'">Copy All</button></div><div style="background:\${colors.codeBg};padding:16px;border-radius:6px;max-height:300px;overflow-y:auto;border:1px solid \${colors.borderColor};"><ul style="margin:0;padding:0;list-style:none;">\`;meta.options.forEach((opt,idx)=>{html+=\`<li style="padding:8px 0;border-bottom:1px solid \${colors.borderColor};font-size:14px;"><span style="color:\${colors.textPrimary};font-weight:500;">\${escapeHtml(opt.label)}</span><br><span style="color:\${colors.textSecondary};font-size:13px;font-family:Monaco,Consolas,monospace;">value: \${escapeHtml(opt.value)}</span></li>\`;});html+=\`</ul></div></div>\`;}else if(hasLargeDropdown){html+=\`<div style="background:#fff3cd;padding:20px;border-radius:8px;margin-bottom:20px;border-left:4px solid #ffc107;"><div style="display:flex;align-items:start;gap:12px;"><span style="font-size:24px;">ℹ️</span><div><div style="color:#856404;font-weight:600;margin-bottom:6px;font-size:15px;">Large Dropdown Field</div><p style="margin:0;color:#856404;font-size:14px;line-height:1.5;">This field has <strong>\${meta.optionCount.toLocaleString()} options</strong>. To avoid performance issues, only the current value is shown above.</p></div></div></div>\`;}html+=\`<div style="text-align:center;padding-top:8px;"><button id="fpCopyJsonBtn" style="background:#27ae60;color:white;border:none;padding:14px 32px;border-radius:8px;cursor:pointer;font-size:15px;font-weight:600;box-shadow:0 2px 8px rgba(39,174,96,0.3);transition:all 0.2s;" onmouseover="this.style.background='#229954';this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 12px rgba(39,174,96,0.4)'" onmouseout="if(!this.classList.contains('copied')){this.style.background='#27ae60';this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(39,174,96,0.3)'}">📋 Copy Field as JSON</button></div>\`;modal.innerHTML=html;backdrop.appendChild(modal);document.getElementById('fpCloseBtn').onclick=()=>{modal.remove();backdrop.style.display='none';backdrop.remove();};document.querySelectorAll('.fpCopyBtn').forEach(btn=>{btn.onclick=()=>{const text=btn.getAttribute('data-copy');if(navigator.clipboard){navigator.clipboard.writeText(text);}else{const textarea=document.createElement('textarea');textarea.value=text;document.body.appendChild(textarea);textarea.select();document.execCommand('copy');document.body.removeChild(textarea);}btn.classList.add('copied');const originalText=btn.textContent;btn.textContent='✓ Copied!';btn.style.background='#27ae60';setTimeout(()=>{btn.classList.remove('copied');btn.textContent=originalText;btn.style.background=colors.buttonBg;},1500);};});document.getElementById('fpCopyJsonBtn').onclick=()=>{let cleanId=meta.id;if(cleanId.includes('.')){cleanId=cleanId.split('.').pop();}const json={id:cleanId,label:meta.label,fieldType:meta.fieldType,required:meta.required};if(meta.options.length>0&&meta.options.length<50){json.options=meta.options;}const jsonStr=JSON.stringify(json,null,2);if(navigator.clipboard){navigator.clipboard.writeText(jsonStr);}else{const textarea=document.createElement('textarea');textarea.value=jsonStr;document.body.appendChild(textarea);textarea.select();document.execCommand('copy');document.body.removeChild(textarea);}const btn=document.getElementById('fpCopyJsonBtn');btn.classList.add('copied');const originalText=btn.textContent;btn.textContent='✓ Copied to Clipboard!';btn.style.background='#27ae60';setTimeout(()=>{btn.classList.remove('copied');btn.textContent=originalText;btn.style.background='#27ae60';},1500);};backdrop.style.display='flex';};const deactivate=()=>{window.fieldPickerActive=false;if(banner)banner.remove();const modal=document.getElementById('fpModal');if(modal)modal.remove();const backdrop=document.getElementById('fpBackdrop');if(backdrop)backdrop.remove();document.body.style.cursor='';document.removeEventListener('click',handleClick,true);document.removeEventListener('keydown',handleEscape,true);document.removeEventListener('mouseover',handleHover,true);document.removeEventListener('mouseout',handleHoverOut,true);};document.addEventListener('click',handleClick,true);document.addEventListener('keydown',handleEscape,true);document.addEventListener('mouseover',handleHover,true);document.addEventListener('mouseout',handleHoverOut,true);})();`;
+      return `(function(){if(window.fieldPickerActive){alert('Field Picker is already active!');return;}window.fieldPickerActive=true;const escapeHtml=(text)=>{const div=document.createElement('div');div.textContent=text;return div.innerHTML;};const isDarkMode=window.matchMedia&&window.matchMedia('(prefers-color-scheme:dark)').matches;const colors=isDarkMode?{modalBg:'#1e293b',borderColor:'#475569',sectionBg:'#334155',textPrimary:'#f1f5f9',textSecondary:'#cbd5e1',codeBg:'#1e293b',buttonBg:'#3b82f6',buttonHover:'#2563eb'}:{modalBg:'#ffffff',borderColor:'#e2e8f0',sectionBg:'#f8fafc',textPrimary:'#1e293b',textSecondary:'#64748b',codeBg:'#f8fafc',buttonBg:'#3b82f6',buttonHover:'#2563eb'};let banner=document.createElement('div');banner.id='fpBanner';banner.style.cssText='position:fixed;top:0;left:50%;transform:translateX(-50%);background:#27ae60;color:white;padding:12px 24px;border-radius:0 0 8px 8px;z-index:999998;font-family:Arial,sans-serif;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.3);pointer-events:none;';banner.textContent='🎯 Field Picker Active - Click any field to inspect (ESC to exit)';document.body.appendChild(banner);document.body.style.cursor='crosshair';const handleClick=(e)=>{let field=null;if(e.target&&e.target.nodeType===1&&e.target.matches){field=e.target.matches('input,select,textarea')?e.target:e.target.closest('input,select,textarea');}if(!field)return;e.preventDefault();e.stopPropagation();let fieldId=field.id||field.name||field.getAttribute('data-ref')||field.getAttribute('aria-labelledby');if(!fieldId&&field.closest('[data-element]')){fieldId=field.closest('[data-element]').getAttribute('data-element');}if(!fieldId){const parent=field.parentElement;if(parent&&parent.classList.contains('reference')){const hiddenInput=parent.querySelector('input[type="hidden"]');if(hiddenInput&&hiddenInput.name){fieldId=hiddenInput.name;}}}const fieldName=field.name||fieldId;let currentValue=field.value;let actualValue=currentValue;let displayedValue=currentValue;if(field.tagName==='INPUT'&&field.type==='text'&&field.hasAttribute('ac_display_value')){actualValue=field.value;displayedValue=field.getAttribute('ac_display_value');}else if(field.tagName==='INPUT'&&field.type==='text'){const container=field.closest('.reference_autocomplete')||field.closest('.form-group')||field.parentElement;if(container){const hiddenInputs=container.querySelectorAll('input[type="hidden"]');for(let hidden of hiddenInputs){if(hidden.value&&hidden.value.length===32&&/^[0-9a-f]{32}$/.test(hidden.value)){actualValue=hidden.value;displayedValue=currentValue;break;}}}if(actualValue===currentValue&&field.name){const hiddenByName=document.querySelector(\`input[type="hidden"][name="\${field.name}"]\`);if(hiddenByName&&hiddenByName.value){actualValue=hiddenByName.value;displayedValue=currentValue;}}}let label=fieldId;const ariaLabelledBy=field.getAttribute('aria-labelledby');if(ariaLabelledBy){const labelEl=document.getElementById(ariaLabelledBy);if(labelEl)label=labelEl.textContent.trim();}else{const labelFor=document.querySelector(\`label[for="\${field.id}"]\`);if(labelFor)label=labelFor.textContent.trim();}label=label.replace(/[*:]/g,'').trim();label=label.replace(/\\s+(Required|Mandatory)[\\s.,;:!?]*$/gi,'').trim();label=label.replace(/\\s+(Required|Mandatory)\\b/gi,'').trim();let fieldType='text';if(field.tagName==='SELECT')fieldType='combobox';else if(field.tagName==='TEXTAREA')fieldType='text';const isRequired=field.required||field.getAttribute('aria-required')==='true'||field.hasAttribute('required');let options=[];let optionCount=0;if(fieldType==='combobox'&&field.options){Array.from(field.options).forEach(opt=>{if(opt.value){options.push({label:opt.textContent.trim(),value:opt.value});}});optionCount=options.length;}showModal({id:fieldId,name:fieldName,label:label,fieldType:fieldType,required:isRequired,currentValue:actualValue,displayedValue:displayedValue!==actualValue?displayedValue:null,options:options,optionCount:optionCount});};const handleHover=(e)=>{let field=null;if(e.target&&e.target.nodeType===1&&e.target.matches){field=e.target.matches('input,select,textarea')?e.target:e.target.closest('input,select,textarea');}if(field&&!field.closest('#fpModal')){field.style.outline='2px solid #3498db';}};const handleHoverOut=(e)=>{let field=null;if(e.target&&e.target.nodeType===1&&e.target.matches){field=e.target.matches('input,select,textarea')?e.target:e.target.closest('input,select,textarea');}if(field){field.style.outline='';}};const handleEscape=(e)=>{if(e.key==='Escape'){deactivate();}};const showModal=(meta)=>{let modal=document.getElementById('fpModal');if(modal)modal.remove();let backdrop=document.getElementById('fpBackdrop');if(!backdrop){backdrop=document.createElement('div');backdrop.id='fpBackdrop';backdrop.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:999999;display:flex;align-items:center;justify-content:center;';document.body.appendChild(backdrop);}modal=document.createElement('div');modal.id='fpModal';modal.style.cssText=\`background:\${colors.modalBg};border-radius:12px;padding:32px;max-width:600px;width:90%;max-height:85vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.3);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Oxygen,Ubuntu,sans-serif;position:relative;line-height:1.6;\`;const showAllOptions=meta.optionCount>0&&meta.optionCount<50;const hasLargeDropdown=meta.optionCount>=50;const isDifferent=meta.displayedValue&&meta.currentValue!==meta.displayedValue;let html=\`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:24px;padding-bottom:16px;border-bottom:2px solid \${colors.borderColor};"><h2 style="margin:0;color:\${colors.textPrimary};font-size:24px;font-weight:600;">🎯 Field Details</h2><button id="fpCloseBtn" style="background:none;border:none;font-size:32px;cursor:pointer;color:\${colors.textSecondary};line-height:1;padding:0;width:32px;height:32px;display:flex;align-items:center;justify-content:center;transition:color 0.2s;" onmouseover="this.style.color='#e74c3c'" onmouseout="this.style.color='\${colors.textSecondary}'">&times;</button></div><div style="background:\${colors.sectionBg};padding:20px;border-radius:8px;margin-bottom:20px;"><div style="margin-bottom:16px;"><div style="color:\${colors.textSecondary};font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Field ID</div><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><code style="background:\${colors.codeBg};color:\${colors.textPrimary};padding:8px 12px;border-radius:6px;font-size:14px;font-family:Monaco,Consolas,monospace;border:1px solid \${colors.borderColor};flex:1;min-width:0;word-break:break-all;">\${escapeHtml(meta.id)}</code><button class="fpCopyBtn" data-copy="\${escapeHtml(meta.id)}" style="background:\${colors.buttonBg};color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap;transition:background 0.2s;" onmouseover="this.style.background='\${colors.buttonHover}'" onmouseout="if(!this.classList.contains('copied'))this.style.background='\${colors.buttonBg}'">Copy</button></div></div><div style="margin-bottom:16px;"><div style="color:\${colors.textSecondary};font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Label</div><div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;"><span style="font-size:16px;color:\${colors.textPrimary};flex:1;min-width:0;word-break:break-word;">\${escapeHtml(meta.label)}</span><button class="fpCopyBtn" data-copy="\${escapeHtml(meta.label)}" style="background:\${colors.buttonBg};color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;white-space:nowrap;transition:background 0.2s;" onmouseover="this.style.background='\${colors.buttonHover}'" onmouseout="if(!this.classList.contains('copied'))this.style.background='\${colors.buttonBg}'">Copy</button></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;"><div><div style="color:\${colors.textSecondary};font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Type</div><span style="font-size:15px;color:\${colors.textPrimary};background:\${colors.codeBg};padding:6px 12px;border-radius:6px;display:inline-block;border:1px solid \${colors.borderColor};">\${meta.fieldType}</span></div><div><div style="color:\${colors.textSecondary};font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Required</div><span style="font-size:15px;color:\${meta.required?'#e74c3c':'#27ae60'};background:\${colors.codeBg};padding:6px 12px;border-radius:6px;display:inline-block;font-weight:600;border:1px solid \${colors.borderColor};">\${meta.required?'Yes ⚠️':'No ✓'}</span></div></div>\`;if(meta.currentValue){html+=\`<div style="margin-top:16px;padding-top:16px;border-top:1px solid \${colors.borderColor};"><div style="color:\${colors.textSecondary};font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Actual Value \${isDifferent?'(sys_id)':''}</div><div style="background:\${colors.codeBg};color:#27ae60;padding:10px 12px;border-radius:6px;font-size:15px;font-weight:500;border:1px solid \${colors.borderColor};word-break:break-word;">\${escapeHtml(meta.currentValue)}</div></div>\`;}if(isDifferent){html+=\`<div style="margin-top:12px;padding-top:12px;border-top:1px solid \${colors.borderColor};"><div style="color:\${colors.textSecondary};font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Displayed Value</div><div style="background:\${colors.codeBg};color:\${colors.textSecondary};padding:10px 12px;border-radius:6px;font-size:14px;border:1px solid \${colors.borderColor};word-break:break-word;">\${escapeHtml(meta.displayedValue)}</div></div>\`;}html+=\`</div>\`;if(showAllOptions){html+=\`<div style="background:\${colors.sectionBg};padding:20px;border-radius:8px;margin-bottom:20px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;"><div style="color:\${colors.textSecondary};font-size:13px;font-weight:600;text-transform:uppercase;letter-spacing:0.5px;">Options (\${meta.optionCount})</div><button class="fpCopyBtn" data-copy='\${JSON.stringify(meta.options)}' style="background:\${colors.buttonBg};color:white;border:none;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;transition:background 0.2s;" onmouseover="this.style.background='\${colors.buttonHover}'" onmouseout="if(!this.classList.contains('copied'))this.style.background='\${colors.buttonBg}'">Copy All</button></div><div style="background:\${colors.codeBg};padding:16px;border-radius:6px;max-height:300px;overflow-y:auto;border:1px solid \${colors.borderColor};"><ul style="margin:0;padding:0;list-style:none;">\`;meta.options.forEach((opt,idx)=>{html+=\`<li style="padding:8px 0;border-bottom:1px solid \${colors.borderColor};font-size:14px;"><span style="color:\${colors.textPrimary};font-weight:500;">\${escapeHtml(opt.label)}</span><br><span style="color:\${colors.textSecondary};font-size:13px;font-family:Monaco,Consolas,monospace;">value: \${escapeHtml(opt.value)}</span></li>\`;});html+=\`</ul></div></div>\`;}else if(hasLargeDropdown){html+=\`<div style="background:#fff3cd;padding:20px;border-radius:8px;margin-bottom:20px;border-left:4px solid #ffc107;"><div style="display:flex;align-items:start;gap:12px;"><span style="font-size:24px;">ℹ️</span><div><div style="color:#856404;font-weight:600;margin-bottom:6px;font-size:15px;">Large Dropdown Field</div><p style="margin:0;color:#856404;font-size:14px;line-height:1.5;">This field has <strong>\${meta.optionCount.toLocaleString()} options</strong>. To avoid performance issues, only the current value is shown above.</p></div></div></div>\`;}html+=\`<div style="text-align:center;padding-top:8px;"><button id="fpCopyJsonBtn" style="background:#27ae60;color:white;border:none;padding:14px 32px;border-radius:8px;cursor:pointer;font-size:15px;font-weight:600;box-shadow:0 2px 8px rgba(39,174,96,0.3);transition:all 0.2s;" onmouseover="this.style.background='#229954';this.style.transform='translateY(-2px)';this.style.boxShadow='0 4px 12px rgba(39,174,96,0.4)'" onmouseout="if(!this.classList.contains('copied')){this.style.background='#27ae60';this.style.transform='translateY(0)';this.style.boxShadow='0 2px 8px rgba(39,174,96,0.3)'}">📋 Copy Field as JSON</button></div>\`;modal.innerHTML=html;backdrop.appendChild(modal);document.getElementById('fpCloseBtn').onclick=()=>{modal.remove();backdrop.style.display='none';backdrop.remove();};document.querySelectorAll('.fpCopyBtn').forEach(btn=>{btn.onclick=()=>{const text=btn.getAttribute('data-copy');if(navigator.clipboard){navigator.clipboard.writeText(text);}else{const textarea=document.createElement('textarea');textarea.value=text;document.body.appendChild(textarea);textarea.select();document.execCommand('copy');document.body.removeChild(textarea);}btn.classList.add('copied');const originalText=btn.textContent;btn.textContent='✓ Copied!';btn.style.background='#27ae60';setTimeout(()=>{btn.classList.remove('copied');btn.textContent=originalText;btn.style.background=colors.buttonBg;},1500);};});document.getElementById('fpCopyJsonBtn').onclick=()=>{let cleanId=meta.id;if(cleanId.includes('.')){cleanId=cleanId.split('.').pop();}const json={id:cleanId,label:meta.label,fieldType:meta.fieldType,required:meta.required};if(meta.options.length>0&&meta.options.length<50){json.options=meta.options;}const jsonStr=JSON.stringify(json,null,2);if(navigator.clipboard){navigator.clipboard.writeText(jsonStr);}else{const textarea=document.createElement('textarea');textarea.value=jsonStr;document.body.appendChild(textarea);textarea.select();document.execCommand('copy');document.body.removeChild(textarea);}const btn=document.getElementById('fpCopyJsonBtn');btn.classList.add('copied');const originalText=btn.textContent;btn.textContent='✓ Copied to Clipboard!';btn.style.background='#27ae60';setTimeout(()=>{btn.classList.remove('copied');btn.textContent=originalText;btn.style.background='#27ae60';},1500);};backdrop.style.display='flex';};const deactivate=()=>{window.fieldPickerActive=false;if(banner)banner.remove();const modal=document.getElementById('fpModal');if(modal)modal.remove();const backdrop=document.getElementById('fpBackdrop');if(backdrop)backdrop.remove();document.body.style.cursor='';document.removeEventListener('click',handleClick,true);document.removeEventListener('keydown',handleEscape,true);document.removeEventListener('mouseover',handleHover,true);document.removeEventListener('mouseout',handleHoverOut,true);};document.addEventListener('click',handleClick,true);document.addEventListener('keydown',handleEscape,true);document.addEventListener('mouseover',handleHover,true);document.addEventListener('mouseout',handleHoverOut,true);})();`;
     }
 
     // Initialize dropdowns and restore state on page load
