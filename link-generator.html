@@ -60,8 +60,19 @@
     }
     
     [data-bs-theme="dark"] .formatting-toolbar {
-      background: #374151 !important;
+      background: rgba(15, 23, 42, 0.95) !important;
+      backdrop-filter: blur(10px);
+    }
+    
+    [data-bs-theme="dark"] .rich-value {
+      background: #2d3748 !important;
+      color: #f1f5f9 !important;
       border-color: #4a5568 !important;
+    }
+    
+    [data-bs-theme="dark"] .rich-value:focus {
+      border-color: #60a5fa !important;
+      box-shadow: 0 0 0 0.25rem rgba(96, 165, 250, 0.25) !important;
     }
     
     [data-bs-theme="dark"] .form-select option {
@@ -141,6 +152,73 @@
       background: #fbbf24 !important;
       border-color: #fbbf24 !important;
       color: #0f172a !important;
+    }
+    
+    /* Dark mode for Bootstrap modals */
+    [data-bs-theme="dark"] .modal-content {
+      background-color: #1e293b !important;
+      color: #f1f5f9 !important;
+      border-color: #334155 !important;
+    }
+    
+    [data-bs-theme="dark"] .modal-header {
+      background: linear-gradient(135deg, #0f172a 0%, #1e40af 100%) !important;
+      border-bottom-color: #334155 !important;
+    }
+    
+    [data-bs-theme="dark"] .modal-footer {
+      border-top-color: #334155 !important;
+    }
+    
+    [data-bs-theme="dark"] .modal-body {
+      background-color: #1e293b !important;
+    }
+    
+    [data-bs-theme="dark"] .modal-body input,
+    [data-bs-theme="dark"] .modal-body select,
+    [data-bs-theme="dark"] .modal-body textarea {
+      background-color: #2d3748 !important;
+      color: #f1f5f9 !important;
+      border-color: #4a5568 !important;
+    }
+    
+    [data-bs-theme="dark"] .modal-body input:focus,
+    [data-bs-theme="dark"] .modal-body select:focus,
+    [data-bs-theme="dark"] .modal-body textarea:focus {
+      background-color: #2d3748 !important;
+      border-color: #60a5fa !important;
+      box-shadow: 0 0 0 0.25rem rgba(96, 165, 250, 0.25) !important;
+    }
+    
+    [data-bs-theme="dark"] .modal-body .form-label {
+      color: #e2e8f0 !important;
+    }
+    
+    [data-bs-theme="dark"] .list-group-item {
+      background-color: #2d3748 !important;
+      color: #f1f5f9 !important;
+      border-color: #4a5568 !important;
+    }
+    
+    [data-bs-theme="dark"] .list-group-item:hover {
+      background-color: #374151 !important;
+    }
+    
+    [data-bs-theme="dark"] .alert-success {
+      background-color: rgba(34, 197, 94, 0.15) !important;
+      color: #4ade80 !important;
+      border-color: rgba(34, 197, 94, 0.3) !important;
+    }
+    
+    [data-bs-theme="dark"] .alert-warning {
+      background-color: rgba(251, 191, 36, 0.15) !important;
+      color: #fbbf24 !important;
+      border-color: rgba(251, 191, 36, 0.3) !important;
+    }
+    
+    [data-bs-theme="dark"] #link {
+      background: rgba(0, 0, 0, 0.3) !important;
+      color: #cbd5e1 !important;
     }
     
     body { 
@@ -268,28 +346,70 @@
       gap: 0.5rem;
     }
     
+    /* Floating toolbar that appears on text selection */
     .formatting-toolbar {
-      display: flex;
+      position: absolute;
+      display: none;
       gap: 0.25rem;
       padding: 0.5rem;
-      background: #f8f9fa;
-      border-radius: 0.375rem;
-      border: 1px solid #dee2e6;
+      background: rgba(33, 37, 41, 0.95);
+      backdrop-filter: blur(10px);
+      border-radius: 0.5rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+      z-index: 1000;
+      pointer-events: auto;
+    }
+    
+    .formatting-toolbar.show {
+      display: flex;
+      animation: fadeInUp 0.2s ease-out;
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(8px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
     
     .formatting-toolbar .btn {
-      padding: 0.375rem 0.75rem;
+      padding: 0.5rem 0.75rem;
       font-size: 0.875rem;
       font-weight: 600;
       min-width: 38px;
+      background: transparent;
+      color: #fff;
+      border: none;
+      transition: all 0.15s ease;
+    }
+    
+    .formatting-toolbar .btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: scale(1.05);
+    }
+    
+    .formatting-toolbar .btn:active {
+      transform: scale(0.95);
     }
     
     .rich-value {
+      position: relative;
       min-height: 100px;
       border: 1px solid #ced4da;
       border-radius: 0.375rem;
       padding: 0.75rem;
       background: white;
+      outline: none;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    
+    .rich-value:focus {
+      border-color: #0d6efd;
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
     }
     
     .toolbar-section {
@@ -539,15 +659,24 @@
     </form>
     
     <!-- Output Section -->
-    <div class="alert alert-success mt-4" id="output" style="display:none;" role="alert">
-      <h5 class="alert-heading">
-        <i class="bi bi-check-circle"></i> Generated Link
-      </h5>
-      <hr>
-      <div id="link" class="mb-3" style="word-break: break-all; font-family: monospace; background: white; padding: 1rem; border-radius: 0.375rem;"></div>
-      <button class="btn btn-warning" onclick="copyLink()">
-        <i class="bi bi-clipboard"></i> Copy Link
-      </button>
+    <div class="alert alert-success mt-4" id="output" style="display:none; cursor: pointer;" role="alert" onclick="toggleLinkDisplay()">
+      <div id="copyMessage">
+        <h5 class="alert-heading d-flex align-items-center justify-content-between">
+          <span>
+            <i class="bi bi-clipboard-check-fill"></i> Link Copied to Clipboard!
+          </span>
+          <small class="text-muted">
+            <i class="bi bi-chevron-down" id="expandIcon"></i> Click to view link
+          </small>
+        </h5>
+      </div>
+      <div id="linkDetails" style="display:none;">
+        <hr>
+        <div id="link" class="mb-3" style="word-break: break-all; font-family: 'Courier New', monospace; background: rgba(255, 255, 255, 0.3); padding: 1rem; border-radius: 0.375rem; font-size: 0.875rem;"></div>
+        <button class="btn btn-warning btn-sm" onclick="event.stopPropagation(); copyLink();">
+          <i class="bi bi-clipboard"></i> Copy Again
+        </button>
+      </div>
     </div>
   </div>
 </div>
@@ -1188,6 +1317,33 @@
       populatePresetDropdown();
     };
 
+    // Show/hide floating toolbar based on text selection
+    function showFloatingToolbar(editor, toolbar) {
+      const selection = window.getSelection();
+      if (!selection.rangeCount || selection.isCollapsed) {
+        toolbar.classList.remove('show');
+        return;
+      }
+
+      // Check if selection is within this editor
+      const range = selection.getRangeAt(0);
+      if (!editor.contains(range.commonAncestorContainer)) {
+        toolbar.classList.remove('show');
+        return;
+      }
+
+      // Position toolbar above the selection
+      const rect = range.getBoundingClientRect();
+      const toolbarHeight = 50; // Approximate height
+      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+      const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
+      
+      toolbar.style.left = `${rect.left + scrollLeft + (rect.width / 2)}px`;
+      toolbar.style.top = `${rect.top + scrollTop - toolbarHeight}px`;
+      toolbar.style.transform = 'translateX(-50%)';
+      toolbar.classList.add('show');
+    }
+
     // Save state
     function saveState() {
       const state = {
@@ -1319,42 +1475,60 @@
         valueContainer.innerHTML = '';
         
         if (!fieldDef || fieldDef.fieldType === 'text' || !fieldDef.fieldType) {
-          // Render rich text editor with formatting toolbar
-          const toolbar = document.createElement('div');
-          toolbar.className = 'formatting-toolbar';
-          toolbar.style.width = '100%';
-
-          const formatButtons = [
-            { label: '•', cmd: 'insertUnorderedList', title: 'Bullet List' },
-            { label: '1.', cmd: 'insertOrderedList', title: 'Numbered List' },
-            { label: '⌫', cmd: 'removeFormat', title: 'Clear Formatting' }
-          ];
-
+          // Render rich text editor with floating toolbar
           const richValue = document.createElement('div');
           richValue.contentEditable = 'true';
-          richValue.className = 'rich-value';
+          richValue.className = 'rich-value form-control';
           richValue.style.minHeight = '80px';
           richValue.style.width = '100%';
           richValue.innerHTML = currentValue;
           richValue.oninput = saveState;
 
-          formatButtons.forEach(({ label, cmd, title }) => {
+          // Create floating toolbar (initially hidden)
+          const toolbar = document.createElement('div');
+          toolbar.className = 'formatting-toolbar';
+          toolbar.id = `toolbar-${Date.now()}`; // Unique ID
+
+          const formatButtons = [
+            { icon: 'bi-type-bold', cmd: 'bold', title: 'Bold' },
+            { icon: 'bi-type-italic', cmd: 'italic', title: 'Italic' },
+            { icon: 'bi-type-underline', cmd: 'underline', title: 'Underline' },
+            { icon: 'bi-list-ul', cmd: 'insertUnorderedList', title: 'Bullet List' },
+            { icon: 'bi-list-ol', cmd: 'insertOrderedList', title: 'Numbered List' },
+            { icon: 'bi-eraser', cmd: 'removeFormat', title: 'Clear Formatting' }
+          ];
+
+          formatButtons.forEach(({ icon, cmd, title }) => {
             const btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = 'btn btn-sm btn-danger';
-            btn.textContent = label;
+            btn.className = 'btn btn-sm';
+            btn.innerHTML = `<i class="bi ${icon}"></i>`;
             btn.title = title;
             btn.onclick = (e) => {
               e.preventDefault();
-              richValue.focus();
               document.execCommand(cmd, false, null);
               saveState();
             };
             toolbar.appendChild(btn);
           });
 
-          valueContainer.appendChild(toolbar);
+          // Show toolbar on text selection
+          richValue.addEventListener('mouseup', () => showFloatingToolbar(richValue, toolbar));
+          richValue.addEventListener('keyup', () => showFloatingToolbar(richValue, toolbar));
+          
+          // Store toolbar reference for cleanup
+          richValue.dataset.toolbarId = toolbar.id;
+          
+          // Hide toolbar when clicking outside
+          document.addEventListener('click', (e) => {
+            if (!toolbar.contains(e.target) && e.target !== richValue && !richValue.contains(e.target)) {
+              toolbar.classList.remove('show');
+            }
+          });
+
           valueContainer.appendChild(richValue);
+          // Append toolbar to body so it can float above everything
+          document.body.appendChild(toolbar);
         } else if (fieldDef.fieldType === 'combobox') {
           // Render combobox dropdown
           const comboSelect = document.createElement('select');
@@ -1400,7 +1574,18 @@
       remove.className = 'btn btn-danger';
       remove.innerHTML = '<i class="bi bi-trash"></i>';
       remove.title = 'Remove Field';
-      remove.onclick = () => { fieldsDiv.removeChild(row); saveState(); };
+      remove.onclick = () => { 
+        // Clean up any associated floating toolbar
+        const richValue = row.querySelector('.rich-value[data-toolbar-id]');
+        if (richValue && richValue.dataset.toolbarId) {
+          const toolbar = document.getElementById(richValue.dataset.toolbarId);
+          if (toolbar) {
+            toolbar.remove();
+          }
+        }
+        fieldsDiv.removeChild(row); 
+        saveState(); 
+      };
 
       row.appendChild(fieldSelect);
       row.appendChild(manageBtn);
@@ -1553,6 +1738,13 @@
 
       document.getElementById('link').textContent = url;
       
+      // Auto-copy to clipboard
+      copyToClipboard(url);
+      
+      // Collapse the link details by default
+      document.getElementById('linkDetails').style.display = 'none';
+      document.getElementById('expandIcon').className = 'bi bi-chevron-down';
+      
       // Check for URL length issues (414 Request-URI Too Large)
       const MAX_SAFE_LENGTH = currentAppType === 'jira' ? 2048 : 8200;
       const outputDiv = document.getElementById('output');
@@ -1563,10 +1755,12 @@
         if (!warningEl) {
           warningEl = document.createElement('div');
           warningEl.id = warningId;
-          warningEl.style.cssText = 'margin-top:16px;padding:12px;background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;border-radius:4px;';
+          warningEl.className = 'alert alert-warning mt-2';
+          warningEl.style.cursor = 'default';
+          warningEl.onclick = (e) => e.stopPropagation();
           outputDiv.appendChild(warningEl);
         }
-        warningEl.innerHTML = `<strong>Warning: URL Too Long (${url.length} chars)</strong><br>
+        warningEl.innerHTML = `<strong><i class="bi bi-exclamation-triangle"></i> Warning: URL Too Long (${url.length} chars)</strong><br>
         The generated link exceeds ${MAX_SAFE_LENGTH} characters. You may encounter a "414 Request-URI Too Large" error.<br>
         Try reducing the content in rich text fields.`;
       } else if (warningEl) {
@@ -3309,13 +3503,41 @@
     }
 
     // Copy link to clipboard
+    // Copy link to clipboard
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text).then(() => {
+        // Success - handled by UI already
+      }).catch(err => {
+        console.error('Failed to copy:', err);
+        alert('Failed to copy link to clipboard');
+      });
+    }
+
     function copyLink() {
       const link = document.getElementById('link').textContent;
-      navigator.clipboard.writeText(link).then(() => {
-        const btn = document.querySelector('.copy-btn');
-        btn.textContent = 'Copied!';
-        setTimeout(() => btn.textContent = 'Copy', 1200);
-      });
+      copyToClipboard(link);
+      
+      // Update button feedback
+      const btn = event.target.closest('button');
+      if (btn) {
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="bi bi-check-circle"></i> Copied!';
+        setTimeout(() => btn.innerHTML = originalHTML, 1200);
+      }
+    }
+    
+    // Toggle link details expansion
+    function toggleLinkDisplay() {
+      const details = document.getElementById('linkDetails');
+      const icon = document.getElementById('expandIcon');
+      
+      if (details.style.display === 'none') {
+        details.style.display = 'block';
+        icon.className = 'bi bi-chevron-up';
+      } else {
+        details.style.display = 'none';
+        icon.className = 'bi bi-chevron-down';
+      }
     }
 
     // ========================================================================
