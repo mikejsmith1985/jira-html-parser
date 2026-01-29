@@ -2117,7 +2117,7 @@
           const currentDef = definitions.find(d => d.id === currentValue);
           if (currentDef) {
             const matchesBaseUrl = !currentDef.baseUrlId || currentDef.baseUrlId === currentBaseUrlId;
-            const matchesIssueType = !filterByIssueType || !currentDef.issueTypeId && !currentDef.tableNameId || currentDef.issueTypeId === currentIssueTypeId || currentDef.tableNameId === currentIssueTypeId;
+            const matchesIssueType = !filterByIssueType || (!currentDef.issueTypeId || currentDef.issueTypeId === currentIssueTypeId) && (!currentDef.tableNameId || currentDef.tableNameId === currentIssueTypeId);
             let matchesAppType = true;
             if (currentDef.appType) {
               if (isJira && currentDef.appType !== 'jira') matchesAppType = false;
@@ -2135,7 +2135,7 @@
         // Re-populate with filtered options
         definitions.sort((a, b) => a.label.localeCompare(b.label)).forEach(def => {
           const matchesBaseUrl = !def.baseUrlId || def.baseUrlId === currentBaseUrlId;
-          const matchesIssueType = !filterByIssueType || !def.issueTypeId && !def.tableNameId || def.issueTypeId === currentIssueTypeId || def.tableNameId === currentIssueTypeId;
+          const matchesIssueType = !filterByIssueType || (!def.issueTypeId || def.issueTypeId === currentIssueTypeId) && (!def.tableNameId || def.tableNameId === currentIssueTypeId);
           
           // Filter by app type - only show fields for current app
           let matchesAppType = true;
