@@ -1083,6 +1083,7 @@
         <button type="button" onclick="mergeSelectedToMultiType()" style="background:#9b59b6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-size:0.9em;">Merge Selected</button>
         <button type="button" onclick="mergeSelectedToGlobal()" style="background:#f39c12;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-size:0.9em;">⭐ Global Selected</button>
         <button type="button" onclick="undoLastOptimization()" style="background:#e67e22;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-size:0.9em;">Undo Last</button>
+        <button type="button" onclick="cleanupFieldDataIntegrity()" style="background:#27ae60;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-size:0.9em;">🧹 Clean Data</button>
       </div>
       
       <div style="background:#fff3cd;padding:12px;border-radius:8px;border-left:4px solid #ffc107;margin-bottom:16px;font-size:0.85em;">
@@ -2944,16 +2945,48 @@
       let mergedCount = 0;
       
       groups.forEach(group => {
-        // Keep one global instance (or create it)
-        const globalField = group.instances.find(i => !i.issueTypeId) || {
-          ...group.instances[0],
-          issueTypeId: undefined,
-          tableNameId: undefined
+        // Analyze instances to pick the best field type and merge options
+        const fieldTypes = new Set(group.instances.map(i => i.fieldType || 'text'));
+        const hasCombobox = fieldTypes.has('combobox');
+        
+        // Pick the most feature-rich field type (combobox > text)
+        const finalFieldType = hasCombobox ? 'combobox' : Array.from(fieldTypes)[0];
+        
+        // Use existing global instance as template, or first instance
+        const template = group.instances.find(i => !i.issueTypeId) || group.instances[0];
+        
+        // Build clean global field explicitly (don't use spread to avoid copying unwanted properties)
+        const globalField = {
+          id: template.id,
+          label: template.label,
+          fieldType: finalFieldType,
+          required: group.instances.some(i => i.required), // Most permissive
+          appType: template.appType
         };
         
-        // Remove issueTypeId to make it global
-        delete globalField.issueTypeId;
-        delete globalField.tableNameId;
+        // Add baseUrlId if it exists
+        if (template.baseUrlId) {
+          globalField.baseUrlId = template.baseUrlId;
+        }
+        
+        // Merge options only if final type is combobox
+        if (finalFieldType === 'combobox') {
+          const optionsMap = new Map();
+          group.instances.forEach(inst => {
+            if (inst.options && Array.isArray(inst.options)) {
+              inst.options.forEach(opt => {
+                const key = `${opt.value}|${opt.label}`;
+                if (!optionsMap.has(key)) {
+                  optionsMap.set(key, opt);
+                }
+              });
+            }
+          });
+          if (optionsMap.size > 0) {
+            globalField.options = Array.from(optionsMap.values());
+          }
+        }
+        // Don't add options property at all if not combobox
         
         // Remove all instances of this field
         const filtered = allFields.filter(f => f.id !== group.fieldId);
@@ -2998,37 +3031,48 @@
       let mergedCount = 0;
       
       groups.forEach(group => {
-        // Create merged field with array of issue type IDs
+        // Analyze instances to pick the best field type
+        const fieldTypes = new Set(group.instances.map(i => i.fieldType || 'text'));
+        const hasCombobox = fieldTypes.has('combobox');
+        
+        // Pick the most feature-rich field type (combobox > text)
+        const finalFieldType = hasCombobox ? 'combobox' : Array.from(fieldTypes)[0];
+        
+        // Build clean merged field explicitly (don't use spread)
+        const template = group.instances[0];
         const mergedField = {
-          ...group.instances[0],
+          id: template.id,
+          label: template.label,
+          fieldType: finalFieldType,
           issueTypeId: group.issueTypes, // Array of all issue type IDs
-          issueTypeLabel: group.issueTypeLabels.join(', ') // Combined labels for display
+          issueTypeLabel: group.issueTypeLabels.join(', '), // Combined labels for display
+          required: group.instances.some(i => i.required), // Most permissive
+          appType: template.appType
         };
         
-        // Keep the most permissive settings
-        mergedField.required = group.instances.some(i => i.required);
+        // Add baseUrlId if it exists
+        if (template.baseUrlId) {
+          mergedField.baseUrlId = template.baseUrlId;
+        }
         
-        // Merge options if it's a combobox field
-        if (mergedField.fieldType === 'combobox') {
-          const allOptions = [];
-          const optionKeys = new Set();
-          
+        // Merge options only if final type is combobox
+        if (finalFieldType === 'combobox') {
+          const optionsMap = new Map();
           group.instances.forEach(inst => {
             if (inst.options && Array.isArray(inst.options)) {
               inst.options.forEach(opt => {
                 const key = `${opt.value}|${opt.label}`;
-                if (!optionKeys.has(key)) {
-                  optionKeys.add(key);
-                  allOptions.push(opt);
+                if (!optionsMap.has(key)) {
+                  optionsMap.set(key, opt);
                 }
               });
             }
           });
-          
-          if (allOptions.length > 0) {
-            mergedField.options = allOptions;
+          if (optionsMap.size > 0) {
+            mergedField.options = Array.from(optionsMap.values());
           }
         }
+        // Don't add options property at all if not combobox
         
         // Remove all instances of this field with matching baseUrlId
         const filtered = allFields.filter(f => {
@@ -3124,6 +3168,74 @@
         refreshFieldsList();
       } catch (e) {
         alert('Error restoring fields: ' + e.message);
+      }
+    }
+
+    function cleanupFieldDataIntegrity() {
+      if (!confirm('Clean up field data integrity?\n\nThis will:\n- Remove options from non-combobox fields\n- Fix any other data inconsistencies\n\nA backup will be created automatically.')) {
+        return;
+      }
+      
+      try {
+        // Create backup
+        const allFields = loadAllFieldDefinitions();
+        localStorage.setItem('lastFieldCleanupBackup', JSON.stringify(allFields));
+        
+        let fixedCount = 0;
+        const cleaned = allFields.map(field => {
+          let fixed = false;
+          
+          // Build clean field object
+          const cleanField = {
+            id: field.id,
+            label: field.label,
+            fieldType: field.fieldType || 'text'
+          };
+          
+          // Preserve valid properties
+          if (field.appType) cleanField.appType = field.appType;
+          if (field.baseUrlId) cleanField.baseUrlId = field.baseUrlId;
+          if (field.issueTypeId) cleanField.issueTypeId = field.issueTypeId;
+          if (field.issueTypeLabel) cleanField.issueTypeLabel = field.issueTypeLabel;
+          if (field.tableNameId) cleanField.tableNameId = field.tableNameId;
+          if (field.required) cleanField.required = field.required;
+          if (field.ignored) cleanField.ignored = field.ignored;
+          
+          // Only add options if field type is combobox
+          if (cleanField.fieldType === 'combobox') {
+            if (field.options && Array.isArray(field.options) && field.options.length > 0) {
+              cleanField.options = field.options;
+            }
+          } else {
+            // Check if we're removing options (means field was corrupted)
+            if (field.options && Array.isArray(field.options) && field.options.length > 0) {
+              fixed = true;
+            }
+          }
+          
+          if (fixed) fixedCount++;
+          return cleanField;
+        });
+        
+        // Save cleaned data
+        localStorage.setItem(getStorageKey('fieldDefinitions'), JSON.stringify(cleaned));
+        
+        if (fixedCount > 0) {
+          showNotification(`✓ Cleaned ${fixedCount} field(s) with data integrity issues`, 'success');
+        } else {
+          showNotification('✓ No integrity issues found - all fields are clean!', 'success');
+        }
+        
+        // Refresh displays
+        const newAnalysis = analyzeFieldDuplicates();
+        refreshOptimizationList(newAnalysis);
+        document.getElementById('optimizationStats').textContent = 
+          `Found ${newAnalysis.totalGroups} duplicate groups, ${newAnalysis.recommended} recommended for merging`;
+        refreshFieldsList();
+        loadFieldsManagement(); // Refresh Config Management
+        
+      } catch (e) {
+        alert('Error cleaning up fields: ' + e.message);
       }
     }
 
@@ -5500,16 +5612,27 @@
         // Update existing field
         const index = fields.findIndex(f => f.id === editingConfigFieldId);
         if (index >= 0) {
-          fields[index] = {
-            ...fields[index],
+          const updated = {
             id: fieldId,
             label: label,
             fieldType: fieldType,
             baseUrlId: baseUrlId || undefined,
             issueTypeId: issueTypeId || undefined,
-            required: required,
-            options: fieldType === 'combobox' ? configComboboxOptions : undefined
+            required: required
           };
+          
+          // Only add options if fieldType is combobox
+          if (fieldType === 'combobox' && configComboboxOptions.length > 0) {
+            updated.options = configComboboxOptions;
+          }
+          // Explicitly don't copy old options if field type changed from combobox
+          
+          // Preserve appType if it exists
+          if (fields[index].appType) {
+            updated.appType = fields[index].appType;
+          }
+          
+          fields[index] = updated;
         }
       } else {
         // Add new field
@@ -5586,11 +5709,25 @@
       summary.textContent = `Total: ${fields.length} fields (${dropdownCount} dropdowns)`;
       
       // Group by issue type
+      const issueTypeDefs = loadIssueTypeDefinitions();
       const grouped = {};
       fields.forEach(field => {
-        const issueType = field.issueType || field.issueTypeLabel || '(No Issue Type)';
-        if (!grouped[issueType]) grouped[issueType] = [];
-        grouped[issueType].push(field);
+        let issueTypeLabel;
+        
+        if (field.issueTypeLabel) {
+          // Use existing label (for merged fields)
+          issueTypeLabel = field.issueTypeLabel;
+        } else if (!field.issueTypeId) {
+          // No issueTypeId = global field
+          issueTypeLabel = 'All Issue Types';
+        } else {
+          // Look up the label for this issueTypeId
+          const issueTypeDef = issueTypeDefs.find(it => it.id === field.issueTypeId);
+          issueTypeLabel = issueTypeDef ? issueTypeDef.name : field.issueTypeId;
+        }
+        
+        if (!grouped[issueTypeLabel]) grouped[issueTypeLabel] = [];
+        grouped[issueTypeLabel].push(field);
       });
       
       let html = '';
@@ -5606,7 +5743,7 @@
         `;
         
         fieldsInType.forEach(field => {
-          const optionsInfo = field.options ? ` <span style="color:#6c757d;">(${field.options.length} options)</span>` : '';
+          const optionsInfo = (field.fieldType === 'combobox' && field.options) ? ` <span style="color:#6c757d;">(${field.options.length} options)</span>` : '';
           const requiredBadge = field.required ? '<span style="background:#e74c3c;color:white;padding:2px 6px;border-radius:3px;font-size:0.75em;margin-left:8px;">REQUIRED</span>' : '';
           html += `
             <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:white;margin-bottom:4px;border-radius:4px;">
@@ -6732,6 +6869,7 @@
       populateBaseUrlDropdown();
       populateIssueTypeDropdown();
       populateProjectIdDropdown();
+      populatePresetDropdown();
       
       // Don't restore form state - user wants clean slate every time
       // Only app type is remembered (handled above)
