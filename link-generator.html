@@ -343,6 +343,56 @@
       box-shadow: 0 0 0 0.25rem rgba(96, 165, 250, 0.25) !important;
     }
     
+    /* Dark mode for Field Manager specific elements */
+    [data-bs-theme="dark"] #bulkOperationsToolbar {
+      background: rgba(96, 165, 250, 0.15) !important;
+      border-color: rgba(96, 165, 250, 0.3) !important;
+    }
+    
+    [data-bs-theme="dark"] #fieldManagerList,
+    [data-bs-theme="dark"] #ignoredFieldsList {
+      background: #2d3748 !important;
+      border-color: #4a5568 !important;
+    }
+    
+    [data-bs-theme="dark"] .field-list-row {
+      border-bottom-color: #4a5568 !important;
+      color: #f1f5f9 !important;
+    }
+    
+    [data-bs-theme="dark"] #comboboxOptionsSection {
+      background: #2d3748 !important;
+      border-color: #4a5568 !important;
+    }
+    
+    [data-bs-theme="dark"] #comboboxOptionsList {
+      background: #374151 !important;
+      border-color: #4a5568 !important;
+    }
+    
+    [data-bs-theme="dark"] .combobox-option-row {
+      border-bottom-color: #4a5568 !important;
+      color: #f1f5f9 !important;
+    }
+    
+    [data-bs-theme="dark"] .combobox-option-row strong {
+      color: #f1f5f9 !important;
+    }
+    
+    /* Fix Select All checkbox area */
+    [data-bs-theme="dark"] .select-all-row {
+      background: #374151 !important;
+      border-bottom-color: #60a5fa !important;
+    }
+    
+    [data-bs-theme="dark"] .select-all-row label {
+      color: #f1f5f9 !important;
+    }
+    
+    [data-bs-theme="dark"] #fieldManagerList label {
+      color: #f1f5f9 !important;
+    }
+    
     body { 
       background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 50%, var(--bg-gradient-end) 100%);
       min-height: 100vh;
@@ -866,10 +916,10 @@
         <div id="comboboxOptionsSection" style="display:none;border:1px solid #ddd;border-radius:4px;padding:12px;background:#f9f9f9;">
           <div style="font-weight:500;margin-bottom:8px;">Combobox Options:</div>
           <div id="comboboxOptionsList" style="max-height:150px;overflow-y:auto;margin-bottom:8px;"></div>
-          <div style="display:flex;gap:8px;">
-            <input type="text" id="optionLabelInput" placeholder="Label (e.g. High)" style="flex:1;padding:6px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
-            <input type="text" id="optionValueInput" placeholder="Value (e.g. 1)" style="flex:1;padding:6px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
-            <button type="button" onclick="addComboboxOption()" style="background:#27ae60;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.9em;">Add Option</button>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <input type="text" id="optionLabelInput" placeholder="Label (e.g. High)" style="flex:1;min-width:120px;padding:6px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
+            <input type="text" id="optionValueInput" placeholder="Value (e.g. 1)" style="flex:1;min-width:100px;padding:6px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
+            <button type="button" onclick="addComboboxOption()" style="background:#27ae60;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.9em;white-space:nowrap;">Add Option</button>
           </div>
         </div>
         <button type="button" onclick="addFieldDefinition()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;" id="addFieldBtn">Add</button>
@@ -2855,6 +2905,7 @@
 
       currentComboboxOptions.forEach((opt, index) => {
         const row = document.createElement('div');
+        row.className = 'combobox-option-row';
         row.style.cssText = 'display:flex;gap:8px;align-items:center;padding:4px;border-bottom:1px solid #ddd;';
         
         const info = document.createElement('div');
@@ -2988,6 +3039,7 @@
 
       // Add "Select All" checkbox
       const selectAllRow = document.createElement('div');
+      selectAllRow.className = 'select-all-row';
       selectAllRow.style.cssText = 'display:flex;gap:8px;align-items:center;padding:8px;border-bottom:2px solid #3498db;background:#f8f9fa;';
       selectAllRow.innerHTML = `
         <input type="checkbox" id="selectAllFieldsCheckbox" onchange="toggleSelectAllFields(this.checked)" style="cursor:pointer;">
