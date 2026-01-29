@@ -1083,7 +1083,6 @@
         <button type="button" onclick="mergeSelectedToMultiType()" style="background:#9b59b6;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-size:0.9em;">Merge Selected</button>
         <button type="button" onclick="mergeSelectedToGlobal()" style="background:#f39c12;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-size:0.9em;">⭐ Global Selected</button>
         <button type="button" onclick="undoLastOptimization()" style="background:#e67e22;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-size:0.9em;">Undo Last</button>
-        <button type="button" onclick="cleanupFieldDataIntegrity()" style="background:#27ae60;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-size:0.9em;">🧹 Clean Data</button>
       </div>
       
       <div style="background:#fff3cd;padding:12px;border-radius:8px;border-left:4px solid #ffc107;margin-bottom:16px;font-size:0.85em;">
@@ -1435,7 +1434,8 @@
         
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
           <div id="fieldsSummary" style="color:#666;font-size:0.9em;"></div>
-          <div>
+          <div style="display:flex;gap:8px;">
+            <button onclick="cleanupFieldDataIntegrity()" style="background:#27ae60;color:#fff;border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-size:13px;">🧹 Clean Data</button>
             <button onclick="clearAllFields()" style="background:#e74c3c;color:#fff;border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-size:13px;">Clear All Fields</button>
           </div>
         </div>
@@ -5709,7 +5709,7 @@
       summary.textContent = `Total: ${fields.length} fields (${dropdownCount} dropdowns)`;
       
       // Group by issue type
-      const issueTypeDefs = loadIssueTypeDefinitions();
+      const issueTypeDefs = loadItems(getStorageKey('issueTypes')) || [];
       const grouped = {};
       fields.forEach(field => {
         let issueTypeLabel;
