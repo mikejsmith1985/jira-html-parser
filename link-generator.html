@@ -1434,8 +1434,7 @@
         
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
           <div id="fieldsSummary" style="color:#666;font-size:0.9em;"></div>
-          <div style="display:flex;gap:8px;">
-            <button onclick="cleanupFieldDataIntegrity()" style="background:#27ae60;color:#fff;border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-size:13px;">🧹 Clean Data</button>
+          <div>
             <button onclick="clearAllFields()" style="background:#e74c3c;color:#fff;border:none;border-radius:6px;padding:8px 16px;cursor:pointer;font-size:13px;">Clear All Fields</button>
           </div>
         </div>
@@ -1550,6 +1549,7 @@
       // Refresh dropdowns for the new app type
       populateBaseUrlDropdown();
       populateIssueTypeDropdown();
+      populatePresetDropdown();
       if (appType === 'jira') {
         populateProjectIdDropdown();
       }
