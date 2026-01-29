@@ -221,6 +221,128 @@
       color: #cbd5e1 !important;
     }
     
+    /* Dark mode for custom modals (Field Manager, Presets, Config Management, etc.) */
+    [data-bs-theme="dark"] #fieldManagerModal > div,
+    [data-bs-theme="dark"] #managePresetsModal > div,
+    [data-bs-theme="dark"] #fieldExtractorModal > div > div,
+    [data-bs-theme="dark"] #fieldPickerModal > div > div,
+    [data-bs-theme="dark"] #configManagementModal > div,
+    [data-bs-theme="dark"] #baseUrlModal > div,
+    [data-bs-theme="dark"] #issueTypeModal > div,
+    [data-bs-theme="dark"] #projectIdModal > div,
+    [data-bs-theme="dark"] #savePresetModal > div,
+    [data-bs-theme="dark"] #importModal > div {
+      background: #1e293b !important;
+      color: #f1f5f9 !important;
+    }
+    
+    [data-bs-theme="dark"] #fieldManagerModal h2,
+    [data-bs-theme="dark"] #fieldManagerModal h3,
+    [data-bs-theme="dark"] #managePresetsModal h2,
+    [data-bs-theme="dark"] #fieldExtractorModal h2,
+    [data-bs-theme="dark"] #fieldExtractorModal h3,
+    [data-bs-theme="dark"] #fieldPickerModal h2,
+    [data-bs-theme="dark"] #fieldPickerModal h3,
+    [data-bs-theme="dark"] #configManagementModal h2,
+    [data-bs-theme="dark"] #baseUrlModal h2,
+    [data-bs-theme="dark"] #issueTypeModal h2,
+    [data-bs-theme="dark"] #projectIdModal h2,
+    [data-bs-theme="dark"] #savePresetModal h2,
+    [data-bs-theme="dark"] #importModal h2 {
+      color: #f1f5f9 !important;
+    }
+    
+    [data-bs-theme="dark"] #fieldManagerModal p,
+    [data-bs-theme="dark"] #fieldExtractorModal p,
+    [data-bs-theme="dark"] #fieldPickerModal p,
+    [data-bs-theme="dark"] #configManagementModal p,
+    [data-bs-theme="dark"] #baseUrlModal p,
+    [data-bs-theme="dark"] #issueTypeModal p,
+    [data-bs-theme="dark"] #projectIdModal p,
+    [data-bs-theme="dark"] #savePresetModal p,
+    [data-bs-theme="dark"] #importModal p {
+      color: #cbd5e1 !important;
+    }
+    
+    [data-bs-theme="dark"] #configItemsList,
+    [data-bs-theme="dark"] #presetsList,
+    [data-bs-theme="dark"] #fieldManagerModal input,
+    [data-bs-theme="dark"] #fieldManagerModal select,
+    [data-bs-theme="dark"] #fieldManagerModal textarea,
+    [data-bs-theme="dark"] #managePresetsModal input,
+    [data-bs-theme="dark"] #configManagementModal input,
+    [data-bs-theme="dark"] #configManagementModal select,
+    [data-bs-theme="dark"] #baseUrlModal input,
+    [data-bs-theme="dark"] #issueTypeModal input,
+    [data-bs-theme="dark"] #projectIdModal input,
+    [data-bs-theme="dark"] #savePresetModal input,
+    [data-bs-theme="dark"] #importModal input,
+    [data-bs-theme="dark"] #importModal textarea {
+      background: #2d3748 !important;
+      color: #f1f5f9 !important;
+      border-color: #4a5568 !important;
+    }
+    
+    [data-bs-theme="dark"] .info-box {
+      background: rgba(96, 165, 250, 0.15) !important;
+      border-color: rgba(96, 165, 250, 0.3) !important;
+      color: #93c5fd !important;
+    }
+    
+    [data-bs-theme="dark"] .info-box h3 {
+      color: #60a5fa !important;
+    }
+    
+    [data-bs-theme="dark"] #fieldExtractorModal a,
+    [data-bs-theme="dark"] #fieldPickerModal a {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    }
+    
+    [data-bs-theme="dark"] #fieldPickerBookmarklet {
+      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
+    }
+    
+    [data-bs-theme="dark"] .config-tab {
+      color: #94a3b8 !important;
+    }
+    
+    [data-bs-theme="dark"] .config-tab.active {
+      color: #60a5fa !important;
+      border-bottom-color: #60a5fa !important;
+    }
+    
+    [data-bs-theme="dark"] .tab-content-section {
+      background: #2d3748 !important;
+      border-color: #4a5568 !important;
+    }
+    
+    [data-bs-theme="dark"] .config-item {
+      background: #374151 !important;
+      border-color: #4a5568 !important;
+      color: #f1f5f9 !important;
+    }
+    
+    [data-bs-theme="dark"] .config-item:hover {
+      background: #475569 !important;
+    }
+    
+    /* Dark mode for field rows and selects */
+    [data-bs-theme="dark"] .field-select.required-field {
+      background: rgba(239, 68, 68, 0.15) !important;
+      border-left-color: #f87171 !important;
+    }
+    
+    [data-bs-theme="dark"] .field-select {
+      background: #2d3748 !important;
+      color: #f1f5f9 !important;
+      border-color: #4a5568 !important;
+    }
+    
+    [data-bs-theme="dark"] .field-select:focus {
+      border-color: #60a5fa !important;
+      box-shadow: 0 0 0 0.25rem rgba(96, 165, 250, 0.25) !important;
+    }
+    
     body { 
       background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 50%, var(--bg-gradient-end) 100%);
       min-height: 100vh;
