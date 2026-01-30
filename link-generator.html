@@ -6830,7 +6830,43 @@
     
     // Listen for messages from field picker popup
     window.addEventListener('message', (event) => {
-      if (event.data.type === 'IMPORT_FIELDS') {
+      if (event.data.type === 'FIELD_SELECTED') {
+        // A field was selected in the field picker
+        const field = event.data.field;
+        
+        // Add to field definitions if not already present
+        const existing = loadFieldDefinitions();
+        if (!existing.some(f => f.id === field.id)) {
+          existing.push({
+            id: field.id,
+            label: field.label,
+            type: field.fieldType || field.type || 'text',
+            required: field.required || false,
+            options: field.options || []
+          });
+          saveFieldDefinitions(existing);
+          updateCustomFieldsTable();
+          
+          // Show notification
+          const notification = document.createElement('div');
+          notification.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #27ae60;
+            color: white;
+            padding: 16px 24px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+            z-index: 10001;
+            font-weight: 600;
+            animation: slideIn 0.3s ease-out;
+          `;
+          notification.textContent = `✓ Added field: ${field.label}`;
+          document.body.appendChild(notification);
+          setTimeout(() => notification.remove(), 3000);
+        }
+      } else if (event.data.type === 'IMPORT_FIELDS') {
         const config = event.data.config;
         
         // Helper to merge items by ID
