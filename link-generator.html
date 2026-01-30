@@ -814,10 +814,7 @@
           <button type="button" onclick="openManagePresetsModal()" class="btn btn-outline-primary btn-icon">
             <i class="bi bi-bookmarks"></i> Presets
           </button>
-          <button type="button" onclick="openFieldExtractorModal()" class="btn btn-outline-secondary btn-icon" title="Extract fields from forms">
-            <i class="bi bi-search"></i> Field Extractor
-          </button>
-          <button type="button" onclick="openFieldPickerModal()" class="btn btn-outline-danger btn-icon" title="Inspect individual fields">
+          <button type="button" onclick="openFieldPickerModal()" class="btn btn-outline-danger btn-icon" title="Select multiple fields from forms">
             <i class="bi bi-crosshair"></i> Field Picker
           </button>
           <button type="button" onclick="openConfigManagementModal()" class="btn btn-outline-dark btn-icon" title="Manage your configurations">
@@ -1238,42 +1235,7 @@
   </div>
 
   <!-- Field Extractor Modal -->
-  <div id="fieldExtractorModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;">
-    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:8px;padding:24px;max-width:700px;width:90vw;max-height:80vh;overflow-y:auto;box-shadow:0 4px 20px rgba(0,0,0,0.15);">
-      <h2 style="margin:0 0 16px 0;color:#2c3e50;">🔍 Field Extractor</h2>
-      <p style="color:#666;margin:0 0 20px 0;line-height:1.5;">Automatically extract field definitions from Jira or ServiceNow forms using the bookmarklet below.</p>
-      
-      <div style="background:#e8f4fd;padding:20px;border-radius:8px;border:2px solid #3498db;margin-bottom:20px;">
-        <h3 style="font-size:1em;margin:0 0 12px 0;color:#2980b9;font-weight:600;">📌 Step 1: Add Bookmarklet</h3>
-        <p style="font-size:0.9em;color:#555;margin:0 0 12px 0;">Drag the button below to your browser's bookmarks bar:</p>
-        <div style="text-align:center;padding:20px;background:white;border-radius:6px;">
-          <a id="fieldExtractorBookmarklet" href="" style="display:inline-block;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:white;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:600;font-size:14px;cursor:move;box-shadow:0 2px 8px rgba(102,126,234,0.4);transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">🔍 Field Extractor</a>
-          <p style="margin:12px 0 0 0;font-size:0.85em;color:#999;font-style:italic;">← Drag this to your bookmarks bar</p>
-        </div>
-      </div>
-
-      <div style="background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px;border:1px solid #dee2e6;">
-        <h3 style="font-size:1em;margin:0 0 12px 0;color:#2c3e50;font-weight:600;">📖 Step 2: Use the Bookmarklet</h3>
-        <ol style="margin:0;padding-left:24px;line-height:2;color:#555;font-size:0.9em;">
-          <li>Navigate to a ServiceNow form page (e.g., Create Incident, Create Change Request)</li>
-          <li>Make sure all form sections are expanded to capture all fields</li>
-          <li>Click the <strong>"🔍 Field Extractor"</strong> bookmark you just added</li>
-          <li>A popup will show all discovered fields - download or copy the JSON</li>
-          <li>Return to this tool and click <strong>"Import Config"</strong> to load the fields</li>
-        </ol>
-      </div>
-
-      <div style="background:#fff3cd;padding:16px;border-radius:8px;border-left:4px solid #ffc107;font-size:0.9em;color:#856404;line-height:1.6;">
-        <strong>💡 Pro Tip:</strong> Run the bookmarklet on different ServiceNow forms to extract fields specific to each form type (Incident, Change, Problem, etc.).
-      </div>
-
-      <div style="margin-top:24px;text-align:right;">
-        <button type="button" onclick="closeFieldExtractorModal()" style="background:#6c757d;color:#fff;border:none;border-radius:6px;padding:10px 24px;cursor:pointer;font-size:14px;font-weight:500;transition:background 0.2s;" onmouseover="this.style.background='#5a6268'" onmouseout="this.style.background='#6c757d'">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Field Picker Modal -->
+  <!-- Field Picker Modal (OLD - kept for backward compatibility with bookmarklets) -->
   <div id="fieldPickerModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;">
     <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:8px;padding:24px;max-width:700px;width:90vw;max-height:80vh;overflow-y:auto;box-shadow:0 4px 20px rgba(0,0,0,0.15);">
       <h2 style="margin:0 0 16px 0;color:#2c3e50;">🎯 Field Picker</h2>
@@ -6816,25 +6778,15 @@
     }
 
     function openFieldPickerModal() {
-      // Open the field picker in a new popup window
-      const width = 1000;
-      const height = 700;
-      const left = (screen.width - width) / 2;
-      const top = (screen.height - height) / 2;
-      
-      const popup = window.open(
-        'field-picker-window.html',
-        'fieldPickerWindow',
-        `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
-      );
-      
-      if (!popup) {
-        alert('Popup blocked! Please allow popups for this site to use the Field Picker.');
-        return;
+      // Show the embedded field picker modal
+      const modal = document.getElementById('fieldPickerFullModal');
+      if (modal) {
+        modal.style.display = 'flex';
+        // Reset state
+        if (window.fieldPickerInstance) {
+          window.fieldPickerInstance.reset();
+        }
       }
-      
-      // Focus the popup
-      popup.focus();
     }
 
     function closeFieldPickerModal() {
@@ -6913,6 +6865,480 @@
       } catch (e) {
         console.error('Error restoring state:', e);
       }
+    }
+  </script>
+  
+  <!-- Field Picker Full Modal -->
+  <div id="fieldPickerFullModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10000; backdrop-filter: blur(4px);">
+    <div style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 90%; max-width: 1200px; height: 80vh; background: white; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); display: flex; flex-direction: column; overflow: hidden;">
+      <!-- Field Picker Header -->
+      <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); padding: 20px 30px; color: white; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+        <div>
+          <h2 style="margin: 0; font-size: 24px; font-weight: 700;">🎯 Multi-Field Picker</h2>
+          <p style="margin: 4px 0 0 0; font-size: 14px; opacity: 0.9;">Select multiple form fields from any page and add them to your configuration</p>
+        </div>
+        <button onclick="closeFieldPickerFullModal()" style="background: rgba(255,255,255,0.2); border: none; color: white; width: 40px; height: 40px; border-radius: 50%; cursor: pointer; font-size: 24px; line-height: 1; transition: all 0.2s; display: flex; align-items: center; justify-content: center;" onmouseover="this.style.background='rgba(255,255,255,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.2)'">&times;</button>
+      </div>
+      
+      <!-- Field Picker Content -->
+      <div style="flex: 1; display: flex; overflow: hidden;">
+        <!-- Instructions Panel -->
+        <div style="flex: 1; padding: 30px; overflow-y: auto; background: #f8f9fa;">
+          <div id="fpStatusBar" style="padding: 16px; border-radius: 8px; margin-bottom: 20px; background: #d1ecf1; border-left: 4px solid #17a2b8; color: #0c5460;">
+            <span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #95a5a6; margin-right: 8px;"></span>
+            <strong>Status:</strong> Ready to activate
+          </div>
+          
+          <div style="background: white; border-radius: 12px; padding: 24px; margin-bottom: 20px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+            <h3 style="color: #2c3e50; margin-bottom: 16px; font-size: 20px;">📖 How to Use</h3>
+            <ol style="padding-left: 24px; margin: 0; line-height: 1.8;">
+              <li>Click the <strong>"🚀 Activate Field Picker"</strong> button below</li>
+              <li>A green banner will appear with instructions</li>
+              <li><strong>Click any form field</strong> (input, select, textarea) on this page to add it to your selection</li>
+              <li>Watch the right panel as fields are added in real-time</li>
+              <li>Click <strong>"Remove"</strong> on any field to remove it from selection</li>
+              <li>When done, click <strong>"💾 Add Fields to Config"</strong></li>
+              <li>The fields will be automatically added to your current configuration</li>
+            </ol>
+          </div>
+          
+          <div style="text-align: center; margin: 30px 0;">
+            <button id="fpActivateBtn" onclick="activateFieldPickerInline()" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; font-size: 18px; padding: 20px 40px; border-radius: 12px; cursor: pointer; font-weight: 600; box-shadow: 0 8px 24px rgba(102,126,234,0.4); transition: all 0.3s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 12px 32px rgba(102,126,234,0.5)'" onmouseout="if(!this.disabled){this.style.transform='translateY(0)'; this.style.boxShadow='0 8px 24px rgba(102,126,234,0.4)'}">
+              🚀 Activate Field Picker
+            </button>
+          </div>
+          
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+              <div style="font-size: 36px; margin-bottom: 8px;">🎯</div>
+              <div style="font-weight: 600; color: #2c3e50; margin-bottom: 4px;">Multi-Select</div>
+              <div style="font-size: 13px; color: #7f8c8d; line-height: 1.4;">Click multiple fields before saving - no need to add one at a time</div>
+            </div>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+              <div style="font-size: 36px; margin-bottom: 8px;">⚡</div>
+              <div style="font-weight: 600; color: #2c3e50; margin-bottom: 4px;">Real-Time Preview</div>
+              <div style="font-size: 13px; color: #7f8c8d; line-height: 1.4;">See selected fields instantly with all metadata</div>
+            </div>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+              <div style="font-size: 36px; margin-bottom: 8px;">🔍</div>
+              <div style="font-weight: 600; color: #2c3e50; margin-bottom: 4px;">Smart Detection</div>
+              <div style="font-size: 13px; color: #7f8c8d; line-height: 1.4;">Automatically detects field IDs, labels, types, and options</div>
+            </div>
+            
+            <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+              <div style="font-size: 36px; margin-bottom: 8px;">💾</div>
+              <div style="font-weight: 600; color: #2c3e50; margin-bottom: 4px;">Direct Integration</div>
+              <div style="font-size: 13px; color: #7f8c8d; line-height: 1.4;">Adds fields directly to your config - no copy/paste needed</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Selected Fields Panel -->
+        <div style="width: 400px; background: white; border-left: 2px solid #e2e8f0; display: flex; flex-direction: column; box-shadow: -4px 0 12px rgba(0,0,0,0.1);">
+          <div style="padding: 20px; background: #27ae60; color: white; font-weight: 600; font-size: 18px;">
+            📦 Selected Fields (<span id="fpFieldCount">0</span>)
+          </div>
+          
+          <div id="fpSelectedList" style="flex: 1; overflow-y: auto; padding: 16px;">
+            <div style="text-align: center; padding: 60px 20px; color: #7f8c8d;">
+              <div style="font-size: 64px; margin-bottom: 16px;">📋</div>
+              <div>No fields selected yet</div>
+              <div style="font-size: 13px; margin-top: 8px;">Activate the picker and click fields to add them</div>
+            </div>
+          </div>
+          
+          <div style="padding: 16px; background: #f8fafc; border-top: 2px solid #e2e8f0;">
+            <button id="fpSaveBtn" onclick="saveFieldsToConfig()" disabled style="width: 100%; background: #27ae60; color: white; border: none; padding: 16px 24px; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: 600; transition: all 0.2s; margin-bottom: 8px;" onmouseover="if(!this.disabled){this.style.background='#229954'; this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(39,174,96,0.3)'}" onmouseout="if(!this.disabled){this.style.background='#27ae60'; this.style.transform='translateY(0)'; this.style.boxShadow='none'}">
+              💾 Add Fields to Config
+            </button>
+            <button id="fpClearBtn" onclick="clearAllFields()" disabled style="width: 100%; background: #6c757d; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; font-size: 14px; font-weight: 600; transition: all 0.2s;" onmouseover="if(!this.disabled){this.style.background='#5a6268'}" onmouseout="if(!this.disabled){this.style.background='#6c757d'}">
+              🗑️ Clear All
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Field Picker Instance State
+    window.fieldPickerInstance = {
+      selectedFields: [],
+      isActive: false,
+      banner: null,
+      
+      reset: function() {
+        this.selectedFields = [];
+        this.isActive = false;
+        if (this.banner) {
+          this.banner.remove();
+          this.banner = null;
+        }
+        document.body.style.cursor = '';
+        this.updateUI();
+        this.updateStatus('inactive');
+      },
+      
+      updateUI: function() {
+        const count = this.selectedFields.length;
+        document.getElementById('fpFieldCount').textContent = count;
+        
+        const listEl = document.getElementById('fpSelectedList');
+        const saveBtn = document.getElementById('fpSaveBtn');
+        const clearBtn = document.getElementById('fpClearBtn');
+        
+        if (count === 0) {
+          listEl.innerHTML = `
+            <div style="text-align: center; padding: 60px 20px; color: #7f8c8d;">
+              <div style="font-size: 64px; margin-bottom: 16px;">📋</div>
+              <div>No fields selected yet</div>
+              <div style="font-size: 13px; margin-top: 8px;">Activate the picker and click fields to add them</div>
+            </div>
+          `;
+          saveBtn.disabled = true;
+          saveBtn.style.opacity = '0.5';
+          saveBtn.style.cursor = 'not-allowed';
+          clearBtn.disabled = true;
+          clearBtn.style.opacity = '0.5';
+          clearBtn.style.cursor = 'not-allowed';
+        } else {
+          let html = '';
+          this.selectedFields.forEach((field, idx) => {
+            const hasOptions = field.options && field.options.length > 0;
+            html += `
+              <div style="background: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; padding: 12px; margin-bottom: 12px; transition: all 0.2s;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 8px;">
+                  <div style="flex: 1;">
+                    <div style="font-weight: 600; color: #2c3e50; font-size: 14px; margin-bottom: 4px; word-break: break-word;">${this.escapeHtml(field.label)}</div>
+                    <div style="font-size: 11px; color: #6c757d; font-family: Monaco, Consolas, monospace; word-break: break-all;">${this.escapeHtml(field.id)}</div>
+                  </div>
+                  <button onclick="removeFieldFromSelection(${idx})" style="background: #e74c3c; color: white; border: none; padding: 4px 12px; border-radius: 4px; font-size: 11px; cursor: pointer; font-weight: 600; margin-left: 8px; white-space: nowrap; transition: background 0.2s;" onmouseover="this.style.background='#c0392b'" onmouseout="this.style.background='#e74c3c'">Remove</button>
+                </div>
+                <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                  <span style="font-size: 10px; padding: 3px 8px; border-radius: 12px; font-weight: 600; text-transform: uppercase; background: #e3f2fd; color: #1976d2;">${field.fieldType}</span>
+                  <span style="font-size: 10px; padding: 3px 8px; border-radius: 12px; font-weight: 600; text-transform: uppercase; ${field.required ? 'background: #ffebee; color: #c62828;' : 'background: #e8f5e9; color: #2e7d32;'}">${field.required ? 'Required' : 'Optional'}</span>
+                  ${hasOptions ? `<span style="font-size: 10px; padding: 3px 8px; border-radius: 12px; font-weight: 600; text-transform: uppercase; background: #f3e5f5; color: #7b1fa2;">${field.options.length} options</span>` : ''}
+                </div>
+              </div>
+            `;
+          });
+          listEl.innerHTML = html;
+          saveBtn.disabled = false;
+          saveBtn.style.opacity = '1';
+          saveBtn.style.cursor = 'pointer';
+          clearBtn.disabled = false;
+          clearBtn.style.opacity = '1';
+          clearBtn.style.cursor = 'pointer';
+        }
+      },
+      
+      updateStatus: function(status) {
+        const statusBar = document.getElementById('fpStatusBar');
+        const btn = document.getElementById('fpActivateBtn');
+        
+        if (status === 'active') {
+          statusBar.style.background = '#d4edda';
+          statusBar.style.borderLeftColor = '#28a745';
+          statusBar.style.color = '#155724';
+          statusBar.innerHTML = '<span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #27ae60; margin-right: 8px; animation: pulse 2s infinite;"></span><strong>Status:</strong> Active - Click fields to select them (ESC to deactivate)';
+          btn.textContent = '✓ Field Picker Active';
+          btn.style.background = '#27ae60';
+          btn.disabled = true;
+          btn.style.opacity = '0.7';
+          btn.style.cursor = 'not-allowed';
+        } else {
+          statusBar.style.background = '#d1ecf1';
+          statusBar.style.borderLeftColor = '#17a2b8';
+          statusBar.style.color = '#0c5460';
+          statusBar.innerHTML = '<span style="display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: #95a5a6; margin-right: 8px;"></span><strong>Status:</strong> Ready to activate';
+          btn.textContent = '🚀 Activate Field Picker';
+          btn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+          btn.disabled = false;
+          btn.style.opacity = '1';
+          btn.style.cursor = 'pointer';
+        }
+      },
+      
+      escapeHtml: function(text) {
+        const div = document.createElement('div');
+        div.textContent = text;
+        return div.innerHTML;
+      },
+      
+      extractFieldMetadata: function(field) {
+        let fieldId = field.id || field.name || field.getAttribute('data-ref') || field.getAttribute('aria-labelledby');
+        
+        if (!fieldId && field.closest('[data-element]')) {
+          fieldId = field.closest('[data-element]').getAttribute('data-element');
+        }
+        
+        if (!fieldId) {
+          const parent = field.parentElement;
+          if (parent && parent.classList.contains('reference')) {
+            const hiddenInput = parent.querySelector('input[type="hidden"]');
+            if (hiddenInput && hiddenInput.name) {
+              fieldId = hiddenInput.name;
+            }
+          }
+        }
+        
+        let cleanId = fieldId;
+        if (cleanId && cleanId.includes('.')) {
+          cleanId = cleanId.split('.').pop();
+        }
+        
+        let label = fieldId;
+        const ariaLabelledBy = field.getAttribute('aria-labelledby');
+        if (ariaLabelledBy) {
+          const labelEl = document.getElementById(ariaLabelledBy);
+          if (labelEl) label = labelEl.textContent.trim();
+        } else {
+          const labelFor = document.querySelector(`label[for="${field.id}"]`);
+          if (labelFor) label = labelFor.textContent.trim();
+        }
+        
+        label = label.replace(/[*:]/g, '').trim();
+        label = label.replace(/\s+(Required|Mandatory)[\s.,;:!?]*$/gi, '').trim();
+        label = label.replace(/\s+(Required|Mandatory)\b/gi, '').trim();
+        
+        let fieldType = 'text';
+        if (field.tagName === 'SELECT') fieldType = 'combobox';
+        else if (field.tagName === 'TEXTAREA') fieldType = 'text';
+        
+        const isRequired = field.required || field.getAttribute('aria-required') === 'true' || field.hasAttribute('required');
+        
+        let options = [];
+        let optionCount = 0;
+        if (fieldType === 'combobox' && field.options) {
+          Array.from(field.options).forEach(opt => {
+            if (opt.value) {
+              options.push({
+                label: opt.textContent.trim(),
+                value: opt.value
+              });
+            }
+          });
+          optionCount = options.length;
+        }
+        
+        return {
+          id: cleanId,
+          label: label,
+          fieldType: fieldType,
+          required: isRequired,
+          options: options,
+          optionCount: optionCount
+        };
+      },
+      
+      handleClick: function(e) {
+        // Skip if clicking inside modal
+        if (e.target.closest('#fieldPickerFullModal')) return;
+        // Skip if clicking on banner
+        if (e.target.closest('#fpBanner')) return;
+        
+        let field = null;
+        if (e.target && e.target.nodeType === 1 && e.target.matches) {
+          field = e.target.matches('input,select,textarea') ? e.target : e.target.closest('input,select,textarea');
+        }
+        
+        if (!field) return;
+        
+        e.preventDefault();
+        e.stopPropagation();
+        
+        const meta = this.extractFieldMetadata(field);
+        
+        // Check if already selected
+        const existing = this.selectedFields.findIndex(f => f.id === meta.id);
+        
+        if (existing >= 0) {
+          // Flash red
+          const originalOutline = field.style.outline;
+          field.style.outline = '3px solid #e74c3c';
+          setTimeout(() => {
+            field.style.outline = originalOutline;
+          }, 500);
+          return;
+        }
+        
+        this.selectedFields.push(meta);
+        this.updateUI();
+        
+        // Flash green
+        const originalOutline = field.style.outline;
+        field.style.outline = '3px solid #27ae60';
+        setTimeout(() => {
+          field.style.outline = originalOutline;
+        }, 500);
+      },
+      
+      handleHover: function(e) {
+        // Skip if hovering inside modal
+        if (e.target.closest('#fieldPickerFullModal')) return;
+        
+        let field = null;
+        if (e.target && e.target.nodeType === 1 && e.target.matches) {
+          field = e.target.matches('input,select,textarea') ? e.target : e.target.closest('input,select,textarea');
+        }
+        
+        if (field) {
+          field.style.outline = '2px solid #3498db';
+        }
+      },
+      
+      handleHoverOut: function(e) {
+        let field = null;
+        if (e.target && e.target.nodeType === 1 && e.target.matches) {
+          field = e.target.matches('input,select,textarea') ? e.target : e.target.closest('input,select,textarea');
+        }
+        
+        if (field) {
+          field.style.outline = '';
+        }
+      },
+      
+      handleEscape: function(e) {
+        if (e.key === 'Escape') {
+          this.deactivate();
+        }
+      },
+      
+      activate: function() {
+        if (this.isActive) return;
+        
+        this.isActive = true;
+        this.updateStatus('active');
+        
+        // Create banner
+        this.banner = document.createElement('div');
+        this.banner.id = 'fpBanner';
+        this.banner.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 50%;
+          transform: translateX(-50%);
+          background: #27ae60;
+          color: white;
+          padding: 12px 24px;
+          border-radius: 0 0 8px 8px;
+          z-index: 9999;
+          font-family: Arial, sans-serif;
+          font-size: 14px;
+          box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          font-weight: 600;
+        `;
+        this.banner.textContent = '🎯 Field Picker Active - Click any field to select (ESC to exit)';
+        document.body.appendChild(this.banner);
+        document.body.style.cursor = 'crosshair';
+        
+        // Bind events
+        this._clickHandler = this.handleClick.bind(this);
+        this._hoverHandler = this.handleHover.bind(this);
+        this._hoverOutHandler = this.handleHoverOut.bind(this);
+        this._escapeHandler = this.handleEscape.bind(this);
+        
+        document.addEventListener('click', this._clickHandler, true);
+        document.addEventListener('mouseover', this._hoverHandler, true);
+        document.addEventListener('mouseout', this._hoverOutHandler, true);
+        document.addEventListener('keydown', this._escapeHandler, true);
+      },
+      
+      deactivate: function() {
+        if (!this.isActive) return;
+        
+        this.isActive = false;
+        this.updateStatus('inactive');
+        
+        if (this.banner) {
+          this.banner.remove();
+          this.banner = null;
+        }
+        document.body.style.cursor = '';
+        
+        // Remove event listeners
+        document.removeEventListener('click', this._clickHandler, true);
+        document.removeEventListener('mouseover', this._hoverHandler, true);
+        document.removeEventListener('mouseout', this._hoverOutHandler, true);
+        document.removeEventListener('keydown', this._escapeHandler, true);
+      }
+    };
+    
+    function closeFieldPickerFullModal() {
+      const modal = document.getElementById('fieldPickerFullModal');
+      if (modal) {
+        modal.style.display = 'none';
+      }
+      // Deactivate picker if active
+      if (window.fieldPickerInstance) {
+        window.fieldPickerInstance.deactivate();
+      }
+    }
+    
+    function activateFieldPickerInline() {
+      if (window.fieldPickerInstance) {
+        window.fieldPickerInstance.activate();
+      }
+    }
+    
+    function removeFieldFromSelection(index) {
+      if (window.fieldPickerInstance) {
+        window.fieldPickerInstance.selectedFields.splice(index, 1);
+        window.fieldPickerInstance.updateUI();
+      }
+    }
+    
+    function clearAllFields() {
+      if (window.fieldPickerInstance) {
+        const count = window.fieldPickerInstance.selectedFields.length;
+        if (confirm(`Clear all ${count} selected fields?`)) {
+          window.fieldPickerInstance.selectedFields = [];
+          window.fieldPickerInstance.updateUI();
+        }
+      }
+    }
+    
+    function saveFieldsToConfig() {
+      if (!window.fieldPickerInstance || window.fieldPickerInstance.selectedFields.length === 0) {
+        alert('No fields selected!');
+        return;
+      }
+      
+      const fields = window.fieldPickerInstance.selectedFields;
+      
+      // Add each field to fieldDefinitions
+      fields.forEach(field => {
+        // Check if already exists
+        const existing = fieldDefinitions.find(f => f.id === field.id);
+        if (!existing) {
+          const def = {
+            id: field.id,
+            label: field.label,
+            fieldType: field.fieldType,
+            required: field.required
+          };
+          if (field.options && field.options.length > 0 && field.options.length < 50) {
+            def.options = field.options;
+          }
+          fieldDefinitions.push(def);
+        }
+      });
+      
+      // Save to localStorage
+      saveFieldDefinitions();
+      
+      // Refresh the config items dropdown
+      if (typeof populateConfigItemsDropdown === 'function') {
+        populateConfigItemsDropdown();
+      }
+      
+      alert(`Successfully added ${fields.length} field(s) to your configuration!\n\nThe fields are now available in the "Config Items" dropdown.`);
+      
+      // Reset and close
+      window.fieldPickerInstance.reset();
+      closeFieldPickerFullModal();
     }
   </script>
   
