@@ -1,0 +1,56 @@
+# Page snapshot
+
+```yaml
+- generic [ref=e2]:
+  - heading "Jira Issue Link Generator" [level=1] [ref=e3]
+  - generic [ref=e4]:
+    - combobox [ref=e5]:
+      - option "-- Load Preset --" [selected]
+    - button "Manage Presets" [ref=e6] [cursor=pointer]
+    - button "🔍 Field Extractor" [ref=e7] [cursor=pointer]
+    - button "Export Config" [ref=e8] [cursor=pointer]
+    - button "Import Config" [active] [ref=e9] [cursor=pointer]
+  - generic [ref=e10]:
+    - generic [ref=e11]:
+      - text: Base URL
+      - generic [ref=e12]:
+        - combobox "Base URL Manage" [ref=e13]:
+          - option "-- Select Base URL --" [selected]
+        - button "Manage" [ref=e14] [cursor=pointer]
+    - generic [ref=e15]:
+      - text: Project ID (pid)
+      - generic [ref=e16]:
+        - combobox "Project ID (pid) Manage" [ref=e17]:
+          - option "-- Select Project ID --" [selected]
+        - button "Manage" [ref=e18] [cursor=pointer]
+    - generic [ref=e19]:
+      - text: Issue Type ID
+      - generic [ref=e20]:
+        - combobox "Issue Type ID Manage" [ref=e21]:
+          - option "-- Select Issue Type ID --" [selected]
+        - button "Manage" [ref=e22] [cursor=pointer]
+    - generic [ref=e24]:
+      - combobox [ref=e25]:
+        - option "-- Select Field --" [selected]
+        - option "Assignee"
+        - option "Component"
+        - option "Description"
+        - option "Due Date"
+        - option "Labels"
+        - option "Priority"
+        - option "Summary"
+      - button "Manage Fields" [ref=e26] [cursor=pointer]
+      - generic [ref=e28]:
+        - button "B" [ref=e29] [cursor=pointer]
+        - button "I" [ref=e30] [cursor=pointer]
+        - button "U" [ref=e31] [cursor=pointer]
+        - button "S" [ref=e32] [cursor=pointer]
+        - button "•" [ref=e33] [cursor=pointer]
+        - button "1." [ref=e34] [cursor=pointer]
+        - button "⌫" [ref=e35] [cursor=pointer]
+      - button "Remove" [ref=e37] [cursor=pointer]
+    - button "+ Add Field" [ref=e38] [cursor=pointer]
+    - generic [ref=e39]:
+      - button "Generate Link" [ref=e40] [cursor=pointer]
+      - button "Save as Preset" [ref=e41] [cursor=pointer]
+```

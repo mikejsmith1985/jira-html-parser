@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Multi-Select Field Picker Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    h1 {
+      color: #2c3e50;
+      border-bottom: 3px solid #3498db;
+      padding-bottom: 10px;
+    }
+    .feature-box {
+      background: #e8f5e9;
+      border-left: 4px solid #27ae60;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    .feature-box h3 {
+      margin-top: 0;
+      color: #27ae60;
+    }
+    .test-form {
+      background: #f8f9fa;
+      border: 2px solid #dee2e6;
+      border-radius: 8px;
+      padding: 30px;
+      margin: 20px 0;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    label {
+      display: block;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #2c3e50;
+    }
+    input[type="text"],
+    input[type="email"],
+    textarea,
+    select {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #ced4da;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    input[type="text"]:focus,
+    input[type="email"]:focus,
+    textarea:focus,
+    select:focus {
+      outline: none;
+      border-color: #3498db;
+    }
+    textarea {
+      resize: vertical;
+      min-height: 80px;
+    }
+    .required::after {
+      content: " *";
+      color: #e74c3c;
+    }
+    button {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 15px;
+      font-weight: 600;
+      margin: 5px;
+    }
+    button:hover {
+      background: #2980b9;
+    }
+    .primary-btn {
+      background: #27ae60;
+      font-size: 16px;
+      padding: 14px 28px;
+    }
+    .primary-btn:hover {
+      background: #229954;
+    }
+    .instructions {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    .instructions ol {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    .instructions li {
+      margin: 8px 0;
+    }
+    code {
+      background: #e9ecef;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      color: #e83e8c;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>🎯 Multi-Select Field Picker Test</h1>
+
+  <div class="feature-box">
+    <h3>✨ New Feature: Multi-Field Selection</h3>
+    <p>The enhanced Field Picker now allows you to:</p>
+    <ul>
+      <li>✅ Select multiple fields before exporting</li>
+      <li>✅ See all selected fields in a side panel</li>
+      <li>✅ Remove individual fields from selection</li>
+      <li>✅ Export all fields as a single JSON config</li>
+      <li>✅ Import directly into the link generator</li>
+    </ul>
+  </div>
+
+  <div class="instructions">
+    <h3>📖 How to Use:</h3>
+    <ol>
+      <li>Click the <strong>"🚀 Activate Multi-Field Picker"</strong> button below</li>
+      <li>A side panel will appear on the right showing your selections</li>
+      <li>Click any form field below to add it to your selection</li>
+      <li>The side panel updates in real-time with each selection</li>
+      <li>Click "Remove" on any field to remove it from selection</li>
+      <li>When done, click <strong>"📋 Copy All as JSON"</strong> in the panel</li>
+      <li>The complete configuration with all fields will be copied to clipboard</li>
+      <li>Import the JSON using the "Import Config" button in the link generator</li>
+    </ol>
+  </div>
+
+  <div style="text-align: center; margin: 30px 0;">
+    <button class="primary-btn" onclick="activateFieldPicker()">🚀 Activate Multi-Field Picker</button>
+  </div>
+
+  <div class="test-form">
+    <h2>Sample Form - Click Fields to Select</h2>
+    
+    <div class="form-group">
+      <label for="summary" class="required">Summary</label>
+      <input type="text" id="summary" name="summary" required placeholder="Brief description of the issue">
+    </div>
+
+    <div class="form-group">
+      <label for="description">Description</label>
+      <textarea id="description" name="description" placeholder="Detailed description"></textarea>
+    </div>
+
+    <div class="grid">
+      <div class="form-group">
+        <label for="category" class="required">Category</label>
+        <select id="category" name="category" required>
+          <option value="">-- Select Category --</option>
+          <option value="Hardware">Hardware</option>
+          <option value="Software">Software</option>
+          <option value="Network">Network</option>
+          <option value="Other">Other</option>
+          <option value="Cloud Migration">Cloud Migration</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="priority" class="required">Priority</label>
+        <select id="priority" name="priority" required>
+          <option value="">-- Select Priority --</option>
+          <option value="1">Critical</option>
+          <option value="2">High</option>
+          <option value="3">Medium</option>
+          <option value="4">Low</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="form-group">
+        <label for="assignee">Assignee</label>
+        <select id="assignee" name="assignee">
+          <option value="">-- Unassigned --</option>
+          <option value="user1">John Smith</option>
+          <option value="user2">Jane Doe</option>
+          <option value="user3">Bob Johnson</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="status" class="required">Status</label>
+        <select id="status" name="status" required>
+          <option value="">-- Select Status --</option>
+          <option value="new">New</option>
+          <option value="in_progress">In Progress</option>
+          <option value="pending">Pending</option>
+          <option value="resolved">Resolved</option>
+          <option value="closed">Closed</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="form-group">
+        <label for="reporter" class="required">Reporter</label>
+        <input type="email" id="reporter" name="reporter" required placeholder="reporter@example.com">
+      </div>
+
+      <div class="form-group">
+        <label for="due_date">Due Date</label>
+        <input type="text" id="due_date" name="due_date" placeholder="YYYY-MM-DD">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="tags">Tags</label>
+      <input type="text" id="tags" name="tags" placeholder="Comma-separated tags">
+    </div>
+
+    <div class="form-group">
+      <label for="resolution">Resolution Notes</label>
+      <textarea id="resolution" name="resolution" placeholder="Notes about the resolution"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label for="environment">Environment</label>
+      <select id="environment" name="environment">
+        <option value="">-- Select Environment --</option>
+        <option value="dev">Development</option>
+        <option value="test">Testing</option>
+        <option value="staging">Staging</option>
+        <option value="prod">Production</option>
+      </select>
+    </div>
+  </div>
+
+  <div style="background: #d1ecf1; border-left: 4px solid #17a2b8; padding: 15px; margin: 20px 0; border-radius: 4px;">
+    <h3 style="margin-top: 0; color: #0c5460;">💡 Tips:</h3>
+    <ul style="margin-bottom: 0;">
+      <li>Fields flash green when added to selection</li>
+      <li>Side panel shows field count in real-time</li>
+      <li>Trying to add a duplicate shows a warning</li>
+      <li>Press <code>ESC</code> to exit (with confirmation if fields are selected)</li>
+      <li>The exported JSON includes all field metadata and options</li>
+    </ul>
+  </div>
+
+  <script src="field-picker-multi-select.js"></script>
+  <script>
+    function activateFieldPicker() {
+      // Load and execute the field picker script
+      eval(document.querySelector('script[src="field-picker-multi-select.js"]').innerHTML);
+    }
+    
+    // Pre-load the script content
+    fetch('field-picker-multi-select.js')
+      .then(r => r.text())
+      .then(code => {
+        window.fieldPickerCode = code;
+        activateFieldPicker = () => eval(window.fieldPickerCode);
+      });
+  </script>
+</body>
+</html>

@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Issue #20 Fix Test - Field Picker JSON Import</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 40px auto;
+      padding: 20px;
+      line-height: 1.6;
+    }
+    .test-section {
+      background: #f8f9fa;
+      border: 2px solid #dee2e6;
+      border-radius: 8px;
+      padding: 20px;
+      margin: 20px 0;
+    }
+    .success {
+      background: #d4edda;
+      border-color: #c3e6cb;
+      color: #155724;
+      padding: 12px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    .error {
+      background: #f8d7da;
+      border-color: #f5c6cb;
+      color: #721c24;
+      padding: 12px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    .info {
+      background: #d1ecf1;
+      border-color: #bee5eb;
+      color: #0c5460;
+      padding: 12px;
+      border-radius: 4px;
+      margin: 10px 0;
+    }
+    button {
+      background: #3498db;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      margin: 5px;
+    }
+    button:hover {
+      background: #2980b9;
+    }
+    .test-btn {
+      background: #27ae60;
+    }
+    .test-btn:hover {
+      background: #229954;
+    }
+    pre {
+      background: #282c34;
+      color: #abb2bf;
+      padding: 15px;
+      border-radius: 4px;
+      overflow-x: auto;
+      font-size: 13px;
+    }
+    code {
+      background: #e9ecef;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: 'Courier New', monospace;
+      color: #e83e8c;
+    }
+    .json-display {
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    h2 {
+      color: #2c3e50;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 10px;
+    }
+    h3 {
+      color: #34495e;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧪 Issue #20 Fix Test - Field Picker JSON Import</h1>
+  
+  <div class="info">
+    <strong>Issue:</strong> The JSON produced by the Field Picker cannot be imported by pasting the JSON. 
+    This results in an error: "Invalid configuration file: missing version"
+  </div>
+
+  <div class="info">
+    <strong>Fix:</strong> Modified <code>importConfiguration()</code> function to detect and handle single field definitions 
+    (which have <code>id</code>, <code>label</code>, <code>fieldType</code> but no <code>version</code> property).
+  </div>
+
+  <div class="test-section">
+    <h2>Test 1: Import Single Field Definition (Field Picker Format)</h2>
+    <p>This is the format exported by the Field Picker bookmarklet.</p>
+    
+    <h3>Sample JSON:</h3>
+    <pre id="sampleFieldJSON">{
+  "id": "category",
+  "label": "Category",
+  "fieldType": "combobox",
+  "required": false,
+  "options": [
+    { "label": "Hardware", "value": "Hardware" },
+    { "label": "Software", "value": "Software" },
+    { "label": "Network", "value": "Network" },
+    { "label": "Other", "value": "Other" },
+    { "label": "Cloud Migration", "value": "Cloud Migration" }
+  ]
+}</pre>
+    
+    <button class="test-btn" onclick="testSingleFieldImport()">🧪 Test Single Field Import</button>
+    <button onclick="downloadSampleFieldJSON()">📥 Download Test File</button>
+    <div id="test1Result"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Test 2: Import Full Configuration (Original Format)</h2>
+    <p>This is the format exported by the "Export Config" button.</p>
+    
+    <h3>Sample JSON:</h3>
+    <pre id="sampleFullConfig">{
+  "version": "0.15.0",
+  "exportedAt": "2026-01-30T15:00:00.000Z",
+  "fieldDefinitions": [
+    {
+      "id": "priority",
+      "label": "Priority",
+      "fieldType": "combobox",
+      "required": true,
+      "options": [
+        { "label": "High", "value": "1" },
+        { "label": "Medium", "value": "2" },
+        { "label": "Low", "value": "3" }
+      ]
+    }
+  ],
+  "configItems": [],
+  "baseUrls": [],
+  "projectIds": [],
+  "issueTypeIds": []
+}</pre>
+    
+    <button class="test-btn" onclick="testFullConfigImport()">🧪 Test Full Config Import</button>
+    <button onclick="downloadSampleFullConfig()">📥 Download Test File</button>
+    <div id="test2Result"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Test 3: Import Invalid JSON</h2>
+    <p>This should show a helpful error message.</p>
+    
+    <h3>Sample JSON:</h3>
+    <pre>{
+  "someRandomField": "value",
+  "anotherField": 123
+}</pre>
+    
+    <button class="test-btn" onclick="testInvalidImport()">🧪 Test Invalid Import</button>
+    <div id="test3Result"></div>
+  </div>
+
+  <div class="test-section">
+    <h2>Current Field Definitions</h2>
+    <button onclick="showCurrentFields()">📋 Show Current Fields</button>
+    <button onclick="clearAllFields()">🗑️ Clear All Fields</button>
+    <div id="currentFields" class="json-display"></div>
+  </div>
+
+  <script>
+    // Inline the import functions for testing
+    function loadFieldDefinitions() {
+      const stored = localStorage.getItem('jiraFieldDefinitions');
+      return stored ? JSON.parse(stored) : [];
+    }
+
+    function saveFieldDefinitions(fields) {
+      localStorage.setItem('jiraFieldDefinitions', JSON.stringify(fields));
+    }
+
+    function importConfiguration(jsonText) {
+      try {
+        const data = JSON.parse(jsonText);
+
+        // Helper to merge items by ID
+        const mergeItems = (existing, incoming) => {
+            const map = new Map();
+            if (Array.isArray(existing)) existing.forEach(i => map.set(i.id, i));
+            if (Array.isArray(incoming)) incoming.forEach(i => map.set(i.id, i));
+            return Array.from(map.values());
+        };
+
+        // Check if this is a single field definition (from field picker)
+        if (data.id && data.label && data.fieldType && !data.version) {
+          // This is a single field definition - add it to fieldDefinitions
+          const existing = loadFieldDefinitions();
+          const updated = mergeItems(existing, [data]);
+          saveFieldDefinitions(updated);
+          return { success: true, message: 'Field definition imported successfully!', type: 'single' };
+        }
+
+        // Validate full config structure
+        if (!data.version) {
+          throw new Error('Invalid configuration file: missing version property. For single field definitions, make sure the JSON includes id, label, and fieldType properties.');
+        }
+
+        // Import field definitions from full config
+        if (data.fieldDefinitions && Array.isArray(data.fieldDefinitions)) {
+          const existing = loadFieldDefinitions();
+          saveFieldDefinitions(mergeItems(existing, data.fieldDefinitions));
+        }
+
+        return { success: true, message: 'Configuration imported successfully!', type: 'full' };
+      } catch (e) {
+        return { success: false, message: 'Error importing configuration: ' + e.message };
+      }
+    }
+
+    function testSingleFieldImport() {
+      const jsonText = document.getElementById('sampleFieldJSON').textContent;
+      const result = importConfiguration(jsonText);
+      
+      const resultDiv = document.getElementById('test1Result');
+      if (result.success) {
+        resultDiv.innerHTML = `<div class="success">
+          <strong>✓ Test Passed!</strong><br>
+          ${result.message}<br>
+          Type: ${result.type}
+        </div>`;
+        showCurrentFields();
+      } else {
+        resultDiv.innerHTML = `<div class="error">
+          <strong>✗ Test Failed!</strong><br>
+          ${result.message}
+        </div>`;
+      }
+    }
+
+    function testFullConfigImport() {
+      const jsonText = document.getElementById('sampleFullConfig').textContent;
+      const result = importConfiguration(jsonText);
+      
+      const resultDiv = document.getElementById('test2Result');
+      if (result.success) {
+        resultDiv.innerHTML = `<div class="success">
+          <strong>✓ Test Passed!</strong><br>
+          ${result.message}<br>
+          Type: ${result.type}
+        </div>`;
+        showCurrentFields();
+      } else {
+        resultDiv.innerHTML = `<div class="error">
+          <strong>✗ Test Failed!</strong><br>
+          ${result.message}
+        </div>`;
+      }
+    }
+
+    function testInvalidImport() {
+      const jsonText = '{"someRandomField":"value","anotherField":123}';
+      const result = importConfiguration(jsonText);
+      
+      const resultDiv = document.getElementById('test3Result');
+      if (!result.success) {
+        resultDiv.innerHTML = `<div class="success">
+          <strong>✓ Test Passed!</strong><br>
+          Error was properly caught and displayed:<br>
+          <code>${result.message}</code>
+        </div>`;
+      } else {
+        resultDiv.innerHTML = `<div class="error">
+          <strong>✗ Test Failed!</strong><br>
+          Invalid JSON should have been rejected!
+        </div>`;
+      }
+    }
+
+    function showCurrentFields() {
+      const fields = loadFieldDefinitions();
+      const div = document.getElementById('currentFields');
+      
+      if (fields.length === 0) {
+        div.innerHTML = '<div class="info">No field definitions stored.</div>';
+      } else {
+        div.innerHTML = `<pre>${JSON.stringify(fields, null, 2)}</pre>`;
+      }
+    }
+
+    function clearAllFields() {
+      localStorage.removeItem('jiraFieldDefinitions');
+      showCurrentFields();
+      alert('All field definitions cleared!');
+    }
+
+    function downloadSampleFieldJSON() {
+      const jsonText = document.getElementById('sampleFieldJSON').textContent;
+      downloadJSON(jsonText, 'field-definition.json');
+    }
+
+    function downloadSampleFullConfig() {
+      const jsonText = document.getElementById('sampleFullConfig').textContent;
+      downloadJSON(jsonText, 'full-config.json');
+    }
+
+    function downloadJSON(jsonText, filename) {
+      const blob = new Blob([jsonText], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    // Show current fields on load
+    window.addEventListener('DOMContentLoaded', showCurrentFields);
+  </script>
+</body>
+</html>

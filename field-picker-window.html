@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>🎯 Field Picker - Select Multiple Fields</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      color: #333;
+    }
+    
+    .header {
+      background: white;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .header h1 {
+      font-size: 24px;
+      color: #2c3e50;
+      margin-bottom: 8px;
+    }
+    
+    .header p {
+      color: #7f8c8d;
+      font-size: 14px;
+    }
+    
+    .main-content {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+    
+    .instructions-panel {
+      flex: 1;
+      padding: 30px;
+      overflow-y: auto;
+      background: rgba(255,255,255,0.95);
+    }
+    
+    .selected-panel {
+      width: 400px;
+      background: white;
+      border-left: 2px solid #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      box-shadow: -4px 0 12px rgba(0,0,0,0.1);
+    }
+    
+    .selected-header {
+      padding: 20px;
+      background: #27ae60;
+      color: white;
+      font-weight: 600;
+      font-size: 18px;
+    }
+    
+    .selected-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+    
+    .selected-footer {
+      padding: 16px;
+      background: #f8fafc;
+      border-top: 2px solid #e2e8f0;
+    }
+    
+    .field-item {
+      background: #f8f9fa;
+      border: 1px solid #dee2e6;
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      transition: all 0.2s;
+    }
+    
+    .field-item:hover {
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .field-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 8px;
+    }
+    
+    .field-title {
+      font-weight: 600;
+      color: #2c3e50;
+      font-size: 14px;
+      margin-bottom: 4px;
+      word-break: break-word;
+      flex: 1;
+    }
+    
+    .field-id {
+      font-size: 11px;
+      color: #6c757d;
+      font-family: Monaco, Consolas, monospace;
+      word-break: break-all;
+    }
+    
+    .field-badges {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-top: 8px;
+    }
+    
+    .badge {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .badge-type {
+      background: #e3f2fd;
+      color: #1976d2;
+    }
+    
+    .badge-required {
+      background: #ffebee;
+      color: #c62828;
+    }
+    
+    .badge-optional {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+    
+    .badge-options {
+      background: #f3e5f5;
+      color: #7b1fa2;
+    }
+    
+    button {
+      border: none;
+      padding: 12px 24px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s;
+      width: 100%;
+    }
+    
+    .btn-primary {
+      background: #27ae60;
+      color: white;
+      font-size: 16px;
+      padding: 16px 24px;
+    }
+    
+    .btn-primary:hover {
+      background: #229954;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(39,174,96,0.3);
+    }
+    
+    .btn-primary:disabled {
+      background: #95a5a6;
+      cursor: not-allowed;
+      transform: none;
+    }
+    
+    .btn-secondary {
+      background: #6c757d;
+      color: white;
+      margin-top: 8px;
+    }
+    
+    .btn-secondary:hover {
+      background: #5a6268;
+    }
+    
+    .btn-remove {
+      background: #e74c3c;
+      color: white;
+      padding: 4px 12px;
+      font-size: 11px;
+      margin-left: 8px;
+      width: auto;
+      white-space: nowrap;
+    }
+    
+    .btn-remove:hover {
+      background: #c0392b;
+    }
+    
+    .btn-activate {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      font-size: 18px;
+      padding: 20px 32px;
+      margin: 20px 0;
+      box-shadow: 0 8px 24px rgba(102,126,234,0.4);
+    }
+    
+    .btn-activate:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 12px 32px rgba(102,126,234,0.5);
+    }
+    
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #7f8c8d;
+    }
+    
+    .empty-state-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+    
+    .status-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 8px;
+    }
+    
+    .status-inactive {
+      background: #95a5a6;
+    }
+    
+    .status-active {
+      background: #27ae60;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+    
+    .instructions {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .instructions h2 {
+      color: #2c3e50;
+      margin-bottom: 16px;
+      font-size: 20px;
+    }
+    
+    .instructions ol {
+      padding-left: 24px;
+    }
+    
+    .instructions li {
+      margin: 12px 0;
+      line-height: 1.6;
+    }
+    
+    .feature-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 20px;
+    }
+    
+    .feature {
+      background: white;
+      padding: 16px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .feature-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    
+    .feature-title {
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 4px;
+    }
+    
+    .feature-desc {
+      font-size: 13px;
+      color: #7f8c8d;
+      line-height: 1.4;
+    }
+    
+    .alert {
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+    }
+    
+    .alert-info {
+      background: #d1ecf1;
+      border-left: 4px solid #17a2b8;
+      color: #0c5460;
+    }
+    
+    .alert-success {
+      background: #d4edda;
+      border-left: 4px solid #28a745;
+      color: #155724;
+    }
+    
+    code {
+      background: #e9ecef;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-family: Monaco, Consolas, monospace;
+      color: #e83e8c;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🎯 Multi-Field Picker</h1>
+    <p>Select multiple form fields from any page and export as a single JSON configuration</p>
+  </div>
+  
+  <div class="main-content">
+    <div class="instructions-panel">
+      <div id="statusBar" class="alert alert-info">
+        <span class="status-indicator status-inactive"></span>
+        <strong>Status:</strong> Ready to activate
+      </div>
+      
+      <div class="instructions">
+        <h2>📖 How to Use</h2>
+        <ol>
+          <li><strong>Navigate</strong> to the page with the form fields you want to extract (e.g., Jira, ServiceNow)</li>
+          <li>Click the <strong>"🚀 Activate Field Picker"</strong> button below</li>
+          <li>This window will stay on top while you work on the other page</li>
+          <li><strong>Click any form field</strong> (input, select, textarea) to add it to your selection</li>
+          <li>Watch the right panel as fields are added in real-time</li>
+          <li>Click <strong>"Remove"</strong> on any field to remove it from selection</li>
+          <li>When done, click <strong>"💾 Save & Import to Link Generator"</strong></li>
+          <li>The fields will be automatically imported into your link generator configuration</li>
+        </ol>
+      </div>
+      
+      <div style="text-align: center;">
+        <button id="activateBtn" class="btn-activate" onclick="activateFieldPicker()">
+          🚀 Activate Field Picker
+        </button>
+      </div>
+      
+      <div class="feature-list">
+        <div class="feature">
+          <div class="feature-icon">🎯</div>
+          <div class="feature-title">Multi-Select</div>
+          <div class="feature-desc">Click multiple fields before exporting - no need to export one at a time</div>
+        </div>
+        
+        <div class="feature">
+          <div class="feature-icon">⚡</div>
+          <div class="feature-title">Real-Time Preview</div>
+          <div class="feature-desc">See selected fields instantly with all metadata and options</div>
+        </div>
+        
+        <div class="feature">
+          <div class="feature-icon">🔍</div>
+          <div class="feature-title">Smart Detection</div>
+          <div class="feature-desc">Automatically detects field IDs, labels, types, and dropdown options</div>
+        </div>
+        
+        <div class="feature">
+          <div class="feature-icon">💾</div>
+          <div class="feature-title">Direct Import</div>
+          <div class="feature-desc">Saves directly to link generator - no copy/paste needed</div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="selected-panel">
+      <div class="selected-header">
+        📦 Selected Fields (<span id="fieldCount">0</span>)
+      </div>
+      
+      <div class="selected-list" id="selectedList">
+        <div class="empty-state">
+          <div class="empty-state-icon">📋</div>
+          <div>No fields selected yet</div>
+          <div style="font-size: 13px; margin-top: 8px;">Activate the picker and click fields to add them</div>
+        </div>
+      </div>
+      
+      <div class="selected-footer">
+        <button id="saveBtn" class="btn-primary" onclick="saveAndImport()" disabled>
+          💾 Save & Import to Link Generator
+        </button>
+        <button id="clearBtn" class="btn-secondary" onclick="clearAll()" disabled>
+          🗑️ Clear All
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    let selectedFields = [];
+    let isActive = false;
+    let targetWindow = null;
+    
+    // Try to get opener window (link generator)
+    const linkGenerator = window.opener;
+    
+    function updateUI() {
+      const count = selectedFields.length;
+      document.getElementById('fieldCount').textContent = count;
+      
+      const listEl = document.getElementById('selectedList');
+      const saveBtn = document.getElementById('saveBtn');
+      const clearBtn = document.getElementById('clearBtn');
+      
+      if (count === 0) {
+        listEl.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon">📋</div>
+            <div>No fields selected yet</div>
+            <div style="font-size: 13px; margin-top: 8px;">Activate the picker and click fields to add them</div>
+          </div>
+        `;
+        saveBtn.disabled = true;
+        clearBtn.disabled = true;
+      } else {
+        let html = '';
+        selectedFields.forEach((field, idx) => {
+          const hasOptions = field.options && field.options.length > 0;
+          html += `
+            <div class="field-item">
+              <div class="field-header">
+                <div style="flex: 1;">
+                  <div class="field-title">${escapeHtml(field.label)}</div>
+                  <div class="field-id">${escapeHtml(field.id)}</div>
+                </div>
+                <button class="btn-remove" onclick="removeField(${idx})">Remove</button>
+              </div>
+              <div class="field-badges">
+                <span class="badge badge-type">${field.fieldType}</span>
+                <span class="badge ${field.required ? 'badge-required' : 'badge-optional'}">
+                  ${field.required ? 'Required' : 'Optional'}
+                </span>
+                ${hasOptions ? `<span class="badge badge-options">${field.options.length} options</span>` : ''}
+              </div>
+            </div>
+          `;
+        });
+        listEl.innerHTML = html;
+        saveBtn.disabled = false;
+        clearBtn.disabled = false;
+      }
+    }
+    
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    
+    function activateFieldPicker() {
+      if (isActive) {
+        alert('Field Picker is already active!');
+        return;
+      }
+      
+      isActive = true;
+      
+      // Update status
+      const statusBar = document.getElementById('statusBar');
+      statusBar.className = 'alert alert-success';
+      statusBar.innerHTML = '<span class="status-indicator status-active"></span><strong>Status:</strong> Active - Click fields on any page to select them (ESC to deactivate)';
+      
+      // Update button
+      const btn = document.getElementById('activateBtn');
+      btn.textContent = '✓ Field Picker Active';
+      btn.style.background = '#27ae60';
+      btn.disabled = true;
+      
+      // Inject the field picker script into all windows
+      injectFieldPickerScript();
+    }
+    
+    function injectFieldPickerScript() {
+      // This script will be injected into the target page
+      const script = `
+        (function() {
+          if (window.fieldPickerInjected) return;
+          window.fieldPickerInjected = true;
+          
+          const escapeHtml = (text) => {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+          };
+          
+          // Create banner
+          const banner = document.createElement('div');
+          banner.style.cssText = \`
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #27ae60;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 0 0 8px 8px;
+            z-index: 999999;
+            font-family: Arial, sans-serif;
+            font-size: 14px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+          \`;
+          banner.textContent = '🎯 Field Picker Active - Click any field to select (ESC to exit)';
+          document.body.appendChild(banner);
+          document.body.style.cursor = 'crosshair';
+          
+          const extractFieldMetadata = (field) => {
+            let fieldId = field.id || field.name || field.getAttribute('data-ref') || field.getAttribute('aria-labelledby');
+            
+            if (!fieldId && field.closest('[data-element]')) {
+              fieldId = field.closest('[data-element]').getAttribute('data-element');
+            }
+            
+            if (!fieldId) {
+              const parent = field.parentElement;
+              if (parent && parent.classList.contains('reference')) {
+                const hiddenInput = parent.querySelector('input[type="hidden"]');
+                if (hiddenInput && hiddenInput.name) {
+                  fieldId = hiddenInput.name;
+                }
+              }
+            }
+            
+            let cleanId = fieldId;
+            if (cleanId && cleanId.includes('.')) {
+              cleanId = cleanId.split('.').pop();
+            }
+            
+            let label = fieldId;
+            const ariaLabelledBy = field.getAttribute('aria-labelledby');
+            if (ariaLabelledBy) {
+              const labelEl = document.getElementById(ariaLabelledBy);
+              if (labelEl) label = labelEl.textContent.trim();
+            } else {
+              const labelFor = document.querySelector(\`label[for="\${field.id}"]\`);
+              if (labelFor) label = labelFor.textContent.trim();
+            }
+            
+            label = label.replace(/[*:]/g, '').trim();
+            label = label.replace(/\\s+(Required|Mandatory)[\\s.,;:!?]*$/gi, '').trim();
+            label = label.replace(/\\s+(Required|Mandatory)\\b/gi, '').trim();
+            
+            let fieldType = 'text';
+            if (field.tagName === 'SELECT') fieldType = 'combobox';
+            else if (field.tagName === 'TEXTAREA') fieldType = 'text';
+            
+            const isRequired = field.required || field.getAttribute('aria-required') === 'true' || field.hasAttribute('required');
+            
+            let options = [];
+            let optionCount = 0;
+            if (fieldType === 'combobox' && field.options) {
+              Array.from(field.options).forEach(opt => {
+                if (opt.value) {
+                  options.push({
+                    label: opt.textContent.trim(),
+                    value: opt.value
+                  });
+                }
+              });
+              optionCount = options.length;
+            }
+            
+            return {
+              id: cleanId,
+              label: label,
+              fieldType: fieldType,
+              required: isRequired,
+              options: options,
+              optionCount: optionCount
+            };
+          };
+          
+          const handleClick = (e) => {
+            let field = null;
+            if (e.target && e.target.nodeType === 1 && e.target.matches) {
+              field = e.target.matches('input,select,textarea') ? e.target : e.target.closest('input,select,textarea');
+            }
+            
+            if (!field) return;
+            
+            e.preventDefault();
+            e.stopPropagation();
+            
+            const meta = extractFieldMetadata(field);
+            
+            // Send to opener window
+            if (window.opener && !window.opener.closed) {
+              window.opener.postMessage({ type: 'FIELD_SELECTED', field: meta }, '*');
+              
+              // Flash field green
+              const originalOutline = field.style.outline;
+              field.style.outline = '3px solid #27ae60';
+              setTimeout(() => {
+                field.style.outline = originalOutline;
+              }, 500);
+            }
+          };
+          
+          const handleHover = (e) => {
+            let field = null;
+            if (e.target && e.target.nodeType === 1 && e.target.matches) {
+              field = e.target.matches('input,select,textarea') ? e.target : e.target.closest('input,select,textarea');
+            }
+            
+            if (field) {
+              field.style.outline = '2px solid #3498db';
+            }
+          };
+          
+          const handleHoverOut = (e) => {
+            let field = null;
+            if (e.target && e.target.nodeType === 1 && e.target.matches) {
+              field = e.target.matches('input,select,textarea') ? e.target : e.target.closest('input,select,textarea');
+            }
+            
+            if (field) {
+              field.style.outline = '';
+            }
+          };
+          
+          const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+              deactivate();
+            }
+          };
+          
+          const deactivate = () => {
+            banner.remove();
+            document.body.style.cursor = '';
+            document.removeEventListener('click', handleClick, true);
+            document.removeEventListener('keydown', handleEscape, true);
+            document.removeEventListener('mouseover', handleHover, true);
+            document.removeEventListener('mouseout', handleHoverOut, true);
+            window.fieldPickerInjected = false;
+            
+            if (window.opener && !window.opener.closed) {
+              window.opener.postMessage({ type: 'PICKER_DEACTIVATED' }, '*');
+            }
+          };
+          
+          document.addEventListener('click', handleClick, true);
+          document.addEventListener('keydown', handleEscape, true);
+          document.addEventListener('mouseover', handleHover, true);
+          document.addEventListener('mouseout', handleHoverOut, true);
+        })();
+      `;
+      
+      // Try to inject into current window first (for testing)
+      if (window.location.href.includes('test-')) {
+        eval(script);
+      } else {
+        // Provide instructions to user
+        alert('Now navigate to the page where you want to select fields (e.g., Jira, ServiceNow). This window will stay on top. Click any form field to add it to your selection.');
+      }
+    }
+    
+    // Listen for messages from injected script
+    window.addEventListener('message', (event) => {
+      if (event.data.type === 'FIELD_SELECTED') {
+        const field = event.data.field;
+        
+        // Check if already selected
+        const existing = selectedFields.findIndex(f => f.id === field.id);
+        
+        if (existing >= 0) {
+          alert(\`Field "\${field.label}" is already selected!\`);
+        } else {
+          selectedFields.push(field);
+          updateUI();
+          
+          // Show notification
+          showNotification(\`Added "\${field.label}" to selection\`, 'success');
+        }
+      } else if (event.data.type === 'PICKER_DEACTIVATED') {
+        deactivate();
+      }
+    });
+    
+    function showNotification(message, type) {
+      // Could add toast notifications here
+      console.log(message);
+    }
+    
+    function removeField(index) {
+      selectedFields.splice(index, 1);
+      updateUI();
+    }
+    
+    function clearAll() {
+      if (confirm(\`Clear all \${selectedFields.length} selected fields?\`)) {
+        selectedFields = [];
+        updateUI();
+      }
+    }
+    
+    function saveAndImport() {
+      if (selectedFields.length === 0) {
+        alert('No fields selected!');
+        return;
+      }
+      
+      // Create full configuration
+      const config = {
+        version: "0.15.0",
+        exportedAt: new Date().toISOString(),
+        fieldDefinitions: selectedFields.map(field => {
+          const def = {
+            id: field.id,
+            label: field.label,
+            fieldType: field.fieldType,
+            required: field.required
+          };
+          if (field.options && field.options.length > 0 && field.options.length < 50) {
+            def.options = field.options;
+          }
+          return def;
+        }),
+        configItems: [],
+        baseUrls: [],
+        projectIds: [],
+        issueTypeIds: []
+      };
+      
+      // Save to localStorage (if opened from link generator, it shares localStorage)
+      try {
+        if (linkGenerator && !linkGenerator.closed) {
+          // Send directly to opener window
+          linkGenerator.postMessage({ 
+            type: 'IMPORT_FIELDS', 
+            config: config 
+          }, '*');
+          alert(\`Successfully imported \${selectedFields.length} fields to Link Generator!\\n\\nYou can now close this window and reload the Link Generator to see the new fields.\`);
+        } else {
+          // Fallback: copy to clipboard
+          const jsonStr = JSON.stringify(config, null, 2);
+          navigator.clipboard.writeText(jsonStr).then(() => {
+            alert(\`Configuration copied to clipboard!\\n\\nPaste this into the Link Generator using "Import Config".\`);
+          });
+        }
+      } catch (e) {
+        // Fallback: copy to clipboard
+        const jsonStr = JSON.stringify(config, null, 2);
+        navigator.clipboard.writeText(jsonStr).then(() => {
+          alert(\`Configuration copied to clipboard!\\n\\nPaste this into the Link Generator using "Import Config".\`);
+        }).catch(() => {
+          alert('Error: Could not save or copy configuration.');
+        });
+      }
+    }
+    
+    function deactivate() {
+      isActive = false;
+      
+      const statusBar = document.getElementById('statusBar');
+      statusBar.className = 'alert alert-info';
+      statusBar.innerHTML = '<span class="status-indicator status-inactive"></span><strong>Status:</strong> Ready to activate';
+      
+      const btn = document.getElementById('activateBtn');
+      btn.textContent = '🚀 Activate Field Picker';
+      btn.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+      btn.disabled = false;
+    }
+    
+    // Initialize
+    updateUI();
+    
+    // Make window stay on top (browser-dependent)
+    window.focus();
+  </script>
+</body>
+</html>

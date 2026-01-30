@@ -1,0 +1,28 @@
+{
+  "id": "category",
+  "label": "Category",
+  "fieldType": "combobox",
+  "required": false,
+  "options": [
+    {
+      "label": "Hardware",
+      "value": "Hardware"
+    },
+    {
+      "label": "Software",
+      "value": "Software"
+    },
+    {
+      "label": "Network",
+      "value": "Network"
+    },
+    {
+      "label": "Other",
+      "value": "Other"
+    },
+    {
+      "label": "Cloud Migration",
+      "value": "Cloud Migration"
+    }
+  ]
+}

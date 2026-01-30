@@ -2634,7 +2634,7 @@
     function exportConfiguration() {
       try {
         const config = {
-          version: '0.5.11',
+          version: '0.15.0',
           exportedAt: new Date().toISOString(),
           description: 'JIRA Issue Link Generator Configuration',
           configItems: loadConfigurationItems(),
@@ -2665,12 +2665,7 @@
       const reader = new FileReader();
       reader.onload = function(e) {
         try {
-          const config = JSON.parse(e.target.result);
-
-          // Validate config structure
-          if (!config.version) {
-            throw new Error('Invalid configuration file: missing version');
-          }
+          const data = JSON.parse(e.target.result);
 
           // Helper to merge items by ID
           const mergeItems = (existing, incoming) => {
@@ -2680,26 +2675,42 @@
               return Array.from(map.values());
           };
 
-          // Import all data with merge
-          if (config.configItems && Array.isArray(config.configItems)) {
-            const existing = loadConfigurationItems();
-            saveConfigurationItems(mergeItems(existing, config.configItems));
-          }
-          if (config.fieldDefinitions && Array.isArray(config.fieldDefinitions)) {
+          // Check if this is a single field definition (from field picker)
+          if (data.id && data.label && data.fieldType && !data.version) {
+            // This is a single field definition - add it to fieldDefinitions
             const existing = loadFieldDefinitions();
-            saveFieldDefinitions(mergeItems(existing, config.fieldDefinitions));
+            const updated = mergeItems(existing, [data]);
+            saveFieldDefinitions(updated);
+            alert('Field definition imported successfully! Reloading...');
+            window.location.reload();
+            return;
           }
-          if (config.baseUrls && Array.isArray(config.baseUrls)) {
+
+          // Validate full config structure
+          if (!data.version) {
+            throw new Error('Invalid configuration file: missing version property. For single field definitions, make sure the JSON includes id, label, and fieldType properties.');
+          }
+
+          // Import all data with merge (full configuration)
+          if (data.configItems && Array.isArray(data.configItems)) {
+            const existing = loadConfigurationItems();
+            saveConfigurationItems(mergeItems(existing, data.configItems));
+          }
+          if (data.fieldDefinitions && Array.isArray(data.fieldDefinitions)) {
+            const existing = loadFieldDefinitions();
+            saveFieldDefinitions(mergeItems(existing, data.fieldDefinitions));
+          }
+          if (data.baseUrls && Array.isArray(data.baseUrls)) {
             const existing = loadItems('jiraSavedBaseUrls');
-            saveItems('jiraSavedBaseUrls', mergeItems(existing, config.baseUrls));
+            saveItems('jiraSavedBaseUrls', mergeItems(existing, data.baseUrls));
           }
-          if (config.projectIds && Array.isArray(config.projectIds)) {
+          if (data.projectIds && Array.isArray(data.projectIds)) {
             const existing = loadItems('jiraSavedProjectIds');
-            saveItems('jiraSavedProjectIds', mergeItems(existing, config.projectIds));
+            saveItems('jiraSavedProjectIds', mergeItems(existing, data.projectIds));
           }
-          if (config.issueTypeIds && Array.isArray(config.issueTypeIds)) {
+          if (data.issueTypeIds && Array.isArray(data.issueTypeIds)) {
             const existing = loadItems('jiraSavedIssueTypes');
-            saveItems('jiraSavedIssueTypes', mergeItems(existing, config.issueTypeIds));
+            saveItems('jiraSavedIssueTypes', mergeItems(existing, data.issueTypeIds));
           }
 
           alert('Configuration imported successfully! Items have been appended/updated. Reloading...');

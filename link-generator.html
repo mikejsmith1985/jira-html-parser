@@ -6816,20 +6816,25 @@
     }
 
     function openFieldPickerModal() {
-      const modal = document.getElementById('fieldPickerModal');
-      if (!modal) {
-        console.error('fieldPickerModal not found');
+      // Open the field picker in a new popup window
+      const width = 1000;
+      const height = 700;
+      const left = (screen.width - width) / 2;
+      const top = (screen.height - height) / 2;
+      
+      const popup = window.open(
+        'field-picker-window.html',
+        'fieldPickerWindow',
+        `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes`
+      );
+      
+      if (!popup) {
+        alert('Popup blocked! Please allow popups for this site to use the Field Picker.');
         return;
       }
       
-      // Set the bookmarklet href dynamically
-      const bookmarkletLink = document.getElementById('fieldPickerBookmarklet');
-      if (bookmarkletLink) {
-        const bookmarkletCode = generateFieldPickerBookmarklet();
-        bookmarkletLink.href = 'javascript:' + encodeURIComponent(bookmarkletCode);
-      }
-      
-      modal.style.display = 'flex';
+      // Focus the popup
+      popup.focus();
     }
 
     function closeFieldPickerModal() {
@@ -6859,6 +6864,31 @@
       
       // Don't restore form state - user wants clean slate every time
       // Only app type is remembered (handled above)
+    });
+    
+    // Listen for messages from field picker popup
+    window.addEventListener('message', (event) => {
+      if (event.data.type === 'IMPORT_FIELDS') {
+        const config = event.data.config;
+        
+        // Helper to merge items by ID
+        const mergeItems = (existing, incoming) => {
+          const map = new Map();
+          if (Array.isArray(existing)) existing.forEach(i => map.set(i.id, i));
+          if (Array.isArray(incoming)) incoming.forEach(i => map.set(i.id, i));
+          return Array.from(map.values());
+        };
+        
+        // Import field definitions
+        if (config.fieldDefinitions && Array.isArray(config.fieldDefinitions)) {
+          const existing = loadFieldDefinitions();
+          const updated = mergeItems(existing, config.fieldDefinitions);
+          saveFieldDefinitions(updated);
+          
+          alert(`Successfully imported ${config.fieldDefinitions.length} field definition(s)!\\n\\nReloading page to show new fields...`);
+          window.location.reload();
+        }
+      }
     });
     
     function saveState() {

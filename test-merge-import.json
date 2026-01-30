@@ -1,0 +1,16 @@
+{
+  "id": "new_field",
+  "label": "New Field",
+  "fieldType": "combobox",
+  "required": true,
+  "options": [
+    {
+      "label": "Option 1",
+      "value": "opt1"
+    },
+    {
+      "label": "Option 2",
+      "value": "opt2"
+    }
+  ]
+}

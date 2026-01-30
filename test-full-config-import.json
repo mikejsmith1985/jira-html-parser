@@ -1,0 +1,30 @@
+{
+  "version": "0.13.0",
+  "exportedAt": "2026-01-30T15:41:16.090Z",
+  "fieldDefinitions": [
+    {
+      "id": "priority",
+      "label": "Priority",
+      "fieldType": "combobox",
+      "required": true,
+      "options": [
+        {
+          "label": "High",
+          "value": "1"
+        },
+        {
+          "label": "Medium",
+          "value": "2"
+        },
+        {
+          "label": "Low",
+          "value": "3"
+        }
+      ]
+    }
+  ],
+  "configItems": [],
+  "baseUrls": [],
+  "projectIds": [],
+  "issueTypeIds": []
+}
