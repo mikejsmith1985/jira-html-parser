@@ -1251,19 +1251,26 @@
       </div>
 
       <div style="background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px;border:1px solid #dee2e6;">
-        <h3 style="font-size:1em;margin:0 0 12px 0;color:#2c3e50;font-weight:600;">📖 Step 2: Use the Field Picker</h3>
+        <h3 style="font-size:1em;margin:0 0 12px 0;color:#2c3e50;font-weight:600;">📖 Step 2: Use the Multi-Select Field Picker</h3>
         <ol style="margin:0;padding-left:24px;line-height:2;color:#555;font-size:0.9em;">
           <li>Navigate to a Jira or ServiceNow form page</li>
           <li>Click the <strong>"🎯 Field Picker"</strong> bookmark you just added</li>
-          <li>A green banner appears - Field Picker is now active!</li>
-          <li>Click any form field (input, dropdown, textarea) to see its details</li>
-          <li>Copy the field ID, label, or full JSON definition</li>
-          <li>Click another field to inspect it, or press <strong>ESC</strong> to exit</li>
+          <li>A side panel appears on the right side of the page</li>
+          <li>Click <strong>"🚀 Activate Field Picker"</strong> button in the panel</li>
+          <li>Click any form fields (inputs, dropdowns, textareas) - they add to the panel</li>
+          <li>Keep clicking more fields - they all appear in the selected fields list</li>
+          <li>Click <strong>"Remove"</strong> on any field to remove it</li>
+          <li>When done, click <strong>"💾 Save All to Config"</strong></li>
+          <li>Return to this Link Generator tab - fields auto-import!</li>
         </ol>
       </div>
 
-      <div style="background:#fff3cd;padding:16px;border-radius:8px;border-left:4px solid #ffc107;font-size:0.9em;color:#856404;line-height:1.6;">
-        <strong>💡 Pro Tip:</strong> Field Picker stays active until you press ESC, so you can inspect multiple fields without reactivating the bookmarklet!
+      <div style="background:#fff3cd;padding:16px;border-radius:8px;border-left:4px solid #ffc107;font-size:0.9em;color:#856404;line-height:1.6;margin-bottom:16px;">
+        <strong>💡 Pro Tip:</strong> You can select multiple fields at once! The side panel keeps track of all your selections until you save them.
+      </div>
+      
+      <div style="background:#d4edda;padding:16px;border-radius:8px;border-left:4px solid #28a745;font-size:0.9em;color:#155724;line-height:1.6;">
+        <strong>✨ Auto-Import:</strong> When you click "Save All to Config", the fields are saved to localStorage. When you come back to this page, they automatically import into your field definitions!
       </div>
 
       <div style="margin-top:24px;text-align:right;">
@@ -6785,7 +6792,7 @@
       
       // Generate the bookmarklet code
       const bookmarkletCode = generateFieldPickerBookmarklet();
-      const bookmarkletLink = document.getElementById('fieldPickerBookmarkletLink');
+      const bookmarkletLink = document.getElementById('fieldPickerBookmarklet');
       if (bookmarkletLink) {
         bookmarkletLink.href = bookmarkletCode;
       }
