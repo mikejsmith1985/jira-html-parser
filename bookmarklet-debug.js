@@ -83,7 +83,7 @@ javascript:(function(){
     if(w.f.length&&!confirm('Close without saving? '+w.f.length+' field(s) will be lost.'))return;
     p.remove();
     b.remove();
-    document.removeEventListener('mousedown',clk,true);
+    window.removeEventListener('mousedown',clk,true);
     document.body.style.cursor='';
     delete window.fpMS;
   };
@@ -93,6 +93,8 @@ javascript:(function(){
       active: w.a,
       target: e.target,
       tagName: e.target.tagName,
+      id: e.target.id,
+      className: e.target.className,
       closestPanel: e.target.closest('#fpP'),
       closestBanner: e.target.closest('#fpB')
     });
@@ -111,8 +113,16 @@ javascript:(function(){
     console.log('[FP] Found field:', f);
     
     if(!f){
-      console.log('[FP] No field found, returning');
-      return;
+      console.log('[FP] No field found, checking if click was on label or container...');
+      // ServiceNow may wrap fields - try to find nearby input
+      var nearby = e.target.querySelector('input,select,textarea');
+      if(nearby) {
+        console.log('[FP] Found nearby field in container:', nearby);
+        f = nearby;
+      } else {
+        console.log('[FP] No field or container found, returning');
+        return;
+      }
     }
     
     e.preventDefault();
@@ -167,9 +177,10 @@ javascript:(function(){
   };
   
   console.log('[FP] Attaching event listeners...');
-  document.addEventListener('mousedown',clk,true);
+  window.addEventListener('mousedown',clk,true);
+  window.addEventListener('click',function(e){console.log('[FP] Window click detected:',e.target);},true);
   document.addEventListener('keydown',esc);
-  console.log('[FP] Event listeners attached (mousedown)');
+  console.log('[FP] Event listeners attached (mousedown+click on window, capture phase)');
   
   document.getElementById('fpA').onclick=act;
   document.getElementById('fpX').onclick=close;
