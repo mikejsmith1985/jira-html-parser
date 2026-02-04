@@ -4,961 +4,173 @@
   <meta charset="UTF-8">
   <title>Link Generator - Jira & ServiceNow</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  
-  <!-- Bootstrap 5 CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-  <!-- Bootstrap Icons -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-  
   <style>
-    :root {
-      --primary-color: #0d6efd;
-      --secondary-color: #6c757d;
-      --success-color: #198754;
-      --danger-color: #dc3545;
-      --warning-color: #ffc107;
-      --info-color: #0dcaf0;
-      --corporate-blue: #1e3a8a;
-      --corporate-gray: #64748b;
-      --corporate-light: #e2e8f0;
-      
-      /* Light mode colors */
-      --bg-gradient-start: #f1f5f9;
-      --bg-gradient-mid: #e2e8f0;
-      --bg-gradient-end: #cbd5e1;
-      --card-bg: #ffffff;
-      --text-primary: #1e293b;
-      --text-secondary: #64748b;
-      --border-color: #e2e8f0;
-      --navbar-bg: #ffffff;
-    }
-    
-    [data-bs-theme="dark"] {
-      --bg-gradient-start: #0f172a;
-      --bg-gradient-mid: #1e293b;
-      --bg-gradient-end: #334155;
-      --card-bg: #1e293b;
-      --text-primary: #f1f5f9;
-      --text-secondary: #94a3b8;
-      --border-color: #334155;
-      --navbar-bg: #1e293b;
-      --input-bg: #2d3748;
-      --toolbar-bg: #2d3748;
-    }
-    
-    [data-bs-theme="dark"] .form-select,
-    [data-bs-theme="dark"] .form-control,
-    [data-bs-theme="dark"] .rich-value {
-      background: #2d3748 !important;
-      color: #f1f5f9 !important;
-      border-color: #4a5568 !important;
-    }
-    
-    [data-bs-theme="dark"] .toolbar-section {
-      background: #2d3748 !important;
-      border-color: #4a5568 !important;
-    }
-    
-    [data-bs-theme="dark"] .formatting-toolbar {
-      background: rgba(15, 23, 42, 0.95) !important;
-      backdrop-filter: blur(10px);
-    }
-    
-    [data-bs-theme="dark"] .rich-value {
-      background: #2d3748 !important;
-      color: #f1f5f9 !important;
-      border-color: #4a5568 !important;
-    }
-    
-    [data-bs-theme="dark"] .rich-value:focus {
-      border-color: #60a5fa !important;
-      box-shadow: 0 0 0 0.25rem rgba(96, 165, 250, 0.25) !important;
-    }
-    
-    [data-bs-theme="dark"] .form-select option {
-      background: #2d3748;
-      color: #f1f5f9;
-    }
-    
-    [data-bs-theme="dark"] .field-select {
-      background: #2d3748 !important;
-      color: #f1f5f9 !important;
-    }
-    
-    /* Better button visibility in dark mode */
-    [data-bs-theme="dark"] .btn-outline-primary {
-      color: #60a5fa !important;
-      border-color: #60a5fa !important;
-    }
-    
-    [data-bs-theme="dark"] .btn-outline-primary:hover {
-      background: #60a5fa !important;
-      border-color: #60a5fa !important;
-      color: #0f172a !important;
-    }
-    
-    [data-bs-theme="dark"] .btn-outline-secondary {
-      color: #94a3b8 !important;
-      border-color: #64748b !important;
-      background: rgba(100, 116, 139, 0.1) !important;
-    }
-    
-    [data-bs-theme="dark"] .btn-outline-secondary:hover {
-      background: #64748b !important;
-      border-color: #64748b !important;
-      color: #f1f5f9 !important;
-    }
-    
-    [data-bs-theme="dark"] .btn-outline-danger {
-      color: #f87171 !important;
-      border-color: #f87171 !important;
-    }
-    
-    [data-bs-theme="dark"] .btn-outline-danger:hover {
-      background: #f87171 !important;
-      border-color: #f87171 !important;
-      color: #0f172a !important;
-    }
-    
-    [data-bs-theme="dark"] .btn-outline-dark {
-      color: #cbd5e1 !important;
-      border-color: #64748b !important;
-      background: rgba(100, 116, 139, 0.15) !important;
-    }
-    
-    [data-bs-theme="dark"] .btn-outline-dark:hover {
-      background: #64748b !important;
-      border-color: #64748b !important;
-      color: #f1f5f9 !important;
-    }
-    
-    [data-bs-theme="dark"] .btn-outline-success {
-      color: #4ade80 !important;
-      border-color: #4ade80 !important;
-    }
-    
-    [data-bs-theme="dark"] .btn-outline-success:hover {
-      background: #4ade80 !important;
-      border-color: #4ade80 !important;
-      color: #0f172a !important;
-    }
-    
-    [data-bs-theme="dark"] .btn-outline-warning {
-      color: #fbbf24 !important;
-      border-color: #fbbf24 !important;
-    }
-    
-    [data-bs-theme="dark"] .btn-outline-warning:hover {
-      background: #fbbf24 !important;
-      border-color: #fbbf24 !important;
-      color: #0f172a !important;
-    }
-    
-    /* Dark mode for Bootstrap modals */
-    [data-bs-theme="dark"] .modal-content {
-      background-color: #1e293b !important;
-      color: #f1f5f9 !important;
-      border-color: #334155 !important;
-    }
-    
-    [data-bs-theme="dark"] .modal-header {
-      background: linear-gradient(135deg, #0f172a 0%, #1e40af 100%) !important;
-      border-bottom-color: #334155 !important;
-    }
-    
-    [data-bs-theme="dark"] .modal-footer {
-      border-top-color: #334155 !important;
-    }
-    
-    [data-bs-theme="dark"] .modal-body {
-      background-color: #1e293b !important;
-    }
-    
-    [data-bs-theme="dark"] .modal-body input,
-    [data-bs-theme="dark"] .modal-body select,
-    [data-bs-theme="dark"] .modal-body textarea {
-      background-color: #2d3748 !important;
-      color: #f1f5f9 !important;
-      border-color: #4a5568 !important;
-    }
-    
-    [data-bs-theme="dark"] .modal-body input:focus,
-    [data-bs-theme="dark"] .modal-body select:focus,
-    [data-bs-theme="dark"] .modal-body textarea:focus {
-      background-color: #2d3748 !important;
-      border-color: #60a5fa !important;
-      box-shadow: 0 0 0 0.25rem rgba(96, 165, 250, 0.25) !important;
-    }
-    
-    [data-bs-theme="dark"] .modal-body .form-label {
-      color: #e2e8f0 !important;
-    }
-    
-    [data-bs-theme="dark"] .list-group-item {
-      background-color: #2d3748 !important;
-      color: #f1f5f9 !important;
-      border-color: #4a5568 !important;
-    }
-    
-    [data-bs-theme="dark"] .list-group-item:hover {
-      background-color: #374151 !important;
-    }
-    
-    [data-bs-theme="dark"] .alert-success {
-      background-color: rgba(34, 197, 94, 0.15) !important;
-      color: #4ade80 !important;
-      border-color: rgba(34, 197, 94, 0.3) !important;
-    }
-    
-    [data-bs-theme="dark"] .alert-warning {
-      background-color: rgba(251, 191, 36, 0.15) !important;
-      color: #fbbf24 !important;
-      border-color: rgba(251, 191, 36, 0.3) !important;
-    }
-    
-    [data-bs-theme="dark"] #link {
-      background: rgba(0, 0, 0, 0.3) !important;
-      color: #cbd5e1 !important;
-    }
-    
-    /* Dark mode for custom modals (Field Manager, Presets, Config Management, etc.) */
-    /* Target both the wrapper and inner divs with inline styles */
-    [data-bs-theme="dark"] #fieldManagerModal > div,
-    [data-bs-theme="dark"] #managePresetsModal > div,
-    [data-bs-theme="dark"] #fieldExtractorModal > div,
-    [data-bs-theme="dark"] #fieldExtractorModal > div > div,
-    [data-bs-theme="dark"] #fieldPickerModal > div,
-    [data-bs-theme="dark"] #fieldPickerModal > div > div,
-    [data-bs-theme="dark"] #configManagementModal > div,
-    [data-bs-theme="dark"] #configManagementModal > div > div,
-    [data-bs-theme="dark"] #baseUrlModal > div,
-    [data-bs-theme="dark"] #issueTypeModal > div,
-    [data-bs-theme="dark"] #projectIdModal > div,
-    [data-bs-theme="dark"] #savePresetModal > div,
-    [data-bs-theme="dark"] #importModal > div {
-      background: #1e293b !important;
-      color: #f1f5f9 !important;
-    }
-    
-    [data-bs-theme="dark"] #fieldManagerModal h2,
-    [data-bs-theme="dark"] #fieldManagerModal h3,
-    [data-bs-theme="dark"] #managePresetsModal h2,
-    [data-bs-theme="dark"] #fieldExtractorModal h2,
-    [data-bs-theme="dark"] #fieldExtractorModal h3,
-    [data-bs-theme="dark"] #fieldPickerModal h2,
-    [data-bs-theme="dark"] #fieldPickerModal h3,
-    [data-bs-theme="dark"] #configManagementModal h2,
-    [data-bs-theme="dark"] #baseUrlModal h2,
-    [data-bs-theme="dark"] #issueTypeModal h2,
-    [data-bs-theme="dark"] #projectIdModal h2,
-    [data-bs-theme="dark"] #savePresetModal h2,
-    [data-bs-theme="dark"] #importModal h2 {
-      color: #f1f5f9 !important;
-    }
-    
-    [data-bs-theme="dark"] #fieldManagerModal p,
-    [data-bs-theme="dark"] #fieldExtractorModal p,
-    [data-bs-theme="dark"] #fieldPickerModal p,
-    [data-bs-theme="dark"] #configManagementModal p,
-    [data-bs-theme="dark"] #baseUrlModal p,
-    [data-bs-theme="dark"] #issueTypeModal p,
-    [data-bs-theme="dark"] #projectIdModal p,
-    [data-bs-theme="dark"] #savePresetModal p,
-    [data-bs-theme="dark"] #importModal p {
-      color: #cbd5e1 !important;
-    }
-    
-    [data-bs-theme="dark"] #configItemsList,
-    [data-bs-theme="dark"] #presetsList,
-    [data-bs-theme="dark"] #fieldManagerModal input,
-    [data-bs-theme="dark"] #fieldManagerModal select,
-    [data-bs-theme="dark"] #fieldManagerModal textarea,
-    [data-bs-theme="dark"] #managePresetsModal input,
-    [data-bs-theme="dark"] #configManagementModal input,
-    [data-bs-theme="dark"] #configManagementModal select,
-    [data-bs-theme="dark"] #baseUrlModal input,
-    [data-bs-theme="dark"] #issueTypeModal input,
-    [data-bs-theme="dark"] #projectIdModal input,
-    [data-bs-theme="dark"] #savePresetModal input,
-    [data-bs-theme="dark"] #importModal input,
-    [data-bs-theme="dark"] #importModal textarea {
-      background: #2d3748 !important;
-      color: #f1f5f9 !important;
-      border-color: #4a5568 !important;
-    }
-    
-    [data-bs-theme="dark"] .info-box {
-      background: rgba(96, 165, 250, 0.15) !important;
-      border-color: rgba(96, 165, 250, 0.3) !important;
-      color: #93c5fd !important;
-    }
-    
-    [data-bs-theme="dark"] .info-box h3 {
-      color: #60a5fa !important;
-    }
-    
-    [data-bs-theme="dark"] #fieldExtractorModal a,
-    [data-bs-theme="dark"] #fieldPickerModal a {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-    }
-    
-    [data-bs-theme="dark"] #fieldPickerBookmarklet {
-      background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%) !important;
-    }
-    
-    [data-bs-theme="dark"] .config-tab {
-      color: #94a3b8 !important;
-    }
-    
-    [data-bs-theme="dark"] .config-tab.active {
-      color: #60a5fa !important;
-      border-bottom-color: #60a5fa !important;
-    }
-    
-    [data-bs-theme="dark"] .tab-content-section {
-      background: #2d3748 !important;
-      border-color: #4a5568 !important;
-    }
-    
-    [data-bs-theme="dark"] .config-item {
-      background: #374151 !important;
-      border-color: #4a5568 !important;
-      color: #f1f5f9 !important;
-    }
-    
-    [data-bs-theme="dark"] .config-item:hover {
-      background: #475569 !important;
-    }
-    
-    /* Dark mode for field rows and selects */
-    [data-bs-theme="dark"] .field-select.required-field {
-      background: rgba(239, 68, 68, 0.15) !important;
-      border-left-color: #f87171 !important;
-    }
-    
-    [data-bs-theme="dark"] .field-select {
-      background: #2d3748 !important;
-      color: #f1f5f9 !important;
-      border-color: #4a5568 !important;
-    }
-    
-    [data-bs-theme="dark"] .field-select:focus {
-      border-color: #60a5fa !important;
-      box-shadow: 0 0 0 0.25rem rgba(96, 165, 250, 0.25) !important;
-    }
-    
-    /* Dark mode for Field Manager specific elements */
-    [data-bs-theme="dark"] #bulkOperationsToolbar {
-      background: rgba(96, 165, 250, 0.15) !important;
-      border-color: rgba(96, 165, 250, 0.3) !important;
-    }
-    
-    [data-bs-theme="dark"] #fieldManagerList,
-    [data-bs-theme="dark"] #ignoredFieldsList {
-      background: #2d3748 !important;
-      border-color: #4a5568 !important;
-    }
-    
-    [data-bs-theme="dark"] .field-list-row {
-      border-bottom-color: #4a5568 !important;
-      color: #f1f5f9 !important;
-    }
-    
-    [data-bs-theme="dark"] #comboboxOptionsSection {
-      background: #2d3748 !important;
-      border-color: #4a5568 !important;
-    }
-    
-    [data-bs-theme="dark"] #comboboxOptionsList {
-      background: #374151 !important;
-      border-color: #4a5568 !important;
-    }
-    
-    [data-bs-theme="dark"] .combobox-option-row {
-      border-bottom-color: #4a5568 !important;
-      color: #f1f5f9 !important;
-    }
-    
-    [data-bs-theme="dark"] .combobox-option-row strong {
-      color: #f1f5f9 !important;
-    }
-    
-    /* Fix Select All checkbox area */
-    [data-bs-theme="dark"] .select-all-row {
-      background: #374151 !important;
-      border-bottom-color: #60a5fa !important;
-    }
-    
-    [data-bs-theme="dark"] .select-all-row label {
-      color: #f1f5f9 !important;
-    }
-    
-    [data-bs-theme="dark"] #fieldManagerList label {
-      color: #f1f5f9 !important;
-    }
-    
-    /* Dark mode for all styled divs within modals */
-    [data-bs-theme="dark"] #fieldExtractorModal div[style*="background:#f8f9fa"],
-    [data-bs-theme="dark"] #fieldExtractorModal div[style*="background:#e8f4fd"],
-    [data-bs-theme="dark"] #fieldExtractorModal div[style*="background:#fff3cd"],
-    [data-bs-theme="dark"] #fieldExtractorModal div[style*="background:white"],
-    [data-bs-theme="dark"] #fieldPickerModal div[style*="background:#f8f9fa"],
-    [data-bs-theme="dark"] #fieldPickerModal div[style*="background:#e8f4fd"],
-    [data-bs-theme="dark"] #fieldPickerModal div[style*="background:#fff3cd"],
-    [data-bs-theme="dark"] #fieldPickerModal div[style*="background:white"],
-    [data-bs-theme="dark"] #configManagementModal div[style*="background:#f8f9fa"],
-    [data-bs-theme="dark"] #configManagementModal div[style*="background:#e8f4fd"],
-    [data-bs-theme="dark"] #configManagementModal div[style*="background:white"],
-    [data-bs-theme="dark"] #managePresetsModal div[style*="background:#f8f9fa"],
-    [data-bs-theme="dark"] #managePresetsModal div[style*="background:white"],
-    [data-bs-theme="dark"] #savePresetModal div[style*="background:#f5f5f5"],
-    [data-bs-theme="dark"] #savePresetModal div[style*="background:#f9f9f9"],
-    [data-bs-theme="dark"] #savePresetModal div[style*="background:white"] {
-      background: #2d3748 !important;
-      border-color: #4a5568 !important;
-    }
-    
-    /* Dark mode for warning/info boxes in modals */
-    [data-bs-theme="dark"] #fieldExtractorModal div[style*="background:#fff3cd"],
-    [data-bs-theme="dark"] #fieldPickerModal div[style*="background:#fff3cd"] {
-      background: rgba(251, 191, 36, 0.15) !important;
-      border-color: rgba(251, 191, 36, 0.4) !important;
-      color: #fbbf24 !important;
-    }
-    
-    [data-bs-theme="dark"] #fieldExtractorModal div[style*="background:#fff3cd"] strong,
-    [data-bs-theme="dark"] #fieldPickerModal div[style*="background:#fff3cd"] strong {
-      color: #fbbf24 !important;
-    }
-    
-    /* Dark mode for blue info boxes in modals */
-    [data-bs-theme="dark"] #fieldExtractorModal div[style*="background:#e8f4fd"],
-    [data-bs-theme="dark"] #fieldPickerModal div[style*="background:#e8f4fd"] {
-      background: rgba(96, 165, 250, 0.15) !important;
-      border-color: rgba(96, 165, 250, 0.4) !important;
-    }
-    
-    [data-bs-theme="dark"] #fieldExtractorModal div[style*="background:#e8f4fd"] h3,
-    [data-bs-theme="dark"] #fieldExtractorModal div[style*="background:#e8f4fd"] p,
-    [data-bs-theme="dark"] #fieldPickerModal div[style*="background:#e8f4fd"] h3,
-    [data-bs-theme="dark"] #fieldPickerModal div[style*="background:#e8f4fd"] p {
-      color: #93c5fd !important;
-    }
-    
-    /* Dark mode for ordered/unordered lists in modals */
-    [data-bs-theme="dark"] #fieldExtractorModal ol,
-    [data-bs-theme="dark"] #fieldExtractorModal ol li,
-    [data-bs-theme="dark"] #fieldPickerModal ol,
-    [data-bs-theme="dark"] #fieldPickerModal ol li {
-      color: #cbd5e1 !important;
-    }
-    
-    /* Dark mode for buttons in modals */
-    [data-bs-theme="dark"] #fieldExtractorModal button,
-    [data-bs-theme="dark"] #fieldPickerModal button,
-    [data-bs-theme="dark"] #managePresetsModal button,
-    [data-bs-theme="dark"] #savePresetModal button {
-      background: #4a5568 !important;
-      color: #f1f5f9 !important;
-      border-color: #60a5fa !important;
-    }
-    
-    [data-bs-theme="dark"] #fieldExtractorModal button:hover,
-    [data-bs-theme="dark"] #fieldPickerModal button:hover,
-    [data-bs-theme="dark"] #managePresetsModal button:hover,
-    [data-bs-theme="dark"] #savePresetModal button:hover {
-      background: #60a5fa !important;
-    }
-    
-    /* Dark mode for Save Preset modal specific elements */
-    [data-bs-theme="dark"] #savePresetModal label,
-    [data-bs-theme="dark"] #savePresetModal span,
-    [data-bs-theme="dark"] #savePresetModal strong {
-      color: #f1f5f9 !important;
-    }
-    
-    [data-bs-theme="dark"] #savePresetModal input,
-    [data-bs-theme="dark"] #savePresetModal textarea {
-      background: #2d3748 !important;
-      color: #f1f5f9 !important;
-      border-color: #4a5568 !important;
-    }
-    
-    body {
-      background: linear-gradient(135deg, var(--bg-gradient-start) 0%, var(--bg-gradient-mid) 50%, var(--bg-gradient-end) 100%);
-      min-height: 100vh;
-      padding: 20px 0;
-      color: var(--text-primary);
-      transition: background 0.3s ease, color 0.3s ease;
-    }
-    
-    .main-container {
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-    
-    .navbar-brand {
-      font-size: 1.5rem;
-      font-weight: 700;
-      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-    
-    .card {
-      border: none;
-      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1);
-      margin-bottom: 1.5rem;
-      background: var(--card-bg);
-      transition: background 0.3s ease;
-    }
-    
-    .card-body {
-      color: var(--text-primary);
-    }
-    
-    .navbar {
-      background: var(--navbar-bg) !important;
-      transition: background 0.3s ease;
-    }
-    
-    .navbar-text {
-      color: var(--text-secondary) !important;
-    }
-    
-    .form-select,
-    .form-control,
-    .rich-value {
-      background: var(--card-bg);
-      color: var(--text-primary);
-      border-color: var(--border-color);
-      transition: background 0.3s ease, color 0.3s ease, border-color 0.3s ease;
-    }
-    
-    .toolbar-section {
-      background: var(--card-bg);
-      border: 1px solid var(--border-color);
-    }
-    
-    .formatting-toolbar {
-      background: var(--card-bg);
-      border-color: var(--border-color);
-    }
-    
-    .output {
-      background: var(--card-bg);
-      border-color: var(--border-color);
-      color: var(--text-primary);
-    }
-    
-    [data-bs-theme="dark"] .card {
-      box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.5);
-    }
-    
-    [data-bs-theme="dark"] .navbar {
-      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.5);
-    }
-    
-    .dark-mode-toggle {
-      background: none;
-      border: 1px solid var(--border-color);
-      color: var(--text-primary);
-      border-radius: 0.375rem;
-      padding: 0.5rem 1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    
-    .dark-mode-toggle:hover {
-      background: var(--border-color);
-    }
-    
-    .card-header {
-      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-      color: white;
-      font-weight: 600;
-      border: none;
-      padding: 1rem 1.5rem;
-    }
-    
+    body { font-family: 'Segoe UI', Arial, sans-serif; background: #f4f6fa; margin: 0; padding: 0; }
+    .container { max-width: 1200px; width: 90%; margin: 20px auto; background: #fff; border-radius: 8px; box-shadow: 0 2px 8px #0001; padding: 24px; }
+    h1 { font-size: 1.6em; margin-bottom: 0.5em; }
+    label { display: block; margin-top: 1em; font-weight: 500; }
+    input[type="text"], select, textarea, .rich-value {
+      width: 100%; padding: 8px; margin-top: 4px; border: 1px solid #ccc; border-radius: 4px;
+      font-size: 1em; box-sizing: border-box;
+    }
+    .fields { margin-top: 1.5em; }
     .field-row {
-      display: flex;
-      gap: 0.75rem;
-      align-items: flex-end;
-      margin-bottom: 1rem;
+      display: flex; gap: 6px; align-items: flex-end; margin-bottom: 10px;
+      flex-wrap: nowrap;
     }
-    
     .field-select {
-      flex: 0 0 280px;
+      flex: 0 0 auto; width: 250px;
+      padding: 8px; border: 1px solid #ccc; border-radius: 4px;
+      font-size: 1em; box-sizing: border-box;
     }
-    
     .field-select.required-field {
-      border-left: 4px solid var(--danger-color) !important;
+      border-left: 4px solid #e74c3c !important;
       background: #fff5f5 !important;
+      font-weight: 600;
     }
-    
+    .manage-fields-btn {
+      background: #3498db; color: #fff; border: none; border-radius: 4px;
+      padding: 8px 12px; cursor: pointer; font-size: 0.95em; white-space: nowrap; flex-shrink: 0;
+    }
+    .manage-fields-btn:hover { background: #217dbb; }
+    .field-row .rich-value {
+      flex: 1; min-width: 0;
+      min-height: 80px; padding: 8px;
+    }
     .editor-container {
-      flex: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
+      flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; align-self: stretch;
     }
-    
-    /* Floating toolbar that appears on text selection */
     .formatting-toolbar {
-      position: absolute;
-      display: none;
-      gap: 0.25rem;
-      padding: 0.5rem;
-      background: rgba(33, 37, 41, 0.95);
-      backdrop-filter: blur(10px);
-      border-radius: 0.5rem;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
-      z-index: 1000;
-      pointer-events: auto;
+      display: flex; gap: 4px; padding: 6px; background: #f0f0f0; border-radius: 4px; width: 100%;
+      box-sizing: border-box;
     }
-    
-    .formatting-toolbar.show {
-      display: flex;
-      animation: fadeInUp 0.2s ease-out;
+    .formatting-toolbar button {
+      padding: 6px 10px; background: #e74c3c; color: #fff; border: none; border-radius: 4px;
+      cursor: pointer; font-size: 0.9em; font-weight: 600; min-width: 32px;
     }
-    
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(8px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    .formatting-toolbar button:hover {
+      background: #c0392b;
     }
-    
-    .formatting-toolbar .btn {
-      padding: 0.5rem 0.75rem;
-      font-size: 0.875rem;
-      font-weight: 600;
-      min-width: 38px;
-      background: transparent;
-      color: #fff;
-      border: none;
-      transition: all 0.15s ease;
+    .remove-field-btn {
+      background: #e74c3c; color: #fff; border: none; border-radius: 4px;
+      padding: 8px 12px; cursor: pointer; font-size: 0.95em; white-space: nowrap; flex-shrink: 0;
     }
-    
-    .formatting-toolbar .btn:hover {
-      background: rgba(255, 255, 255, 0.15);
-      transform: scale(1.05);
+    .remove-field-btn:hover { background: #c0392b; }
+    .add-btn { background: #3498db; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; margin-top: 8px; cursor: pointer; }
+    .add-btn:hover { background: #217dbb; }
+    .generate-btn { background: #27ae60; color: #fff; border: none; border-radius: 4px; padding: 12px 24px; font-size: 1.1em; margin-top: 20px; cursor: pointer; width: 100%; }
+    .generate-btn:hover { background: #1e874b; }
+    .output { margin-top: 2em; background: #f9f9f9; border-radius: 6px; padding: 16px; word-break: break-all; }
+    .copy-btn { background: #f1c40f; color: #333; border: none; border-radius: 4px; padding: 6px 12px; margin-left: 8px; cursor: pointer; }
+    .copy-btn:hover { background: #d4ac0d; }
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
     }
-    
-    .formatting-toolbar .btn:active {
-      transform: scale(0.95);
+    @keyframes slideOut {
+      from { transform: translateX(0); opacity: 1; }
+      to { transform: translateX(100%); opacity: 0; }
     }
-    
-    .rich-value {
-      position: relative;
-      min-height: 100px;
-      border: 1px solid #ced4da;
-      border-radius: 0.375rem;
-      padding: 0.75rem;
-      background: white;
-      outline: none;
-      transition: border-color 0.15s ease, box-shadow 0.15s ease;
-    }
-    
-    .rich-value:focus {
-      border-color: #0d6efd;
-      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
-    }
-    
-    .toolbar-section {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-bottom: 1.5rem;
-      padding: 1rem;
-      background: white;
-      border-radius: 0.5rem;
-      box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    }
-    
-    .app-selector {
-      display: flex;
-      gap: 0;
-      margin-bottom: 1.5rem;
-    }
-    
-    .app-selector .btn {
-      flex: 1;
-      border-radius: 0;
-      font-weight: 600;
-      padding: 0.75rem 1.5rem;
-    }
-    
-    .app-selector .btn:first-child {
-      border-top-left-radius: 0.375rem;
-      border-bottom-left-radius: 0.375rem;
-    }
-    
-    .app-selector .btn:last-child {
-      border-top-right-radius: 0.375rem;
-      border-bottom-right-radius: 0.375rem;
-    }
-    
-    .btn-icon {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-    
-    .output {
-      margin-top: 1.5rem;
-      background: #f8f9fa;
-      border-radius: 0.5rem;
-      padding: 1.5rem;
-      border: 1px solid #dee2e6;
-      word-break: break-all;
-    }
-    
-    .badge-required {
-      background: var(--danger-color);
-      font-size: 0.75rem;
-      padding: 0.25rem 0.5rem;
-      margin-left: 0.5rem;
-    }
-    
+    .app-selector { display: flex; gap: 0; margin-bottom: 20px; }
+    .app-selector button { flex: 1; padding: 12px 20px; border: 2px solid #3498db; background: #fff; color: #3498db; font-size: 1em; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .app-selector button:first-child { border-radius: 6px 0 0 6px; }
+    .app-selector button:last-child { border-radius: 0 6px 6px 0; }
+    .app-selector button.active { background: #3498db; color: #fff; }
+    .app-selector button:hover:not(.active) { background: #ecf0f1; }
     .jira-only, .snow-only { display: none; }
     body.app-jira .jira-only { display: block; }
     body.app-jira .snow-only { display: none !important; }
     body.app-servicenow .snow-only { display: block; }
     body.app-servicenow .jira-only { display: none !important; }
-    
-    @media (max-width: 768px) {
-      .field-row {
-        flex-direction: column;
-        align-items: stretch;
-      }
-      .field-select {
-        flex: 1 1 auto;
-      }
-      .toolbar-section {
-        justify-content: center;
-      }
-    }
-    
-    /* Modal improvements */
-    .modal-header {
-      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
-      color: white;
-      border: none;
-    }
-    
-    .modal-header .btn-close {
-      filter: brightness(0) invert(1);
-    }
-    
-    .modal-footer {
-      border-top: 1px solid #dee2e6;
+    @media (max-width: 600px) {
+      .container { padding: 12px; }
+      .field-row { flex-direction: column; gap: 4px; flex-wrap: wrap; align-items: stretch; }
+      .field-select { width: 100%; }
+      .field-row .rich-value { min-height: 60px; }
     }
   </style>
 </head>
 <body class="app-servicenow">
-  
-  <!-- Navigation Bar -->
-  <nav class="navbar navbar-expand-lg navbar-dark bg-white shadow-sm mb-4">
-    <div class="container-fluid main-container">
-      <a class="navbar-brand" href="#">
-        <i class="bi bi-link-45deg"></i> Template Link Generator
-      </a>
-      <span class="navbar-text text-muted">
-        <small>Enterprise Issue Template Solution</small>
-      </span>
-      <button class="dark-mode-toggle ms-auto" onclick="toggleDarkMode()" id="darkModeToggle" title="Toggle Dark Mode">
-        <i class="bi bi-moon-stars-fill"></i>
-        <span id="darkModeText">Dark</span>
-      </button>
-    </div>
-  </nav>
-
-  <div class="main-container">
-    <!-- App Type Selector Card -->
-    <div class="card">
-      <div class="card-body">
-        <h5 class="card-title mb-3">
-          <i class="bi bi-grid-3x3-gap"></i> Select Platform
-        </h5>
-        <div class="app-selector">
-          <button type="button" id="btnJira" class="btn btn-outline-primary" onclick="switchAppType('jira')">
-            <i class="bi bi-kanban"></i> Jira
-          </button>
-          <button type="button" id="btnServiceNow" class="btn btn-primary" onclick="switchAppType('servicenow')">
-            <i class="bi bi-snow"></i> ServiceNow
-          </button>
-        </div>
-      </div>
+  <div class="container">
+    <h1 id="appTitle">Link Generator</h1>
+    
+    <!-- App Type Selector -->
+    <div class="app-selector">
+      <button type="button" id="btnJira" onclick="switchAppType('jira')">Jira</button>
+      <button type="button" id="btnServiceNow" class="active" onclick="switchAppType('servicenow')">ServiceNow</button>
     </div>
 
-    <!-- Toolbar Card -->
-    <div class="card">
-      <div class="card-body">
-        <div class="toolbar-section">
-          <select id="presetSelect" class="form-select" onchange="loadPresetFromDropdown()" style="flex: 1; min-width: 200px;">
-            <option value="">
-              <i class="bi bi-bookmark"></i> Load Preset
-            </option>
+    <!-- Load Preset Dropdown -->
+    <div style="margin-bottom: 20px; display: flex; gap: 8px; align-items: center;">
+      <select id="presetSelect" onchange="loadPresetFromDropdown()" style="flex: 1; padding: 8px; border: 1px solid #3498db; border-radius: 4px; font-size: 1em;">
+        <option value="">-- Load Preset --</option>
+      </select>
+      <button type="button" onclick="openManagePresetsModal()" style="background: #3498db; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer;">Manage Presets</button>
+      <button type="button" onclick="openFieldExtractorModal()" style="background: #9b59b6; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Extract fields from forms">🔍 Field Extractor</button>
+      <button type="button" onclick="openFieldPickerModal()" style="background: #e74c3c; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Inspect individual fields">🎯 Field Picker</button>
+      <button type="button" onclick="openConfigManagementModal()" style="background: #34495e; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Manage your configurations">⚙️ Manage Configs</button>
+      <button type="button" onclick="exportConfiguration()" style="background: #27ae60; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Export all configurations, fields, and dropdowns to a JSON file">Export Config</button>
+      <button type="button" onclick="openImportModal()" style="background: #e67e22; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Import configurations from a JSON file">Import Config</button>
+      <button type="button" onclick="undoLastImport()" style="background: #e74c3c; color: #fff; border: none; border-radius: 4px; padding: 8px 16px; cursor: pointer; white-space: nowrap;" title="Undo the last import operation">↶ Undo Import</button>
+    </div>
+
+    <form id="linkForm" autocomplete="off">
+      <label>Base URL
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="baseUrl" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" required onchange="saveState(); updateAllFieldSelects(); detectAppType(); autoPopulateRequiredFields();">
+            <option value="">-- Select Base URL --</option>
           </select>
-          <button type="button" onclick="openManagePresetsModal()" class="btn btn-outline-primary btn-icon">
-            <i class="bi bi-bookmarks"></i> Presets
-          </button>
-          <button type="button" onclick="openFieldPickerModal()" class="btn btn-outline-danger btn-icon" title="Select multiple fields from forms">
-            <i class="bi bi-crosshair"></i> Field Picker
-          </button>
-          <button type="button" onclick="openConfigManagementModal()" class="btn btn-outline-dark btn-icon" title="Manage your configurations">
-            <i class="bi bi-gear"></i> Manage Configs
-          </button>
-          <button type="button" onclick="exportConfiguration()" class="btn btn-outline-success btn-icon" title="Export all configurations">
-            <i class="bi bi-download"></i> Export
-          </button>
-          <button type="button" onclick="openImportModal()" class="btn btn-outline-warning btn-icon" title="Import configurations">
-            <i class="bi bi-upload"></i> Import
-          </button>
-          <button type="button" onclick="undoLastImport()" class="btn btn-outline-danger btn-icon" title="Undo the last import">
-            <i class="bi bi-arrow-counterclockwise"></i> Undo
-          </button>
+          <button type="button" onclick="openBaseUrlManager()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:10px 16px;cursor:pointer;white-space:nowrap;font-weight:500;">Manage</button>
         </div>
-      </div>
-    </div>
-
-    <!-- Main Form Card -->
-    <div class="card">
-      <div class="card-header">
-        <i class="bi bi-pencil-square"></i> Link Configuration
-      </div>
-      <div class="card-body">
-        <form id="linkForm" autocomplete="off">
-          
-          <!-- Base URL -->
-          <div class="mb-4">
-            <label for="baseUrl" class="form-label fw-semibold">
-              <i class="bi bi-globe"></i> Base URL
-              <span class="badge bg-danger">Required</span>
-            </label>
-            <div class="input-group">
-              <select id="baseUrl" class="form-select" required onchange="saveState(); updateAllFieldSelects(); detectAppType(); autoPopulateRequiredFields();">
-                <option value="">-- Select Base URL --</option>
-              </select>
-              <button type="button" onclick="openBaseUrlManager()" class="btn btn-primary">
-                <i class="bi bi-gear"></i> Manage
-              </button>
-            </div>
-          </div>
-          
-          <!-- Jira-specific: Project ID -->
-          <div id="projectIdRow" class="mb-4 jira-only">
-            <label for="projectId" class="form-label fw-semibold">
-              <i class="bi bi-folder"></i> Project ID (pid)
-            </label>
-            <div class="input-group">
-              <select id="projectId" class="form-select" onchange="saveState(); autoPopulateRequiredFields()">
-                <option value="">-- Select Project ID --</option>
-              </select>
-              <button type="button" onclick="openProjectIdManager()" class="btn btn-primary">
-                <i class="bi bi-gear"></i> Manage
-              </button>
-            </div>
-          </div>
-          
-          <!-- Issue Type -->
-          <div class="mb-4">
-            <label for="issueType" class="form-label fw-semibold">
-              <i class="bi bi-tag"></i> Issue Type
-              <span class="badge bg-danger">Required</span>
-            </label>
-            <div class="input-group">
-              <select id="issueType" class="form-select" required onchange="saveState(); updateAllFieldSelects(); autoPopulateRequiredFields();">
-                <option value="">-- Select Issue Type --</option>
-              </select>
-              <button type="button" onclick="openIssueTypeManager()" class="btn btn-primary">
-                <i class="bi bi-gear"></i> Manage
-              </button>
-            </div>
-          </div>
-          
-          <!-- Filter Fields Toggle -->
-          <div class="form-check mb-4">
-            <input type="checkbox" class="form-check-input" id="filterFieldsByIssueType" onchange="updateAllFieldSelects(); saveState();">
-            <label class="form-check-label" for="filterFieldsByIssueType">
-              <i class="bi bi-funnel"></i> Only show fields for selected issue type
-            </label>
-          </div>
+      </label>
+      
+      <!-- Jira-specific: Project ID -->
+      <label id="projectIdRow" class="jira-only">Project ID (pid)
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="projectId" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" onchange="saveState(); autoPopulateRequiredFields()">
+            <option value="">-- Select Project ID --</option>
+          </select>
+          <button type="button" onclick="openProjectIdManager()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:10px 16px;cursor:pointer;white-space:nowrap;font-weight:500;">Manage</button>
+        </div>
+      </label>
+      
+      <label>Issue Type
+        <div style="display:flex;gap:8px;align-items:center;">
+          <select id="issueType" style="flex:1;padding:10px;border:1px solid #ccc;border-radius:4px;font-size:1em;" required onchange="saveState(); updateAllFieldSelects(); autoPopulateRequiredFields();">
+            <option value="">-- Select Issue Type --</option>
+          </select>
+          <button type="button" onclick="openIssueTypeManager()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:10px 16px;cursor:pointer;white-space:nowrap;font-weight:500;">Manage</button>
+        </div>
+      </label>
+      
+      <!-- Filter Fields by Issue Type Toggle -->
+      <label style="display:flex;align-items:center;gap:8px;margin-top:8px;margin-bottom:16px;font-size:0.95em;color:#555;">
+        <input type="checkbox" id="filterFieldsByIssueType" onchange="updateAllFieldSelects(); saveState();" style="width:auto;margin:0;">
+        <span>Only show fields for selected issue type</span>
+      </label>
       
       <div class="fields" id="fields"></div>
-      
-      <div class="d-grid gap-2 mt-4">
-        <button type="button" class="btn btn-primary btn-lg" onclick="addField()">
-          <i class="bi bi-plus-circle"></i> Add Field
-        </button>
-      </div>
-      
-      <div class="row g-2 mt-3">
-        <div class="col-md-6">
-          <button type="submit" class="btn btn-success btn-lg w-100">
-            <i class="bi bi-link-45deg"></i> Generate Link
-          </button>
-        </div>
-        <div class="col-md-6">
-          <button type="button" onclick="openSavePresetModal()" class="btn btn-secondary btn-lg w-100">
-            <i class="bi bi-bookmark-plus"></i> Save as Preset
-          </button>
-        </div>
+      <button type="button" class="add-btn" onclick="addField()">+ Add Field</button>
+      <div style="display: flex; gap: 8px; margin-top: 20px;">
+        <button type="submit" class="generate-btn" style="flex: 1;">Generate Link</button>
+        <button type="button" onclick="openSavePresetModal()" style="background: #9b59b6; color: #fff; border: none; border-radius: 4px; padding: 12px 24px; font-size: 1.1em; cursor: pointer; flex: 1;">Save as Preset</button>
       </div>
     </form>
-    
-    <!-- Output Section -->
-    <div class="alert alert-success mt-4" id="output" style="display:none; cursor: pointer;" role="alert" onclick="toggleLinkDisplay()">
-      <div id="copyMessage">
-        <h5 class="alert-heading d-flex align-items-center justify-content-between">
-          <span>
-            <i class="bi bi-clipboard-check-fill"></i> Link Copied to Clipboard!
-          </span>
-          <small class="text-muted">
-            <i class="bi bi-chevron-down" id="expandIcon"></i> Click to view link (<span id="urlLength">0</span> chars)
-          </small>
-        </h5>
-      </div>
-      <div id="linkDetails" style="display:none;">
-        <hr>
-        <div id="link" class="mb-3" style="word-break: break-all; font-family: 'Courier New', monospace; background: rgba(255, 255, 255, 0.3); padding: 1rem; border-radius: 0.375rem; font-size: 0.875rem;"></div>
-        <button class="btn btn-warning btn-sm" onclick="event.stopPropagation(); copyLink();">
-          <i class="bi bi-clipboard"></i> Copy Again
-        </button>
-      </div>
+    <div class="output" id="output" style="display:none;">
+      <strong>Generated Link:</strong>
+      <div id="link"></div>
+      <button class="copy-btn" onclick="copyLink()">Copy</button>
     </div>
   </div>
-</div>
 
   <!-- Field Management Modal -->
   <div id="fieldManagerModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
-    <div style="background:#fff;border-radius:8px;padding:24px;max-width:1000px;width:90vw;max-height:80vh;overflow-y:auto;">
+    <div style="background:#fff;border-radius:8px;padding:24px;max-width:500px;width:90vw;max-height:80vh;overflow-y:auto;">
       <h2>Manage Fields & Configuration</h2>
       
       <div style="margin-top:16px;">
         <h3 style="font-size:1em;color:#2c3e50;margin-bottom:8px;">Configuration Items</h3>
         <div id="configItemsList" style="margin-bottom:16px;max-height:150px;overflow-y:auto;border:1px solid #ddd;border-radius:4px;padding:8px;background:#f9f9f9;"></div>
-        
-        <h3 style="font-size:1em;color:#2c3e50;margin-top:16px;margin-bottom:8px;">Issue Types / Table Names</h3>
-        <div style="background:#e8f4fd;border:1px solid #3498db;border-radius:4px;padding:12px;margin-bottom:16px;">
-          <div style="display:flex;gap:8px;margin-bottom:8px;">
-            <input type="text" id="issueTypeAliasInput" placeholder="Display Name (e.g., Service Request)" style="flex:2;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
-            <input type="text" id="issueTypeValueInput" placeholder="ID/Value (e.g., sc_req_item)" style="flex:2;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
-            <button type="button" onclick="addIssueTypeDefinition()" style="background:#27ae60;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;font-size:0.9em;white-space:nowrap;">Add</button>
-          </div>
-          <div id="issueTypesListInModal" style="max-height:120px;overflow-y:auto;"></div>
-        </div>
         
         <h3 style="font-size:1em;color:#2c3e50;margin-top:16px;margin-bottom:8px;">
           Custom Fields
@@ -1010,18 +222,14 @@
             <option value="text">Text (Rich Editor)</option>
             <option value="combobox">Combobox (Dropdown)</option>
           </select>
-          <label style="margin:0;display:flex;align-items:center;gap:4px;white-space:nowrap;">
-            <input type="checkbox" id="fieldRequiredCheckbox" style="margin:0;">
-            <span>Required</span>
-          </label>
         </div>
         <div id="comboboxOptionsSection" style="display:none;border:1px solid #ddd;border-radius:4px;padding:12px;background:#f9f9f9;">
           <div style="font-weight:500;margin-bottom:8px;">Combobox Options:</div>
           <div id="comboboxOptionsList" style="max-height:150px;overflow-y:auto;margin-bottom:8px;"></div>
-          <div style="display:flex;gap:8px;flex-wrap:wrap;">
-            <input type="text" id="optionLabelInput" placeholder="Label (e.g. High)" style="flex:1;min-width:120px;padding:6px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
-            <input type="text" id="optionValueInput" placeholder="Value (e.g. 1)" style="flex:1;min-width:100px;padding:6px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
-            <button type="button" onclick="addComboboxOption()" style="background:#27ae60;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.9em;white-space:nowrap;">Add Option</button>
+          <div style="display:flex;gap:8px;">
+            <input type="text" id="optionLabelInput" placeholder="Label (e.g. High)" style="flex:1;padding:6px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
+            <input type="text" id="optionValueInput" placeholder="Value (e.g. 1)" style="flex:1;padding:6px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
+            <button type="button" onclick="addComboboxOption()" style="background:#27ae60;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.9em;">Add Option</button>
           </div>
         </div>
         <button type="button" onclick="addFieldDefinition()" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:8px 16px;cursor:pointer;" id="addFieldBtn">Add</button>
@@ -1235,7 +443,42 @@
   </div>
 
   <!-- Field Extractor Modal -->
-  <!-- Field Picker Modal (OLD - kept for backward compatibility with bookmarklets) -->
+  <div id="fieldExtractorModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;">
+    <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:8px;padding:24px;max-width:700px;width:90vw;max-height:80vh;overflow-y:auto;box-shadow:0 4px 20px rgba(0,0,0,0.15);">
+      <h2 style="margin:0 0 16px 0;color:#2c3e50;">🔍 Field Extractor</h2>
+      <p style="color:#666;margin:0 0 20px 0;line-height:1.5;">Automatically extract field definitions from Jira or ServiceNow forms using the bookmarklet below.</p>
+      
+      <div style="background:#e8f4fd;padding:20px;border-radius:8px;border:2px solid #3498db;margin-bottom:20px;">
+        <h3 style="font-size:1em;margin:0 0 12px 0;color:#2980b9;font-weight:600;">📌 Step 1: Add Bookmarklet</h3>
+        <p style="font-size:0.9em;color:#555;margin:0 0 12px 0;">Drag the button below to your browser's bookmarks bar:</p>
+        <div style="text-align:center;padding:20px;background:white;border-radius:6px;">
+          <a id="fieldExtractorBookmarklet" href="" style="display:inline-block;background:linear-gradient(135deg, #667eea 0%, #764ba2 100%);color:white;text-decoration:none;padding:14px 28px;border-radius:8px;font-weight:600;font-size:14px;cursor:move;box-shadow:0 2px 8px rgba(102,126,234,0.4);transition:transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">🔍 Field Extractor</a>
+          <p style="margin:12px 0 0 0;font-size:0.85em;color:#999;font-style:italic;">← Drag this to your bookmarks bar</p>
+        </div>
+      </div>
+
+      <div style="background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px;border:1px solid #dee2e6;">
+        <h3 style="font-size:1em;margin:0 0 12px 0;color:#2c3e50;font-weight:600;">📖 Step 2: Use the Bookmarklet</h3>
+        <ol style="margin:0;padding-left:24px;line-height:2;color:#555;font-size:0.9em;">
+          <li>Navigate to a ServiceNow form page (e.g., Create Incident, Create Change Request)</li>
+          <li>Make sure all form sections are expanded to capture all fields</li>
+          <li>Click the <strong>"🔍 Field Extractor"</strong> bookmark you just added</li>
+          <li>A popup will show all discovered fields - download or copy the JSON</li>
+          <li>Return to this tool and click <strong>"Import Config"</strong> to load the fields</li>
+        </ol>
+      </div>
+
+      <div style="background:#fff3cd;padding:16px;border-radius:8px;border-left:4px solid #ffc107;font-size:0.9em;color:#856404;line-height:1.6;">
+        <strong>💡 Pro Tip:</strong> Run the bookmarklet on different ServiceNow forms to extract fields specific to each form type (Incident, Change, Problem, etc.).
+      </div>
+
+      <div style="margin-top:24px;text-align:right;">
+        <button type="button" onclick="closeFieldExtractorModal()" style="background:#6c757d;color:#fff;border:none;border-radius:6px;padding:10px 24px;cursor:pointer;font-size:14px;font-weight:500;transition:background 0.2s;" onmouseover="this.style.background='#5a6268'" onmouseout="this.style.background='#6c757d'">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Field Picker Modal -->
   <div id="fieldPickerModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;">
     <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:#fff;border-radius:8px;padding:24px;max-width:700px;width:90vw;max-height:80vh;overflow-y:auto;box-shadow:0 4px 20px rgba(0,0,0,0.15);">
       <h2 style="margin:0 0 16px 0;color:#2c3e50;">🎯 Field Picker</h2>
@@ -1251,83 +494,23 @@
       </div>
 
       <div style="background:#f8f9fa;padding:20px;border-radius:8px;margin-bottom:20px;border:1px solid #dee2e6;">
-        <h3 style="font-size:1em;margin:0 0 12px 0;color:#2c3e50;font-weight:600;">📖 Step 2: Use the Multi-Select Field Picker</h3>
+        <h3 style="font-size:1em;margin:0 0 12px 0;color:#2c3e50;font-weight:600;">📖 Step 2: Use the Field Picker</h3>
         <ol style="margin:0;padding-left:24px;line-height:2;color:#555;font-size:0.9em;">
           <li>Navigate to a Jira or ServiceNow form page</li>
           <li>Click the <strong>"🎯 Field Picker"</strong> bookmark you just added</li>
-          <li>A side panel appears on the right side of the page</li>
-          <li>Click <strong>"🚀 Activate Field Picker"</strong> button in the panel</li>
-          <li>Click any form fields (inputs, dropdowns, textareas) - they add to the panel</li>
-          <li>Keep clicking more fields - they all appear in the selected fields list</li>
-          <li>Click <strong>"Remove"</strong> on any field to remove it</li>
-          <li>When done, click <strong>"💾 Save All to Config"</strong></li>
-          <li>Return to this Link Generator tab - fields auto-import!</li>
+          <li>A green banner appears - Field Picker is now active!</li>
+          <li>Click any form field (input, dropdown, textarea) to see its details</li>
+          <li>Copy the field ID, label, or full JSON definition</li>
+          <li>Click another field to inspect it, or press <strong>ESC</strong> to exit</li>
         </ol>
       </div>
 
-      <div style="background:#fff3cd;padding:16px;border-radius:8px;border-left:4px solid #ffc107;font-size:0.9em;color:#856404;line-height:1.6;margin-bottom:16px;">
-        <strong>💡 Pro Tip:</strong> You can select multiple fields at once! The side panel keeps track of all your selections until you save them.
-      </div>
-      
-      <div style="background:#d4edda;padding:16px;border-radius:8px;border-left:4px solid #28a745;font-size:0.9em;color:#155724;line-height:1.6;">
-        <strong>✨ Auto-Import:</strong> When you click "Save All to Config", the fields are saved to localStorage. When you come back to this page, they automatically import into your field definitions!
+      <div style="background:#fff3cd;padding:16px;border-radius:8px;border-left:4px solid #ffc107;font-size:0.9em;color:#856404;line-height:1.6;">
+        <strong>💡 Pro Tip:</strong> Field Picker stays active until you press ESC, so you can inspect multiple fields without reactivating the bookmarklet!
       </div>
 
       <div style="margin-top:24px;text-align:right;">
         <button type="button" onclick="closeFieldPickerModal()" style="background:#6c757d;color:#fff;border:none;border-radius:6px;padding:10px 24px;cursor:pointer;font-size:14px;font-weight:500;transition:background 0.2s;" onmouseover="this.style.background='#5a6268'" onmouseout="this.style.background='#6c757d'">Close</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Import Modal -->
-  <div id="importModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.5);z-index:1000;align-items:center;justify-content:center;">
-    <div class="modal-content" style="background:#fff;border-radius:12px;padding:28px;max-width:700px;width:90vw;max-height:85vh;overflow-y:auto;box-shadow:0 4px 20px rgba(0,0,0,0.15);">
-      <h2 style="margin:0 0 16px 0;color:#2c3e50;">📥 Import Configuration</h2>
-      <p style="color:#666;margin:0 0 24px 0;line-height:1.5;">Import field definitions, base URLs, and settings from a JSON file or paste JSON directly.</p>
-      
-      <!-- Tab Selection -->
-      <div style="display:flex;gap:8px;margin-bottom:20px;border-bottom:2px solid #e9ecef;">
-        <button id="importFileTabBtn" class="import-tab active" onclick="switchImportTab('file')" style="background:none;border:none;padding:12px 20px;cursor:pointer;font-weight:600;color:#6c757d;border-bottom:3px solid #3498db;transition:all 0.2s;">
-          📁 Upload File(s)
-        </button>
-        <button id="importPasteTabBtn" class="import-tab" onclick="switchImportTab('paste')" style="background:none;border:none;padding:12px 20px;cursor:pointer;font-weight:600;color:#6c757d;border-bottom:3px solid transparent;transition:all 0.2s;">
-          📋 Paste JSON
-        </button>
-      </div>
-      
-      <!-- File Upload Tab -->
-      <div id="importFileTab" style="display:block;">
-        <div style="background:#f8fafc;border:2px dashed #cbd5e0;border-radius:8px;padding:32px;text-align:center;margin-bottom:16px;">
-          <input type="file" id="importFileInput" accept=".json" multiple style="display:none;" onchange="handleFileImport(event)">
-          <p style="margin:0 0 16px 0;color:#64748b;font-size:14px;">
-            <i class="bi bi-cloud-upload" style="font-size:48px;display:block;margin-bottom:12px;"></i>
-            Click below to select one or more JSON files
-          </p>
-          <button type="button" onclick="document.getElementById('importFileInput').click()" style="background:#3498db;color:#fff;border:none;border-radius:6px;padding:12px 24px;cursor:pointer;font-size:14px;font-weight:600;">
-            Choose File(s)
-          </button>
-        </div>
-        <p style="color:#64748b;font-size:13px;margin:0;"><strong>💡 Tip:</strong> You can select multiple JSON files at once. They will be merged automatically.</p>
-      </div>
-      
-      <!-- Paste JSON Tab -->
-      <div id="importPasteTab" style="display:none;">
-        <textarea id="importJsonTextarea" placeholder="Paste your JSON configuration here..." style="width:100%;min-height:300px;padding:12px;border:1px solid #cbd5e0;border-radius:6px;font-family:Monaco,Consolas,monospace;font-size:13px;resize:vertical;margin-bottom:16px;"></textarea>
-        <div style="display:flex;gap:8px;justify-content:flex-end;">
-          <button type="button" onclick="clearImportJson()" style="background:#95a5a6;color:#fff;border:none;border-radius:6px;padding:10px 20px;cursor:pointer;font-size:14px;">
-            Clear
-          </button>
-          <button type="button" onclick="importFromPastedJson()" style="background:#27ae60;color:#fff;border:none;border-radius:6px;padding:10px 20px;cursor:pointer;font-size:14px;font-weight:600;">
-            Import JSON
-          </button>
-        </div>
-        <p style="color:#64748b;font-size:13px;margin:12px 0 0 0;"><strong>💡 Tip:</strong> Paste the entire JSON configuration from an export file.</p>
-      </div>
-      
-      <div style="margin-top:24px;text-align:right;">
-        <button type="button" onclick="closeImportModal()" style="background:#6c757d;color:#fff;border:none;border-radius:6px;padding:10px 24px;cursor:pointer;font-size:14px;">
-          Close
-        </button>
       </div>
     </div>
   </div>
@@ -1346,61 +529,6 @@
       </div>
 
       <div id="configFieldsTab" class="config-tab-content" style="display:block;">
-        <!-- Add/Edit Field Form -->
-        <div style="background:#e8f4fd;border:1px solid #3498db;border-radius:8px;padding:16px;margin-bottom:20px;">
-          <h4 style="margin:0 0 16px 0;color:#2c3e50;font-size:1.1em;">Add / Edit Field</h4>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;">
-            <div>
-              <label style="display:block;margin-bottom:4px;font-size:0.9em;color:#555;">Field ID *</label>
-              <input type="text" id="configFieldIdInput" placeholder="e.g., assigned_to" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
-            </div>
-            <div>
-              <label style="display:block;margin-bottom:4px;font-size:0.9em;color:#555;">Label *</label>
-              <input type="text" id="configFieldLabelInput" placeholder="e.g., Assigned To" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
-            </div>
-          </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px;">
-            <div>
-              <label style="display:block;margin-bottom:4px;font-size:0.9em;color:#555;">Field Type</label>
-              <select id="configFieldTypeSelect" onchange="toggleConfigFieldOptions()" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
-                <option value="text">Text</option>
-                <option value="combobox">Combobox</option>
-              </select>
-            </div>
-            <div>
-              <label style="display:block;margin-bottom:4px;font-size:0.9em;color:#555;">Base URL</label>
-              <select id="configFieldBaseUrlSelect" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
-                <option value="">All Instances</option>
-              </select>
-            </div>
-            <div>
-              <label style="display:block;margin-bottom:4px;font-size:0.9em;color:#555;">Issue Type</label>
-              <select id="configFieldIssueTypeSelect" style="width:100%;padding:8px;border:1px solid #ccc;border-radius:4px;font-size:0.9em;">
-                <option value="">All Issue Types</option>
-              </select>
-            </div>
-          </div>
-          <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-            <label style="margin:0;display:flex;align-items:center;gap:6px;font-size:0.9em;">
-              <input type="checkbox" id="configFieldRequiredCheck">
-              <span>Required</span>
-            </label>
-          </div>
-          <div id="configComboboxOptionsSection" style="display:none;border-top:1px solid #3498db;padding-top:12px;margin-top:12px;">
-            <label style="display:block;margin-bottom:8px;font-size:0.9em;color:#555;font-weight:600;">Combobox Options:</label>
-            <div id="configComboboxOptionsList" style="max-height:120px;overflow-y:auto;margin-bottom:8px;"></div>
-            <div style="display:flex;gap:8px;">
-              <input type="text" id="configOptionLabelInput" placeholder="Label" style="flex:1;padding:6px;border:1px solid #ccc;border-radius:4px;font-size:0.85em;">
-              <input type="text" id="configOptionValueInput" placeholder="Value" style="flex:1;padding:6px;border:1px solid #ccc;border-radius:4px;font-size:0.85em;">
-              <button type="button" onclick="addConfigComboboxOption()" style="background:#27ae60;color:#fff;border:none;border-radius:4px;padding:6px 12px;cursor:pointer;font-size:0.85em;white-space:nowrap;">Add</button>
-            </div>
-          </div>
-          <div style="display:flex;gap:8px;margin-top:12px;">
-            <button type="button" onclick="saveConfigField()" id="configSaveFieldBtn" style="background:#27ae60;color:#fff;border:none;border-radius:6px;padding:10px 20px;cursor:pointer;font-size:0.9em;font-weight:600;">Save Field</button>
-            <button type="button" onclick="cancelConfigFieldEdit()" id="configCancelFieldBtn" style="display:none;background:#95a5a6;color:#fff;border:none;border-radius:6px;padding:10px 20px;cursor:pointer;font-size:0.9em;">Cancel</button>
-          </div>
-        </div>
-        
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
           <div id="fieldsSummary" style="color:#666;font-size:0.9em;"></div>
           <div>
@@ -1454,37 +582,6 @@
     let currentAppType = localStorage.getItem('linkGenAppType') || 'servicenow';
     let currentEditingFieldIndex = null;
     
-    // Dark Mode Functions
-    function toggleDarkMode() {
-      const html = document.documentElement;
-      const currentTheme = html.getAttribute('data-bs-theme');
-      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
-      
-      html.setAttribute('data-bs-theme', newTheme);
-      localStorage.setItem('theme', newTheme);
-      
-      updateDarkModeButton(newTheme);
-    }
-    
-    function updateDarkModeButton(theme) {
-      const icon = document.querySelector('#darkModeToggle i');
-      const text = document.getElementById('darkModeText');
-      
-      if (theme === 'dark') {
-        icon.className = 'bi bi-sun-fill';
-        text.textContent = 'Light';
-      } else {
-        icon.className = 'bi bi-moon-stars-fill';
-        text.textContent = 'Dark';
-      }
-    }
-    
-    function initializeDarkMode() {
-      const savedTheme = localStorage.getItem('theme') || 'light';
-      document.documentElement.setAttribute('data-bs-theme', savedTheme);
-      updateDarkModeButton(savedTheme);
-    }
-    
     function switchAppType(appType) {
       currentAppType = appType;
       localStorage.setItem('linkGenAppType', appType);
@@ -1493,32 +590,17 @@
       document.body.classList.remove('app-jira', 'app-servicenow');
       document.body.classList.add('app-' + appType);
       
-      // Update Bootstrap button states
-      const btnJira = document.getElementById('btnJira');
-      const btnServiceNow = document.getElementById('btnServiceNow');
+      // Update button states
+      document.getElementById('btnJira').classList.toggle('active', appType === 'jira');
+      document.getElementById('btnServiceNow').classList.toggle('active', appType === 'servicenow');
       
-      if (appType === 'jira') {
-        btnJira.classList.remove('btn-outline-primary');
-        btnJira.classList.add('btn-primary');
-        btnServiceNow.classList.remove('btn-primary');
-        btnServiceNow.classList.add('btn-outline-primary');
-      } else {
-        btnServiceNow.classList.remove('btn-outline-primary');
-        btnServiceNow.classList.add('btn-primary');
-        btnJira.classList.remove('btn-primary');
-        btnJira.classList.add('btn-outline-primary');
-      }
-      
-      // Update title - keep it as "Template Link Generator" for both platforms
-      const titleElement = document.querySelector('.navbar-brand');
-      if (titleElement) {
-        titleElement.innerHTML = `<i class="bi bi-link-45deg"></i> Template Link Generator`;
-      }
+      // Update title
+      const titles = { jira: 'Jira Link Generator', servicenow: 'ServiceNow Link Generator' };
+      document.getElementById('appTitle').textContent = titles[appType] || 'Link Generator';
       
       // Refresh dropdowns for the new app type
       populateBaseUrlDropdown();
       populateIssueTypeDropdown();
-      populatePresetDropdown();
       if (appType === 'jira') {
         populateProjectIdDropdown();
       }
@@ -1672,33 +754,6 @@
       populatePresetDropdown();
     };
 
-    // Show/hide floating toolbar based on text selection
-    function showFloatingToolbar(editor, toolbar) {
-      const selection = window.getSelection();
-      if (!selection.rangeCount || selection.isCollapsed) {
-        toolbar.classList.remove('show');
-        return;
-      }
-
-      // Check if selection is within this editor
-      const range = selection.getRangeAt(0);
-      if (!editor.contains(range.commonAncestorContainer)) {
-        toolbar.classList.remove('show');
-        return;
-      }
-
-      // Position toolbar above the selection
-      const rect = range.getBoundingClientRect();
-      const toolbarHeight = 50; // Approximate height
-      const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-      const scrollLeft = window.pageXOffset || document.documentElement.scrollLeft;
-      
-      toolbar.style.left = `${rect.left + scrollLeft + (rect.width / 2)}px`;
-      toolbar.style.top = `${rect.top + scrollTop - toolbarHeight}px`;
-      toolbar.style.transform = 'translateX(-50%)';
-      toolbar.classList.add('show');
-    }
-
     // Save state
     function saveState() {
       const state = {
@@ -1718,7 +773,7 @@
 
       // Field selection dropdown
       const fieldSelect = document.createElement('select');
-      fieldSelect.className = 'form-select field-select';
+      fieldSelect.className = 'field-select';
 
       const placeholder = document.createElement('option');
       placeholder.value = '';
@@ -1790,6 +845,16 @@
         }
       });
 
+      // Manage Fields button
+      const manageBtn = document.createElement('button');
+      manageBtn.type = 'button';
+      manageBtn.className = 'manage-fields-btn';
+      manageBtn.textContent = 'Manage Fields';
+      manageBtn.onclick = (e) => {
+        e.preventDefault();
+        openFieldManager();
+      };
+
       // Value input container (will be populated based on field type)
       const valueContainer = document.createElement('div');
       valueContainer.className = 'editor-container';
@@ -1820,64 +885,45 @@
         valueContainer.innerHTML = '';
         
         if (!fieldDef || fieldDef.fieldType === 'text' || !fieldDef.fieldType) {
-          // Render rich text editor with floating toolbar
+          // Render rich text editor with formatting toolbar
+          const toolbar = document.createElement('div');
+          toolbar.className = 'formatting-toolbar';
+          toolbar.style.width = '100%';
+
+          const formatButtons = [
+            { label: '•', cmd: 'insertUnorderedList', title: 'Bullet List' },
+            { label: '1.', cmd: 'insertOrderedList', title: 'Numbered List' },
+            { label: '⌫', cmd: 'removeFormat', title: 'Clear Formatting' }
+          ];
+
           const richValue = document.createElement('div');
           richValue.contentEditable = 'true';
-          richValue.className = 'rich-value form-control';
+          richValue.className = 'rich-value';
           richValue.style.minHeight = '80px';
           richValue.style.width = '100%';
           richValue.innerHTML = currentValue;
           richValue.oninput = saveState;
 
-          // Create floating toolbar (initially hidden)
-          const toolbar = document.createElement('div');
-          toolbar.className = 'formatting-toolbar';
-          toolbar.id = `toolbar-${Date.now()}`; // Unique ID
-
-          const formatButtons = [
-            { icon: 'bi-type-bold', cmd: 'bold', title: 'Bold' },
-            { icon: 'bi-type-italic', cmd: 'italic', title: 'Italic' },
-            { icon: 'bi-type-underline', cmd: 'underline', title: 'Underline' },
-            { icon: 'bi-list-ul', cmd: 'insertUnorderedList', title: 'Bullet List' },
-            { icon: 'bi-list-ol', cmd: 'insertOrderedList', title: 'Numbered List' },
-            { icon: 'bi-eraser', cmd: 'removeFormat', title: 'Clear Formatting' }
-          ];
-
-          formatButtons.forEach(({ icon, cmd, title }) => {
+          formatButtons.forEach(({ label, cmd, title }) => {
             const btn = document.createElement('button');
             btn.type = 'button';
-            btn.className = 'btn btn-sm';
-            btn.innerHTML = `<i class="bi ${icon}"></i>`;
+            btn.textContent = label;
             btn.title = title;
             btn.onclick = (e) => {
               e.preventDefault();
+              richValue.focus();
               document.execCommand(cmd, false, null);
               saveState();
             };
             toolbar.appendChild(btn);
           });
 
-          // Show toolbar on text selection
-          richValue.addEventListener('mouseup', () => showFloatingToolbar(richValue, toolbar));
-          richValue.addEventListener('keyup', () => showFloatingToolbar(richValue, toolbar));
-          
-          // Store toolbar reference for cleanup
-          richValue.dataset.toolbarId = toolbar.id;
-          
-          // Hide toolbar when clicking outside
-          document.addEventListener('click', (e) => {
-            if (!toolbar.contains(e.target) && e.target !== richValue && !richValue.contains(e.target)) {
-              toolbar.classList.remove('show');
-            }
-          });
-
+          valueContainer.appendChild(toolbar);
           valueContainer.appendChild(richValue);
-          // Append toolbar to body so it can float above everything
-          document.body.appendChild(toolbar);
         } else if (fieldDef.fieldType === 'combobox') {
           // Render combobox dropdown
           const comboSelect = document.createElement('select');
-          comboSelect.className = 'rich-value form-select';
+          comboSelect.className = 'rich-value';
           comboSelect.style.minHeight = 'auto';
           comboSelect.style.padding = '8px';
 
@@ -1916,23 +962,12 @@
       // Remove button
       const remove = document.createElement('button');
       remove.type = 'button';
-      remove.className = 'btn btn-danger';
-      remove.innerHTML = '<i class="bi bi-trash"></i>';
-      remove.title = 'Remove Field';
-      remove.onclick = () => { 
-        // Clean up any associated floating toolbar
-        const richValue = row.querySelector('.rich-value[data-toolbar-id]');
-        if (richValue && richValue.dataset.toolbarId) {
-          const toolbar = document.getElementById(richValue.dataset.toolbarId);
-          if (toolbar) {
-            toolbar.remove();
-          }
-        }
-        fieldsDiv.removeChild(row); 
-        saveState(); 
-      };
+      remove.className = 'remove-field-btn';
+      remove.textContent = 'Remove';
+      remove.onclick = () => { fieldsDiv.removeChild(row); saveState(); };
 
       row.appendChild(fieldSelect);
+      row.appendChild(manageBtn);
       row.appendChild(valueContainer);
       row.appendChild(remove);
       fieldsDiv.appendChild(row);
@@ -2067,14 +1102,7 @@
           }
 
           if (val) {
-            // FIX for Issue #18: Strip table prefix from field name for ServiceNow
-            // ServiceNow sysparm_query expects field names without the table prefix
-            // e.g., "short_description" not "change_request.short_description"
-            let fieldName = f.name;
-            if (fieldName.includes('.')) {
-              fieldName = fieldName.split('.').pop(); // Get the part after the last dot
-            }
-            queryParts.push(`${fieldName}=${val}`);
+            queryParts.push(`${f.name}=${val}`);
           }
         });
 
@@ -2089,19 +1117,6 @@
 
       document.getElementById('link').textContent = url;
       
-      // Update URL length display
-      const urlLengthSpan = document.getElementById('urlLength');
-      if (urlLengthSpan) {
-        urlLengthSpan.textContent = url.length;
-      }
-      
-      // Auto-copy to clipboard
-      copyToClipboard(url);
-      
-      // Collapse the link details by default
-      document.getElementById('linkDetails').style.display = 'none';
-      document.getElementById('expandIcon').className = 'bi bi-chevron-down';
-      
       // Check for URL length issues (414 Request-URI Too Large)
       const MAX_SAFE_LENGTH = currentAppType === 'jira' ? 2048 : 8200;
       const outputDiv = document.getElementById('output');
@@ -2112,12 +1127,10 @@
         if (!warningEl) {
           warningEl = document.createElement('div');
           warningEl.id = warningId;
-          warningEl.className = 'alert alert-warning mt-2';
-          warningEl.style.cursor = 'default';
-          warningEl.onclick = (e) => e.stopPropagation();
+          warningEl.style.cssText = 'margin-top:16px;padding:12px;background:#f8d7da;color:#721c24;border:1px solid #f5c6cb;border-radius:4px;';
           outputDiv.appendChild(warningEl);
         }
-        warningEl.innerHTML = `<strong><i class="bi bi-exclamation-triangle"></i> Warning: URL Too Long (${url.length} chars)</strong><br>
+        warningEl.innerHTML = `<strong>Warning: URL Too Long (${url.length} chars)</strong><br>
         The generated link exceeds ${MAX_SAFE_LENGTH} characters. You may encounter a "414 Request-URI Too Large" error.<br>
         Try reducing the content in rich text fields.`;
       } else if (warningEl) {
@@ -2151,7 +1164,7 @@
           const currentDef = definitions.find(d => d.id === currentValue);
           if (currentDef) {
             const matchesBaseUrl = !currentDef.baseUrlId || currentDef.baseUrlId === currentBaseUrlId;
-            const matchesIssueType = !filterByIssueType || (!currentDef.issueTypeId || currentDef.issueTypeId === currentIssueTypeId) && (!currentDef.tableNameId || currentDef.tableNameId === currentIssueTypeId);
+            const matchesIssueType = !filterByIssueType || !currentDef.issueTypeId && !currentDef.tableNameId || currentDef.issueTypeId === currentIssueTypeId || currentDef.tableNameId === currentIssueTypeId;
             let matchesAppType = true;
             if (currentDef.appType) {
               if (isJira && currentDef.appType !== 'jira') matchesAppType = false;
@@ -2169,7 +1182,7 @@
         // Re-populate with filtered options
         definitions.sort((a, b) => a.label.localeCompare(b.label)).forEach(def => {
           const matchesBaseUrl = !def.baseUrlId || def.baseUrlId === currentBaseUrlId;
-          const matchesIssueType = !filterByIssueType || (!def.issueTypeId || def.issueTypeId === currentIssueTypeId) && (!def.tableNameId || def.tableNameId === currentIssueTypeId);
+          const matchesIssueType = !filterByIssueType || !def.issueTypeId && !def.tableNameId || def.issueTypeId === currentIssueTypeId || def.tableNameId === currentIssueTypeId;
           
           // Filter by app type - only show fields for current app
           let matchesAppType = true;
@@ -2417,7 +1430,6 @@
       });
 
       refreshConfigItemsList();
-      refreshIssueTypesListInModal();
       refreshFieldsList();
     }
 
@@ -2425,98 +1437,6 @@
       const modal = document.getElementById('fieldManagerModal');
       modal.style.display = 'none';
       cancelEditField();
-    }
-
-    function addIssueTypeDefinition() {
-      const alias = document.getElementById('issueTypeAliasInput').value.trim();
-      const value = document.getElementById('issueTypeValueInput').value.trim();
-      
-      if (!alias || !value) {
-        alert('Please provide both display name and ID/value');
-        return;
-      }
-      
-      const issueTypes = loadItems(getStorageKey('issueTypes')) || [];
-      
-      // Check for duplicates
-      if (issueTypes.some(it => it.value === value)) {
-        alert('An issue type with this ID/value already exists');
-        return;
-      }
-      
-      const newIssueType = {
-        id: 'it_' + Date.now(),
-        alias: alias,
-        value: value
-      };
-      
-      issueTypes.push(newIssueType);
-      saveItems(getStorageKey('issueTypes'), issueTypes);
-      
-      // Clear inputs
-      document.getElementById('issueTypeAliasInput').value = '';
-      document.getElementById('issueTypeValueInput').value = '';
-      
-      // Refresh displays
-      refreshIssueTypesListInModal();
-      populateIssueTypeDropdown();
-      
-      // Refresh the issue type select in the modal
-      const issueTypeSelect = document.getElementById('fieldIssueTypeSelect');
-      issueTypeSelect.innerHTML = '<option value="">All Issue Types (Global)</option>';
-      const issueTypeItems = loadItems(getStorageKey('issueTypes')) || [];
-      issueTypeItems.forEach(item => {
-        const option = document.createElement('option');
-        option.value = item.value;
-        option.textContent = `${item.alias} (${item.value})`;
-        issueTypeSelect.appendChild(option);
-      });
-    }
-
-    function refreshIssueTypesListInModal() {
-      const issueTypes = loadItems(getStorageKey('issueTypes')) || [];
-      const list = document.getElementById('issueTypesListInModal');
-      
-      if (issueTypes.length === 0) {
-        list.innerHTML = '<p style="color:#999;text-align:center;padding:12px;margin:0;font-size:0.9em;">No issue types yet. Add one above.</p>';
-        return;
-      }
-      
-      let html = '';
-      issueTypes.forEach(it => {
-        html += `
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:8px;background:#fff;margin-bottom:4px;border-radius:4px;border:1px solid #dee2e6;">
-            <div style="font-size:0.9em;">
-              <strong>${it.alias}</strong> <span style="color:#666;">• ${it.value}</span>
-            </div>
-            <button onclick="deleteIssueTypeFromModal('${it.id}')" style="background:#e74c3c;color:#fff;border:none;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:0.8em;">Delete</button>
-          </div>
-        `;
-      });
-      
-      list.innerHTML = html;
-    }
-
-    function deleteIssueTypeFromModal(itId) {
-      if (!confirm('Delete this issue type?')) return;
-      
-      const issueTypes = loadItems(getStorageKey('issueTypes')) || [];
-      const filtered = issueTypes.filter(it => it.id !== itId);
-      saveItems(getStorageKey('issueTypes'), filtered);
-      
-      refreshIssueTypesListInModal();
-      populateIssueTypeDropdown();
-      
-      // Refresh the issue type select in the modal
-      const issueTypeSelect = document.getElementById('fieldIssueTypeSelect');
-      issueTypeSelect.innerHTML = '<option value="">All Issue Types (Global)</option>';
-      const issueTypeItems = loadItems(getStorageKey('issueTypes')) || [];
-      issueTypeItems.forEach(item => {
-        const option = document.createElement('option');
-        option.value = item.value;
-        option.textContent = `${item.alias} (${item.value})`;
-        issueTypeSelect.appendChild(option);
-      });
     }
 
     // ========================================================================
@@ -2913,48 +1833,16 @@
       let mergedCount = 0;
       
       groups.forEach(group => {
-        // Analyze instances to pick the best field type and merge options
-        const fieldTypes = new Set(group.instances.map(i => i.fieldType || 'text'));
-        const hasCombobox = fieldTypes.has('combobox');
-        
-        // Pick the most feature-rich field type (combobox > text)
-        const finalFieldType = hasCombobox ? 'combobox' : Array.from(fieldTypes)[0];
-        
-        // Use existing global instance as template, or first instance
-        const template = group.instances.find(i => !i.issueTypeId) || group.instances[0];
-        
-        // Build clean global field explicitly (don't use spread to avoid copying unwanted properties)
-        const globalField = {
-          id: template.id,
-          label: template.label,
-          fieldType: finalFieldType,
-          required: group.instances.some(i => i.required), // Most permissive
-          appType: template.appType
+        // Keep one global instance (or create it)
+        const globalField = group.instances.find(i => !i.issueTypeId) || {
+          ...group.instances[0],
+          issueTypeId: undefined,
+          tableNameId: undefined
         };
         
-        // Add baseUrlId if it exists
-        if (template.baseUrlId) {
-          globalField.baseUrlId = template.baseUrlId;
-        }
-        
-        // Merge options only if final type is combobox
-        if (finalFieldType === 'combobox') {
-          const optionsMap = new Map();
-          group.instances.forEach(inst => {
-            if (inst.options && Array.isArray(inst.options)) {
-              inst.options.forEach(opt => {
-                const key = `${opt.value}|${opt.label}`;
-                if (!optionsMap.has(key)) {
-                  optionsMap.set(key, opt);
-                }
-              });
-            }
-          });
-          if (optionsMap.size > 0) {
-            globalField.options = Array.from(optionsMap.values());
-          }
-        }
-        // Don't add options property at all if not combobox
+        // Remove issueTypeId to make it global
+        delete globalField.issueTypeId;
+        delete globalField.tableNameId;
         
         // Remove all instances of this field
         const filtered = allFields.filter(f => f.id !== group.fieldId);
@@ -2999,48 +1887,37 @@
       let mergedCount = 0;
       
       groups.forEach(group => {
-        // Analyze instances to pick the best field type
-        const fieldTypes = new Set(group.instances.map(i => i.fieldType || 'text'));
-        const hasCombobox = fieldTypes.has('combobox');
-        
-        // Pick the most feature-rich field type (combobox > text)
-        const finalFieldType = hasCombobox ? 'combobox' : Array.from(fieldTypes)[0];
-        
-        // Build clean merged field explicitly (don't use spread)
-        const template = group.instances[0];
+        // Create merged field with array of issue type IDs
         const mergedField = {
-          id: template.id,
-          label: template.label,
-          fieldType: finalFieldType,
+          ...group.instances[0],
           issueTypeId: group.issueTypes, // Array of all issue type IDs
-          issueTypeLabel: group.issueTypeLabels.join(', '), // Combined labels for display
-          required: group.instances.some(i => i.required), // Most permissive
-          appType: template.appType
+          issueTypeLabel: group.issueTypeLabels.join(', ') // Combined labels for display
         };
         
-        // Add baseUrlId if it exists
-        if (template.baseUrlId) {
-          mergedField.baseUrlId = template.baseUrlId;
-        }
+        // Keep the most permissive settings
+        mergedField.required = group.instances.some(i => i.required);
         
-        // Merge options only if final type is combobox
-        if (finalFieldType === 'combobox') {
-          const optionsMap = new Map();
+        // Merge options if it's a combobox field
+        if (mergedField.fieldType === 'combobox') {
+          const allOptions = [];
+          const optionKeys = new Set();
+          
           group.instances.forEach(inst => {
             if (inst.options && Array.isArray(inst.options)) {
               inst.options.forEach(opt => {
                 const key = `${opt.value}|${opt.label}`;
-                if (!optionsMap.has(key)) {
-                  optionsMap.set(key, opt);
+                if (!optionKeys.has(key)) {
+                  optionKeys.add(key);
+                  allOptions.push(opt);
                 }
               });
             }
           });
-          if (optionsMap.size > 0) {
-            mergedField.options = Array.from(optionsMap.values());
+          
+          if (allOptions.length > 0) {
+            mergedField.options = allOptions;
           }
         }
-        // Don't add options property at all if not combobox
         
         // Remove all instances of this field with matching baseUrlId
         const filtered = allFields.filter(f => {
@@ -3139,74 +2016,6 @@
       }
     }
 
-    function cleanupFieldDataIntegrity() {
-      if (!confirm('Clean up field data integrity?\n\nThis will:\n- Remove options from non-combobox fields\n- Fix any other data inconsistencies\n\nA backup will be created automatically.')) {
-        return;
-      }
-      
-      try {
-        // Create backup
-        const allFields = loadAllFieldDefinitions();
-        localStorage.setItem('lastFieldCleanupBackup', JSON.stringify(allFields));
-        
-        let fixedCount = 0;
-        const cleaned = allFields.map(field => {
-          let fixed = false;
-          
-          // Build clean field object
-          const cleanField = {
-            id: field.id,
-            label: field.label,
-            fieldType: field.fieldType || 'text'
-          };
-          
-          // Preserve valid properties
-          if (field.appType) cleanField.appType = field.appType;
-          if (field.baseUrlId) cleanField.baseUrlId = field.baseUrlId;
-          if (field.issueTypeId) cleanField.issueTypeId = field.issueTypeId;
-          if (field.issueTypeLabel) cleanField.issueTypeLabel = field.issueTypeLabel;
-          if (field.tableNameId) cleanField.tableNameId = field.tableNameId;
-          if (field.required) cleanField.required = field.required;
-          if (field.ignored) cleanField.ignored = field.ignored;
-          
-          // Only add options if field type is combobox
-          if (cleanField.fieldType === 'combobox') {
-            if (field.options && Array.isArray(field.options) && field.options.length > 0) {
-              cleanField.options = field.options;
-            }
-          } else {
-            // Check if we're removing options (means field was corrupted)
-            if (field.options && Array.isArray(field.options) && field.options.length > 0) {
-              fixed = true;
-            }
-          }
-          
-          if (fixed) fixedCount++;
-          return cleanField;
-        });
-        
-        // Save cleaned data
-        localStorage.setItem(getStorageKey('fieldDefinitions'), JSON.stringify(cleaned));
-        
-        if (fixedCount > 0) {
-          showNotification(`✓ Cleaned ${fixedCount} field(s) with data integrity issues`, 'success');
-        } else {
-          showNotification('✓ No integrity issues found - all fields are clean!', 'success');
-        }
-        
-        // Refresh displays
-        const newAnalysis = analyzeFieldDuplicates();
-        refreshOptimizationList(newAnalysis);
-        document.getElementById('optimizationStats').textContent = 
-          `Found ${newAnalysis.totalGroups} duplicate groups, ${newAnalysis.recommended} recommended for merging`;
-        refreshFieldsList();
-        loadFieldsManagement(); // Refresh Config Management
-        
-      } catch (e) {
-        alert('Error cleaning up fields: ' + e.message);
-      }
-    }
-
     function editFieldDefinition(index) {
       const definitions = loadFieldDefinitions();
       const def = definitions[index];
@@ -3219,7 +2028,6 @@
       document.getElementById('fieldTypeSelect').value = def.fieldType || 'text';
       document.getElementById('fieldBaseUrlSelect').value = def.baseUrlId || '';
       document.getElementById('fieldIssueTypeSelect').value = def.issueTypeId || def.tableNameId || '';
-      document.getElementById('fieldRequiredCheckbox').checked = def.required || false;
       currentComboboxOptions = def.options || [];
       toggleFieldTypeOptions();
       document.getElementById('fieldLabelInput').focus();
@@ -3241,7 +2049,6 @@
       document.getElementById('fieldTypeSelect').value = 'text';
       document.getElementById('fieldBaseUrlSelect').value = '';
       document.getElementById('fieldIssueTypeSelect').value = '';
-      document.getElementById('fieldRequiredCheckbox').checked = false;
       toggleFieldTypeOptions();
       const addBtn = document.getElementById('addFieldBtn');
       const cancelBtn = document.getElementById('cancelEditFieldBtn');
@@ -3296,7 +2103,6 @@
 
       currentComboboxOptions.forEach((opt, index) => {
         const row = document.createElement('div');
-        row.className = 'combobox-option-row';
         row.style.cssText = 'display:flex;gap:8px;align-items:center;padding:4px;border-bottom:1px solid #ddd;';
         
         const info = document.createElement('div');
@@ -3430,7 +2236,6 @@
 
       // Add "Select All" checkbox
       const selectAllRow = document.createElement('div');
-      selectAllRow.className = 'select-all-row';
       selectAllRow.style.cssText = 'display:flex;gap:8px;align-items:center;padding:8px;border-bottom:2px solid #3498db;background:#f8f9fa;';
       selectAllRow.innerHTML = `
         <input type="checkbox" id="selectAllFieldsCheckbox" onchange="toggleSelectAllFields(this.checked)" style="cursor:pointer;">
@@ -3653,7 +2458,6 @@
       const fieldType = document.getElementById('fieldTypeSelect').value;
       const baseUrlId = document.getElementById('fieldBaseUrlSelect').value;
       const issueTypeId = document.getElementById('fieldIssueTypeSelect').value;
-      const isRequired = document.getElementById('fieldRequiredCheckbox').checked;
 
       if (!fieldId || !fieldLabel) {
         alert('Please enter both ID and Label');
@@ -3691,8 +2495,7 @@
             category: 'custom',
             fieldType: fieldType,
             baseUrlId: baseUrlId,
-            issueTypeId: issueTypeId,
-            required: isRequired
+            issueTypeId: issueTypeId
           };
 
           if (fieldType === 'combobox') {
@@ -3901,20 +2704,8 @@
         };
 
         if (description) preset.description = description;
-        
-        // Always save baseUrl and issueType (not just when locked)
-        if (baseUrl) preset.baseUrl = baseUrl;
-        if (issueType) preset.issueType = issueType;
-        
-        // For Jira, also save projectId
-        if (currentAppType === 'jira') {
-          const projectId = document.getElementById('projectId').value.trim();
-          if (projectId) preset.projectId = projectId;
-        }
-        
-        // Store lock states
-        preset.lockBaseUrl = lockBaseUrl;
-        preset.lockIssueType = lockIssueType;
+        if (lockBaseUrl && baseUrl) preset.baseUrl = baseUrl;
+        if (lockIssueType && issueType) preset.issueType = issueType;
 
         saveConfigurationPreset(preset);
 
@@ -3958,23 +2749,14 @@
         // Populate form
         document.getElementById('baseUrl').value = formData.baseUrl;
         document.getElementById('issueType').value = formData.issueType;
-        
-        // For Jira, also restore projectId
-        if (currentAppType === 'jira' && formData.projectId) {
-          document.getElementById('projectId').value = formData.projectId;
-        }
 
         // Add fields
-        if (!formData.fields || !Array.isArray(formData.fields)) {
-          formData.fields = [];
-        }
         formData.fields.forEach(f => addField(f));
 
         saveState();
         select.value = ''; // Reset dropdown
         alert('Preset loaded successfully!');
       } catch (e) {
-        console.error('Error loading preset:', e);
         alert('Error loading preset: ' + e.message);
         select.value = '';
       }
@@ -3987,7 +2769,6 @@
       return {
         baseUrl: preset.baseUrl || '',
         issueType: preset.issueType || preset.tableName || '',
-        projectId: preset.projectId || '',
         fields: preset.fields || []
       };
     }
@@ -4013,11 +2794,6 @@
       // Load the preset into the form
       document.getElementById('baseUrl').value = preset.baseUrl || '';
       document.getElementById('issueType').value = preset.issueType || preset.tableName || '';
-      
-      // For Jira, also restore projectId
-      if (currentAppType === 'jira' && preset.projectId) {
-        document.getElementById('projectId').value = preset.projectId;
-      }
 
       // Clear existing fields
       document.getElementById('fields').innerHTML = '';
@@ -4097,41 +2873,13 @@
     }
 
     // Copy link to clipboard
-    // Copy link to clipboard
-    function copyToClipboard(text) {
-      navigator.clipboard.writeText(text).then(() => {
-        // Success - handled by UI already
-      }).catch(err => {
-        console.error('Failed to copy:', err);
-        alert('Failed to copy link to clipboard');
-      });
-    }
-
     function copyLink() {
       const link = document.getElementById('link').textContent;
-      copyToClipboard(link);
-      
-      // Update button feedback
-      const btn = event.target.closest('button');
-      if (btn) {
-        const originalHTML = btn.innerHTML;
-        btn.innerHTML = '<i class="bi bi-check-circle"></i> Copied!';
-        setTimeout(() => btn.innerHTML = originalHTML, 1200);
-      }
-    }
-    
-    // Toggle link details expansion
-    function toggleLinkDisplay() {
-      const details = document.getElementById('linkDetails');
-      const icon = document.getElementById('expandIcon');
-      
-      if (details.style.display === 'none') {
-        details.style.display = 'block';
-        icon.className = 'bi bi-chevron-up';
-      } else {
-        details.style.display = 'none';
-        icon.className = 'bi bi-chevron-down';
-      }
+      navigator.clipboard.writeText(link).then(() => {
+        const btn = document.querySelector('.copy-btn');
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy', 1200);
+      });
     }
 
     // ========================================================================
@@ -4843,20 +3591,6 @@
         try {
           const config = JSON.parse(e.target.result);
 
-          // Handle field-only arrays from Field Picker (backwards compatibility)
-          if (Array.isArray(config)) {
-            // Convert to full config structure
-            const wrappedConfig = {
-              version: '1.0',
-              fieldDefinitions: config,
-              configItems: [],
-              baseUrls: [],
-              issueTypes: []
-            };
-            showImportPreview(wrappedConfig);
-            return;
-          }
-
           // Validate config structure
           if (!config.version) {
             throw new Error('Invalid configuration file: missing version');
@@ -5438,9 +4172,6 @@
       const modal = document.getElementById('configManagementModal');
       if (!modal) return;
       
-      // Populate dropdowns in the form
-      populateConfigFieldSelects();
-      
       modal.style.display = 'block';
       showConfigTab('fields'); // Show fields tab by default
     }
@@ -5449,205 +4180,6 @@
       const modal = document.getElementById('configManagementModal');
       if (!modal) return;
       modal.style.display = 'none';
-      cancelConfigFieldEdit();
-    }
-
-    function populateConfigFieldSelects() {
-      // Populate Base URL select
-      const baseUrlSelect = document.getElementById('configFieldBaseUrlSelect');
-      baseUrlSelect.innerHTML = '<option value="">All Instances</option>';
-      const baseUrls = loadItems(getStorageKey('baseUrls')) || [];
-      baseUrls.forEach(url => {
-        const option = document.createElement('option');
-        option.value = url.id;
-        option.textContent = `${url.alias} (${url.value})`;
-        baseUrlSelect.appendChild(option);
-      });
-      
-      // Populate Issue Type select
-      const issueTypeSelect = document.getElementById('configFieldIssueTypeSelect');
-      issueTypeSelect.innerHTML = '<option value="">All Issue Types</option>';
-      const issueTypes = loadItems(getStorageKey('issueTypes')) || [];
-      issueTypes.forEach(it => {
-        const option = document.createElement('option');
-        option.value = it.value;
-        option.textContent = `${it.alias} (${it.value})`;
-        issueTypeSelect.appendChild(option);
-      });
-    }
-
-    let editingConfigFieldId = null;
-    let configComboboxOptions = [];
-
-    function toggleConfigFieldOptions() {
-      const fieldType = document.getElementById('configFieldTypeSelect').value;
-      const optionsSection = document.getElementById('configComboboxOptionsSection');
-      optionsSection.style.display = fieldType === 'combobox' ? 'block' : 'none';
-    }
-
-    function addConfigComboboxOption() {
-      const labelInput = document.getElementById('configOptionLabelInput');
-      const valueInput = document.getElementById('configOptionValueInput');
-      
-      const label = labelInput.value.trim();
-      const value = valueInput.value.trim();
-      
-      if (!label || !value) {
-        alert('Please provide both label and value');
-        return;
-      }
-      
-      configComboboxOptions.push({ label, value });
-      labelInput.value = '';
-      valueInput.value = '';
-      
-      renderConfigComboboxOptions();
-    }
-
-    function renderConfigComboboxOptions() {
-      const list = document.getElementById('configComboboxOptionsList');
-      
-      if (configComboboxOptions.length === 0) {
-        list.innerHTML = '<p style="color:#999;text-align:center;padding:8px;margin:0;font-size:0.85em;">No options yet</p>';
-        return;
-      }
-      
-      let html = '';
-      configComboboxOptions.forEach((opt, index) => {
-        html += `
-          <div style="display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:white;margin-bottom:3px;border-radius:3px;border:1px solid #dee2e6;">
-            <span style="font-size:0.85em;"><strong>${opt.label}</strong> = ${opt.value}</span>
-            <button onclick="removeConfigComboboxOption(${index})" style="background:#e74c3c;color:#fff;border:none;border-radius:3px;padding:2px 8px;cursor:pointer;font-size:0.75em;">×</button>
-          </div>
-        `;
-      });
-      
-      list.innerHTML = html;
-    }
-
-    function removeConfigComboboxOption(index) {
-      configComboboxOptions.splice(index, 1);
-      renderConfigComboboxOptions();
-    }
-
-    function editConfigField(fieldId) {
-      const fields = loadFieldDefinitions();
-      const field = fields.find(f => f.id === fieldId);
-      
-      if (!field) {
-        alert('Field not found');
-        return;
-      }
-      
-      // Populate form
-      document.getElementById('configFieldIdInput').value = field.id;
-      document.getElementById('configFieldLabelInput').value = field.label;
-      document.getElementById('configFieldTypeSelect').value = field.fieldType || 'text';
-      document.getElementById('configFieldBaseUrlSelect').value = field.baseUrlId || '';
-      document.getElementById('configFieldIssueTypeSelect').value = field.issueTypeId || '';
-      document.getElementById('configFieldRequiredCheck').checked = field.required || false;
-      
-      // Handle combobox options
-      configComboboxOptions = field.options ? [...field.options] : [];
-      toggleConfigFieldOptions();
-      renderConfigComboboxOptions();
-      
-      // Update UI
-      editingConfigFieldId = fieldId;
-      document.getElementById('configSaveFieldBtn').textContent = 'Update Field';
-      document.getElementById('configCancelFieldBtn').style.display = 'inline-block';
-      
-      // Scroll to form
-      document.querySelector('#configFieldsTab').scrollTop = 0;
-    }
-
-    function cancelConfigFieldEdit() {
-      editingConfigFieldId = null;
-      configComboboxOptions = [];
-      
-      document.getElementById('configFieldIdInput').value = '';
-      document.getElementById('configFieldLabelInput').value = '';
-      document.getElementById('configFieldTypeSelect').value = 'text';
-      document.getElementById('configFieldBaseUrlSelect').value = '';
-      document.getElementById('configFieldIssueTypeSelect').value = '';
-      document.getElementById('configFieldRequiredCheck').checked = false;
-      
-      toggleConfigFieldOptions();
-      renderConfigComboboxOptions();
-      
-      document.getElementById('configSaveFieldBtn').textContent = 'Save Field';
-      document.getElementById('configCancelFieldBtn').style.display = 'none';
-    }
-
-    function saveConfigField() {
-      const fieldId = document.getElementById('configFieldIdInput').value.trim();
-      const label = document.getElementById('configFieldLabelInput').value.trim();
-      const fieldType = document.getElementById('configFieldTypeSelect').value;
-      const baseUrlId = document.getElementById('configFieldBaseUrlSelect').value;
-      const issueTypeId = document.getElementById('configFieldIssueTypeSelect').value;
-      const required = document.getElementById('configFieldRequiredCheck').checked;
-      
-      if (!fieldId || !label) {
-        alert('Please provide Field ID and Label');
-        return;
-      }
-      
-      const fields = loadFieldDefinitions();
-      
-      if (editingConfigFieldId) {
-        // Update existing field
-        const index = fields.findIndex(f => f.id === editingConfigFieldId);
-        if (index >= 0) {
-          const updated = {
-            id: fieldId,
-            label: label,
-            fieldType: fieldType,
-            baseUrlId: baseUrlId || undefined,
-            issueTypeId: issueTypeId || undefined,
-            required: required
-          };
-          
-          // Only add options if fieldType is combobox
-          if (fieldType === 'combobox' && configComboboxOptions.length > 0) {
-            updated.options = configComboboxOptions;
-          }
-          // Explicitly don't copy old options if field type changed from combobox
-          
-          // Preserve appType if it exists
-          if (fields[index].appType) {
-            updated.appType = fields[index].appType;
-          }
-          
-          fields[index] = updated;
-        }
-      } else {
-        // Add new field
-        const newField = {
-          id: fieldId,
-          label: label,
-          fieldType: fieldType,
-          required: required
-        };
-        
-        if (baseUrlId) newField.baseUrlId = baseUrlId;
-        if (issueTypeId) newField.issueTypeId = issueTypeId;
-        if (fieldType === 'combobox') newField.options = configComboboxOptions;
-        
-        // Get appType from body
-        const isJira = document.body.classList.contains('app-jira');
-        const isServiceNow = document.body.classList.contains('app-servicenow');
-        if (isJira) newField.appType = 'jira';
-        if (isServiceNow) newField.appType = 'servicenow';
-        
-        fields.push(newField);
-      }
-      
-      saveFieldDefinitions(fields);
-      updateAllFieldSelects();
-      loadFieldsManagement();
-      cancelConfigFieldEdit();
-      
-      alert(editingConfigFieldId ? 'Field updated successfully!' : 'Field added successfully!');
     }
 
     function showConfigTab(tabName) {
@@ -5695,25 +4227,11 @@
       summary.textContent = `Total: ${fields.length} fields (${dropdownCount} dropdowns)`;
       
       // Group by issue type
-      const issueTypeDefs = loadItems(getStorageKey('issueTypes')) || [];
       const grouped = {};
       fields.forEach(field => {
-        let issueTypeLabel;
-        
-        if (field.issueTypeLabel) {
-          // Use existing label (for merged fields)
-          issueTypeLabel = field.issueTypeLabel;
-        } else if (!field.issueTypeId) {
-          // No issueTypeId = global field
-          issueTypeLabel = 'All Issue Types';
-        } else {
-          // Look up the label for this issueTypeId
-          const issueTypeDef = issueTypeDefs.find(it => it.id === field.issueTypeId);
-          issueTypeLabel = issueTypeDef ? issueTypeDef.name : field.issueTypeId;
-        }
-        
-        if (!grouped[issueTypeLabel]) grouped[issueTypeLabel] = [];
-        grouped[issueTypeLabel].push(field);
+        const issueType = field.issueType || field.issueTypeLabel || '(No Issue Type)';
+        if (!grouped[issueType]) grouped[issueType] = [];
+        grouped[issueType].push(field);
       });
       
       let html = '';
@@ -5729,17 +4247,13 @@
         `;
         
         fieldsInType.forEach(field => {
-          const optionsInfo = (field.fieldType === 'combobox' && field.options) ? ` <span style="color:#6c757d;">(${field.options.length} options)</span>` : '';
-          const requiredBadge = field.required ? '<span style="background:#e74c3c;color:white;padding:2px 6px;border-radius:3px;font-size:0.75em;margin-left:8px;">REQUIRED</span>' : '';
+          const optionsInfo = field.options ? ` <span style="color:#6c757d;">(${field.options.length} options)</span>` : '';
           html += `
             <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:white;margin-bottom:4px;border-radius:4px;">
-              <div style="flex:1;">
-                <strong>${field.label}</strong>${requiredBadge} <span style="color:#999;font-size:0.85em;">${field.id}</span>${optionsInfo}
+              <div>
+                <strong>${field.label}</strong> <span style="color:#999;font-size:0.85em;">${field.id}</span>${optionsInfo}
               </div>
-              <div style="display:flex;gap:6px;">
-                <button onclick="editConfigField('${field.id.replace(/'/g, "\\\'")}')" style="background:#3498db;color:#fff;border:none;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:11px;">Edit</button>
-                <button onclick="deleteField('${field.id.replace(/'/g, "\\\'")}')" style="background:#6c757d;color:#fff;border:none;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:11px;">Delete</button>
-              </div>
+              <button onclick="deleteField('${field.id}')" style="background:#6c757d;color:#fff;border:none;border-radius:4px;padding:4px 10px;cursor:pointer;font-size:11px;">Delete</button>
             </div>
           `;
         });
@@ -5948,75 +4462,23 @@
     }
 
     function openImportModal() {
-      const modal = document.getElementById('importModal');
-      modal.style.display = 'flex';
-      // Reset to file tab
-      switchImportTab('file');
-    }
-
-    function closeImportModal() {
-      const modal = document.getElementById('importModal');
-      modal.style.display = 'none';
-      // Clear inputs
-      document.getElementById('importFileInput').value = '';
-      document.getElementById('importJsonTextarea').value = '';
-    }
-
-    function switchImportTab(tab) {
-      const fileTab = document.getElementById('importFileTab');
-      const pasteTab = document.getElementById('importPasteTab');
-      const fileTabBtn = document.getElementById('importFileTabBtn');
-      const pasteTabBtn = document.getElementById('importPasteTabBtn');
-      
-      if (tab === 'file') {
-        fileTab.style.display = 'block';
-        pasteTab.style.display = 'none';
-        fileTabBtn.style.borderBottom = '3px solid #3498db';
-        pasteTabBtn.style.borderBottom = '3px solid transparent';
-      } else {
-        fileTab.style.display = 'none';
-        pasteTab.style.display = 'block';
-        fileTabBtn.style.borderBottom = '3px solid transparent';
-        pasteTabBtn.style.borderBottom = '3px solid #3498db';
-      }
-    }
-
-    function handleFileImport(event) {
-      const files = Array.from(event.target.files);
-      if (files.length > 0) {
-        closeImportModal();
-        if (files.length === 1) {
-          importConfiguration(files[0]);
-        } else {
-          importMultipleConfigurations(files);
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = '.json';
+      input.multiple = true; // Allow multiple file selection
+      input.onchange = function(e) {
+        const files = Array.from(e.target.files);
+        if (files.length > 0) {
+          if (files.length === 1) {
+            // Single file import - use existing logic
+            importConfiguration(files[0]);
+          } else {
+            // Multiple files - merge them first
+            importMultipleConfigurations(files);
+          }
         }
-      }
-    }
-
-    function clearImportJson() {
-      document.getElementById('importJsonTextarea').value = '';
-    }
-
-    function importFromPastedJson() {
-      const jsonText = document.getElementById('importJsonTextarea').value.trim();
-      
-      if (!jsonText) {
-        alert('Please paste JSON configuration first');
-        return;
-      }
-      
-      try {
-        const config = JSON.parse(jsonText);
-        closeImportModal();
-        
-        // Create a mock file object to use existing import logic
-        const blob = new Blob([jsonText], { type: 'application/json' });
-        const file = new File([blob], 'pasted-config.json', { type: 'application/json' });
-        
-        importConfiguration(file);
-      } catch (err) {
-        alert('Invalid JSON: ' + err.message);
-      }
+      };
+      input.click();
     }
 
     async function importMultipleConfigurations(files) {
@@ -6800,16 +5262,19 @@
 
     function openFieldPickerModal() {
       const modal = document.getElementById('fieldPickerModal');
-      if (!modal) return;
+      if (!modal) {
+        console.error('fieldPickerModal not found');
+        return;
+      }
       
-      modal.style.display = 'block';
-      
-      // Generate the bookmarklet code
-      const bookmarkletCode = generateFieldPickerBookmarklet();
+      // Set the bookmarklet href dynamically
       const bookmarkletLink = document.getElementById('fieldPickerBookmarklet');
       if (bookmarkletLink) {
-        bookmarkletLink.href = bookmarkletCode;
+        const bookmarkletCode = generateFieldPickerBookmarklet();
+        bookmarkletLink.href = 'javascript:' + encodeURIComponent(bookmarkletCode);
       }
+      
+      modal.style.display = 'flex';
     }
 
     function closeFieldPickerModal() {
@@ -6819,14 +5284,11 @@
     }
 
     function generateFieldPickerBookmarklet() {
-      return `javascript:(function(){if(window.fpMS){alert('Already active!');return;}var w=window.fpMS={f:[],a:0};var eh=function(t){var d=document.createElement('div');d.textContent=t;return d.innerHTML;};var p=document.createElement('div');p.id='fpP';p.style.cssText='position:fixed;top:0;right:0;width:400px;height:100vh;background:white;box-shadow:-4px 0 12px rgba(0,0,0,0.3);z-index:999999;display:flex;flex-direction:column;font-family:Arial,sans-serif';p.innerHTML='<div style="background:linear-gradient(135deg,#667eea,#764ba2);padding:20px;color:white"><div style="display:flex;justify-content:space-between;align-items:center"><div><h2 style="margin:0;font-size:20px">🎯 Field Picker</h2><p style="margin:8px 0 0;font-size:13px;opacity:0.9">Multi-select field picker</p></div><button id="fpX" style="background:rgba(255,255,255,0.2);border:none;color:white;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:24px;line-height:1;padding:0">&times;</button></div></div><div style="padding:16px;background:#f8f9fa;border-bottom:2px solid #e2e8f0"><button id="fpA" style="width:100%;background:linear-gradient(135deg,#667eea,#764ba2);color:white;border:none;padding:14px;border-radius:8px;cursor:pointer;font-weight:600">🚀 Activate</button></div><div style="flex:1;overflow-y:auto;padding:16px"><div style="font-weight:600;margin-bottom:12px">Selected: <span id="fpC">0</span></div><div id="fpL"><div style="text-align:center;padding:40px 20px;color:#7f8c8d"><div style="font-size:48px;margin-bottom:12px">📋</div><div>No fields</div></div></div></div><div style="padding:16px;border-top:2px solid #e2e8f0;background:#f8f9fa;display:flex;gap:8px"><button id="fpJ" disabled style="flex:1;background:#3498db;color:white;border:none;padding:14px;border-radius:8px;cursor:pointer;font-weight:600;opacity:0.5">📋 Copy JSON</button><button id="fpS" disabled style="flex:1;background:#27ae60;color:white;border:none;padding:14px;border-radius:8px;cursor:pointer;font-weight:600;opacity:0.5">💾 Save All</button></div>';document.body.appendChild(p);var b=document.createElement('div');b.id='fpB';b.style.cssText='position:fixed;top:0;left:50%;transform:translateX(-50%);background:#27ae60;color:white;padding:12px 24px;border-radius:0 0 8px 8px;z-index:999998;font-weight:600;display:none';b.textContent='🎯 Active - RIGHT-CLICK fields (ESC to stop)';document.body.appendChild(b);var getOpts=function(f){var opts=[];if(f.tagName==='SELECT'&&f.options){Array.from(f.options).forEach(function(o){if(o.value)opts.push({label:o.textContent.trim(),value:o.value});});}else if(f.tagName==='INPUT'){var par=f.closest('[data-element]')||f.parentElement;var sel=par?par.querySelector('select'):null;if(sel&&sel.options){Array.from(sel.options).forEach(function(o){if(o.value)opts.push({label:o.textContent.trim(),value:o.value});});}if(!opts.length&&f.hasAttribute('list')){var dl=document.getElementById(f.getAttribute('list'));if(dl){var dlopts=dl.querySelectorAll('option');dlopts.forEach(function(o){if(o.value)opts.push({label:o.textContent.trim()||o.value,value:o.value});});}}if(!opts.length){['data-options','data-values','data-recent'].forEach(function(attr){if(f.hasAttribute(attr)){try{var data=JSON.parse(f.getAttribute(attr));if(Array.isArray(data)){data.forEach(function(item){if(typeof item==='string')opts.push({label:item,value:item});else if(item.label&&item.value)opts.push(item);});};}catch(e){}}});}if(!opts.length){var drops=document.querySelectorAll('.select2-results__option, .ac_results li, .sn-popover-basic li, [role="option"]');drops.forEach(function(opt){var txt=opt.textContent.trim();if(txt&&opt.offsetParent!==null)opts.push({label:txt,value:txt});});}}return opts;};var upd=function(){document.getElementById('fpC').textContent=w.f.length;var s=document.getElementById('fpS');var j=document.getElementById('fpJ');s.disabled=w.f.length===0;j.disabled=w.f.length===0;s.style.opacity=w.f.length?'1':'0.5';j.style.opacity=w.f.length?'1':'0.5';var l=document.getElementById('fpL');if(!w.f.length){l.innerHTML='<div style="text-align:center;padding:40px 20px;color:#7f8c8d"><div style="font-size:48px;margin-bottom:12px">📋</div><div>No fields</div></div>';}else{l.innerHTML=w.f.map(function(f,i){var optsInfo=f.fieldType==='combobox'&&f.options&&f.options.length?' <span style="color:#6c757d;">('+f.options.length+' options)</span>':'';return'<div style="background:#f8f9fa;padding:12px;border-radius:8px;margin-bottom:12px;border-left:4px solid #667eea"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><div style="font-weight:600;font-size:14px">'+eh(f.label||f.id)+optsInfo+'</div><button onclick="window.fpMS.rm('+i+')" style="background:#e74c3c;color:white;border:none;padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px">Remove</button></div><div style="font-size:12px;color:#7f8c8d">ID: '+eh(f.id)+' | Type: '+eh(f.fieldType)+'</div></div>';}).join('');}var a=document.getElementById('fpA');if(w.a){a.textContent='⏸️ Active (ESC)';a.style.background='#95a5a6';a.disabled=1;document.body.style.cursor='crosshair';b.style.display='block';}else{a.textContent='🚀 Activate';a.style.background='linear-gradient(135deg,#667eea,#764ba2)';a.disabled=0;document.body.style.cursor='';b.style.display='none';}};w.rm=function(i){w.f.splice(i,1);upd();};var act=function(){if(w.a)return;w.a=1;upd();};var deact=function(){if(!w.a)return;w.a=0;upd();};var close=function(){if(w.f.length&&!confirm('Close without saving? '+w.f.length+' field(s) will be lost.'))return;p.remove();b.remove();document.removeEventListener('contextmenu',rclk,true);document.removeEventListener('mouseover',hov,true);document.removeEventListener('mouseout',hovout,true);document.removeEventListener('keydown',esc);document.body.style.cursor='';delete window.fpMS;};var rclk=function(e){if(!w.a||e.target.closest('#fpP')||e.target.closest('#fpB'))return;var f=e.target.matches('input,select,textarea')?e.target:e.target.closest('input,select,textarea');if(!f)return;e.preventDefault();e.stopPropagation();var id=f.id||f.name||f.getAttribute('aria-labelledby')||f.getAttribute('data-element');if(!id){alert('No ID found!');return;}if(w.f.some(function(x){return x.id===id})){var o=f.style.background;f.style.background='#e74c3c';setTimeout(function(){f.style.background=o;},300);return;}var lbl=id;var al=f.getAttribute('aria-labelledby');if(al){var le=document.getElementById(al);if(le)lbl=le.textContent.trim();}else{var lf=document.querySelector('label[for="'+f.id+'"]');if(lf)lbl=lf.textContent.trim();}lbl=lbl.replace(/[*:]/g,'').replace(/\\\\s*(Required|Mandatory)\\\\s*/gi,'').trim();var ft='text';var opts=getOpts(f);if(f.tagName==='SELECT'||opts.length>0)ft='combobox';else if(f.tagName==='TEXTAREA')ft='text';else if(f.type)ft=f.type;var req=f.required||f.getAttribute('aria-required')==='true'||f.getAttribute('mandatory')==='true';w.f.push({id:id,label:lbl,fieldType:ft,required:req,options:opts});var o=f.style.background;f.style.background='#27ae60';setTimeout(function(){f.style.background=o;},300);upd();};var hov=function(e){if(!w.a||e.target.closest('#fpP')||e.target.closest('#fpB'))return;var f=e.target.matches('input,select,textarea')?e.target:e.target.closest('input,select,textarea');if(f)f.style.outline='2px solid #3498db';};var hovout=function(e){if(!w.a)return;var f=e.target.matches('input,select,textarea')?e.target:e.target.closest('input,select,textarea');if(f)f.style.outline='';};var esc=function(e){if(e.key==='Escape')deact();};document.addEventListener('contextmenu',rclk,true);document.addEventListener('mouseover',hov,true);document.addEventListener('mouseout',hovout,true);document.addEventListener('keydown',esc);document.getElementById('fpA').onclick=act;document.getElementById('fpX').onclick=close;document.getElementById('fpJ').onclick=function(){if(!w.f.length){alert('No fields!');return;}var json=JSON.stringify(w.f,null,2);navigator.clipboard.writeText(json).then(function(){var btn=document.getElementById('fpJ');var orig=btn.textContent;btn.textContent='✓ Copied!';setTimeout(function(){btn.textContent=orig;},2000);}).catch(function(){alert('Copy failed! Check console.');console.log(json);});};document.getElementById('fpS').onclick=function(){if(!w.f.length){alert('No fields!');return;}localStorage.setItem('jiraLinkGen_pendingFieldImport',JSON.stringify({timestamp:Date.now(),fields:w.f}));alert('✅ Saved '+w.f.length+' fields!\\\\n\\\\nGo back to Link Generator tab.');w.f=[];upd();deact();};upd();})();`;
+      return `(function(){if(window.fieldPickerActive){alert('Field Picker is already active!');return;}window.fieldPickerActive=true;const escapeHtml=(text)=>{const div=document.createElement('div');div.textContent=text;return div.innerHTML;};let banner=document.createElement('div');banner.id='fpBanner';banner.style.cssText='position:fixed;top:0;left:50%;transform:translateX(-50%);background:#27ae60;color:white;padding:12px 24px;border-radius:0 0 8px 8px;z-index:999998;font-family:Arial,sans-serif;font-size:14px;box-shadow:0 2px 8px rgba(0,0,0,0.3);pointer-events:none;';banner.textContent='🎯 Field Picker Active - Click any field to inspect (ESC to exit)';document.body.appendChild(banner);document.body.style.cursor='crosshair';const handleClick=(e)=>{const field=e.target.matches('input,select,textarea')?e.target:e.target.closest('input,select,textarea');if(!field)return;e.preventDefault();e.stopPropagation();const fieldId=field.id||field.name;const fieldName=field.name;const currentValue=field.value;let label=fieldId;const ariaLabelledBy=field.getAttribute('aria-labelledby');if(ariaLabelledBy){const labelEl=document.getElementById(ariaLabelledBy);if(labelEl)label=labelEl.textContent.trim();}else{const labelFor=document.querySelector(\`label[for="\${field.id}"]\`);if(labelFor)label=labelFor.textContent.trim();}label=label.replace(/[*:]/g,'').trim();label=label.replace(/\\s+(Required|Mandatory)[\\s.,;:!?]*$/gi,'').trim();label=label.replace(/\\s+(Required|Mandatory)\\b/gi,'').trim();let fieldType='text';if(field.tagName==='SELECT')fieldType='combobox';else if(field.tagName==='TEXTAREA')fieldType='text';const isRequired=field.required||field.getAttribute('aria-required')==='true'||field.hasAttribute('required');let options=[];let optionCount=0;if(fieldType==='combobox'&&field.options){Array.from(field.options).forEach(opt=>{if(opt.value){options.push({label:opt.textContent.trim(),value:opt.value});}});optionCount=options.length;}showModal({id:fieldId,name:fieldName,label:label,fieldType:fieldType,required:isRequired,currentValue:currentValue,options:options,optionCount:optionCount});};const handleHover=(e)=>{const field=e.target.matches('input,select,textarea')?e.target:e.target.closest('input,select,textarea');if(field&&!field.closest('#fpModal')){field.style.outline='2px solid #3498db';}};const handleHoverOut=(e)=>{const field=e.target.matches('input,select,textarea')?e.target:e.target.closest('input,select,textarea');if(field){field.style.outline='';}};const handleEscape=(e)=>{if(e.key==='Escape'){deactivate();}};const showModal=(meta)=>{let modal=document.getElementById('fpModal');if(modal)modal.remove();let backdrop=document.getElementById('fpBackdrop');if(!backdrop){backdrop=document.createElement('div');backdrop.id='fpBackdrop';backdrop.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.7);z-index:999999;display:flex;align-items:center;justify-content:center;';document.body.appendChild(backdrop);}modal=document.createElement('div');modal.id='fpModal';modal.style.cssText='background:white;border-radius:12px;padding:24px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;box-shadow:0 10px 40px rgba(0,0,0,0.3);font-family:Arial,sans-serif;position:relative;';const showAllOptions=meta.optionCount>0&&meta.optionCount<50;const hasLargeDropdown=meta.optionCount>=50;let html=\`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><h3 style="margin:0;color:#2c3e50;">🎯 Field Details</h3><button id="fpCloseBtn" style="background:none;border:none;font-size:24px;cursor:pointer;color:#95a5a6;">&times;</button></div><div style="margin-bottom:12px;"><strong>Field ID:</strong> <code style="background:#ecf0f1;padding:2px 6px;border-radius:3px;">\${escapeHtml(meta.id)}</code> <button class="fpCopyBtn" data-copy="\${escapeHtml(meta.id)}" style="margin-left:8px;background:#3498db;color:white;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px;">Copy</button></div><div style="margin-bottom:12px;"><strong>Label:</strong> \${escapeHtml(meta.label)} <button class="fpCopyBtn" data-copy="\${escapeHtml(meta.label)}" style="margin-left:8px;background:#3498db;color:white;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px;">Copy</button></div><div style="margin-bottom:12px;"><strong>Type:</strong> \${meta.fieldType}</div><div style="margin-bottom:12px;"><strong>Required:</strong> \${meta.required?'Yes ⚠️':'No'}</div>\`;if(meta.currentValue){html+=\`<div style="margin-bottom:12px;"><strong>Current Value:</strong> <span style="color:#27ae60;">\${escapeHtml(meta.currentValue)}</span></div>\`;}if(showAllOptions){html+=\`<div style="margin-bottom:12px;"><strong>Options (\${meta.optionCount}):</strong> <button class="fpCopyBtn" data-copy='\${JSON.stringify(meta.options)}' style="margin-left:8px;background:#3498db;color:white;border:none;padding:4px 12px;border-radius:4px;cursor:pointer;font-size:12px;">Copy</button><ul style="margin:8px 0;padding-left:20px;max-height:200px;overflow-y:auto;">\`;meta.options.forEach(opt=>{html+=\`<li>\${escapeHtml(opt.label)} <span style="color:#7f8c8d;">(value: \${escapeHtml(opt.value)})</span></li>\`;});html+=\`</ul></div>\`;}else if(hasLargeDropdown){html+=\`<div style="margin-bottom:12px;padding:12px;background:#ecf0f1;border-radius:6px;"><p style="margin:0;color:#7f8c8d;font-size:13px;">ℹ️ This field has \${meta.optionCount.toLocaleString()} options. Current value shown above.</p></div>\`;}html+=\`<div style="text-align:center;margin-top:20px;"><button id="fpCopyJsonBtn" style="background:#27ae60;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;font-size:14px;font-weight:600;">Copy Field as JSON</button></div>\`;modal.innerHTML=html;backdrop.appendChild(modal);document.getElementById('fpCloseBtn').onclick=()=>{modal.remove();backdrop.style.display='none';backdrop.remove();};document.querySelectorAll('.fpCopyBtn').forEach(btn=>{btn.onclick=()=>{const text=btn.getAttribute('data-copy');if(navigator.clipboard){navigator.clipboard.writeText(text);}else{const textarea=document.createElement('textarea');textarea.value=text;document.body.appendChild(textarea);textarea.select();document.execCommand('copy');document.body.removeChild(textarea);}const originalText=btn.textContent;btn.textContent='✓ Copied!';btn.style.background='#27ae60';setTimeout(()=>{btn.textContent=originalText;btn.style.background='#3498db';},1000);};});document.getElementById('fpCopyJsonBtn').onclick=()=>{const json={id:meta.id,label:meta.label,fieldType:meta.fieldType,required:meta.required};if(meta.options.length>0&&meta.options.length<50){json.options=meta.options;}const jsonStr=JSON.stringify(json,null,2);if(navigator.clipboard){navigator.clipboard.writeText(jsonStr);}else{const textarea=document.createElement('textarea');textarea.value=jsonStr;document.body.appendChild(textarea);textarea.select();document.execCommand('copy');document.body.removeChild(textarea);}const btn=document.getElementById('fpCopyJsonBtn');const originalText=btn.textContent;btn.textContent='✓ Copied!';btn.style.background='#27ae60';setTimeout(()=>{btn.textContent=originalText;btn.style.background='#27ae60';},1000);};backdrop.style.display='flex';};const deactivate=()=>{window.fieldPickerActive=false;if(banner)banner.remove();const modal=document.getElementById('fpModal');if(modal)modal.remove();const backdrop=document.getElementById('fpBackdrop');if(backdrop)backdrop.remove();document.body.style.cursor='';document.removeEventListener('click',handleClick,true);document.removeEventListener('keydown',handleEscape,true);document.removeEventListener('mouseover',handleHover,true);document.removeEventListener('mouseout',handleHoverOut,true);};document.addEventListener('click',handleClick,true);document.addEventListener('keydown',handleEscape,true);document.addEventListener('mouseover',handleHover,true);document.addEventListener('mouseout',handleHoverOut,true);})();`;
     }
 
     // Initialize dropdowns and restore state on page load
     window.addEventListener('DOMContentLoaded', () => {
-      // Initialize dark mode
-      initializeDarkMode();
-      
       // Restore app type from storage or default to 'servicenow'
       const savedAppType = localStorage.getItem('linkGenAppType') || 'servicenow';
       switchAppType(savedAppType);
@@ -6835,103 +5297,9 @@
       populateBaseUrlDropdown();
       populateIssueTypeDropdown();
       populateProjectIdDropdown();
-      populatePresetDropdown();
       
       // Don't restore form state - user wants clean slate every time
       // Only app type is remembered (handled above)
-      
-      // Check for pending field import from bookmarklet
-      const STORAGE_KEY = 'jiraLinkGen_pendingFieldImport';
-      const pendingImport = localStorage.getItem(STORAGE_KEY);
-      if (pendingImport) {
-        try {
-          const data = JSON.parse(pendingImport);
-          // Check if import is less than 5 minutes old
-          if (data.timestamp && (Date.now() - data.timestamp < 5 * 60 * 1000)) {
-            const fields = data.fields;
-            if (fields && Array.isArray(fields) && fields.length > 0) {
-              // Add fields to fieldDefinitions
-              const existing = loadFieldDefinitions();
-              fields.forEach(field => {
-                if (!existing.some(f => f.id === field.id)) {
-                  existing.push(field);
-                }
-              });
-              saveFieldDefinitions(existing);
-              updateCustomFieldsTable();
-              
-              // Show success message
-              alert(`✅ Successfully imported ${fields.length} field(s) from Field Picker!\n\nFields are now available in your Config Items dropdown.`);
-            }
-          }
-          // Clear the pending import
-          localStorage.removeItem(STORAGE_KEY);
-        } catch (e) {
-          console.error('Failed to import pending fields:', e);
-          localStorage.removeItem(STORAGE_KEY);
-        }
-      }
-    });
-    
-    // Listen for messages from field picker popup
-    window.addEventListener('message', (event) => {
-      if (event.data.type === 'FIELD_SELECTED') {
-        // A field was selected in the field picker
-        const field = event.data.field;
-        
-        // Add to field definitions if not already present
-        const existing = loadFieldDefinitions();
-        if (!existing.some(f => f.id === field.id)) {
-          existing.push({
-            id: field.id,
-            label: field.label,
-            type: field.fieldType || field.type || 'text',
-            required: field.required || false,
-            options: field.options || []
-          });
-          saveFieldDefinitions(existing);
-          updateCustomFieldsTable();
-          
-          // Show notification
-          const notification = document.createElement('div');
-          notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background: #27ae60;
-            color: white;
-            padding: 16px 24px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-            z-index: 10001;
-            font-weight: 600;
-            animation: slideIn 0.3s ease-out;
-          `;
-          notification.textContent = `✓ Added field: ${field.label}`;
-          document.body.appendChild(notification);
-          setTimeout(() => notification.remove(), 3000);
-        }
-      } else if (event.data.type === 'IMPORT_FIELDS') {
-        const config = event.data.config;
-        
-        // Helper to merge items by ID
-        const mergeItems = (existing, incoming) => {
-          const map = new Map();
-          if (Array.isArray(existing)) existing.forEach(i => map.set(i.id, i));
-          if (Array.isArray(incoming)) incoming.forEach(i => map.set(i.id, i));
-          return Array.from(map.values());
-        };
-        
-        // Import field definitions
-        if (config.fieldDefinitions && Array.isArray(config.fieldDefinitions)) {
-          const existing = loadFieldDefinitions();
-          const updated = mergeItems(existing, config.fieldDefinitions);
-          saveFieldDefinitions(updated);
-          
-          alert(`Successfully imported ${config.fieldDefinitions.length} field definition(s)!\\n\\nReloading page to show new fields...`);
-          window.location.reload();
-        }
-      }
     });
     
     function saveState() {
@@ -6958,9 +5326,5 @@
       }
     }
   </script>
-  
-  
-  <!-- Bootstrap 5 JS Bundle (includes Popper) -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
