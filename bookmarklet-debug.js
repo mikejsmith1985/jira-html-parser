@@ -83,13 +83,13 @@ javascript:(function(){
     if(w.f.length&&!confirm('Close without saving? '+w.f.length+' field(s) will be lost.'))return;
     p.remove();
     b.remove();
-    document.removeEventListener('click',clk,true);
+    document.removeEventListener('mousedown',clk,true);
     document.body.style.cursor='';
     delete window.fpMS;
   };
   
   var clk=function(e){
-    console.log('[FP] Click event fired!', {
+    console.log('[FP] Mousedown event fired!', {
       active: w.a,
       target: e.target,
       tagName: e.target.tagName,
@@ -167,9 +167,9 @@ javascript:(function(){
   };
   
   console.log('[FP] Attaching event listeners...');
-  document.addEventListener('click',clk,true);
+  document.addEventListener('mousedown',clk,true);
   document.addEventListener('keydown',esc);
-  console.log('[FP] Event listeners attached');
+  console.log('[FP] Event listeners attached (mousedown)');
   
   document.getElementById('fpA').onclick=act;
   document.getElementById('fpX').onclick=close;
