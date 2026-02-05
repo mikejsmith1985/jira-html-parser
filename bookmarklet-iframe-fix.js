@@ -96,7 +96,20 @@ javascript:(function(){
     
     var req=f.required||f.getAttribute('aria-required')==='true'||f.getAttribute('mandatory')==='true';
     
-    w.f.push({id:id,label:lbl,fieldType:ft,required:req,options:[]});
+    var opts=[];
+    if(f.tagName==='SELECT'){
+      var options=f.querySelectorAll('option');
+      for(var j=0;j<options.length;j++){
+        var opt=options[j];
+        var val=opt.value;
+        var txt=opt.textContent.trim();
+        if(val||txt){
+          opts.push({label:txt||val,value:val||txt});
+        }
+      }
+    }
+    
+    w.f.push({id:id,label:lbl,fieldType:ft,required:req,options:opts});
     
     var o=f.style.background;
     f.style.background='#27ae60';

@@ -1,0 +1,16 @@
+Open ServiceNow in your browser, press F12, paste this in the console:
+
+// Check if iframes exist and are accessible
+var frames = document.getElementsByTagName('iframe');
+console.log('Found ' + frames.length + ' iframes');
+
+for(var i = 0; i < frames.length; i++) {
+  console.log('Iframe ' + i + ':');
+  console.log('  src:', frames[i].src);
+  try {
+    console.log('  CAN ACCESS - document exists:', !!frames[i].contentDocument);
+    console.log('  Has fields:', frames[i].contentDocument.querySelectorAll('input,select,textarea').length);
+  } catch(e) {
+    console.log('  BLOCKED - Cross-origin:', e.message);
+  }
+}

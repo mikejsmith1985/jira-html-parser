@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Dropdown Options</title>
+</head>
+<body>
+  <h1>Test Field Picker - Dropdown Options</h1>
+  
+  <form>
+    <div>
+      <label for="category">Category</label>
+      <select id="category">
+        <option value="">-- Select --</option>
+        <option value="Hardware">Hardware</option>
+        <option value="Software">Software</option>
+        <option value="Network">Network</option>
+        <option value="Other">Other</option>
+        <option value="Cloud Migration">Cloud Migration</option>
+      </select>
+    </div>
+    
+    <div>
+      <label for="priority">Priority</label>
+      <select id="priority" required>
+        <option value="1">Critical</option>
+        <option value="2">High</option>
+        <option value="3">Medium</option>
+        <option value="4">Low</option>
+      </select>
+    </div>
+    
+    <div>
+      <label for="description">Description</label>
+      <textarea id="description"></textarea>
+    </div>
+  </form>
+  
+  <script>
+    // Load the updated bookmarklet
+    var script = document.createElement('script');
+    script.src = 'bookmarklet-iframe-fix.js';
+    document.body.appendChild(script);
+  </script>
+</body>
+</html>
